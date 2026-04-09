@@ -6,24 +6,36 @@ const PetCard = ({ pet, onBack, onAddTreatment }) => {
 
   const sortedHistory = [...pet.history].sort((a, b) => new Date(b.date) - new Date(a.date));
 
+  const handleExport = () => {
+    window.open(`/?print=${pet.id}`, '_blank');
+  };
+
   return (
     <div className="pet-card fade-in">
-      <button className="btn" onClick={onBack} style={{ marginBottom: '1.5rem', padding: '0.5rem 0' }}>
-        ← Volver al listado
-      </button>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+        <button className="btn" onClick={onBack}>← Volver</button>
+        <button className="btn" onClick={handleExport} style={{ background: 'var(--accent)', color: 'white' }}>
+          📄 Generar Carnet PDF
+        </button>
+      </div>
 
       <div className="glass-card" style={{ padding: '2rem', marginBottom: '2rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', flexWrap: 'wrap', gap: '1rem' }}>
           <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
             <div style={{ 
               width: '100px', height: '100px', borderRadius: '24px', backgroundColor: 'var(--secondary)', 
-              display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2.5rem' 
+              display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2.5rem', overflow: 'hidden'
             }}>
-              {pet.species === 'Perro' ? '🐕' : '🐈'}
+              {pet.customImage ? (
+                <img src={pet.customImage} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              ) : (
+                pet.avatar || '🐾'
+              )}
             </div>
             <div>
               <h2 style={{ fontSize: '2rem', margin: 0 }}>{pet.name}</h2>
               <p style={{ color: 'var(--text-muted)' }}>{pet.species} • {pet.breed} • {pet.gender}</p>
+              <p style={{ fontSize: '0.8rem' }}>Nacido el: <strong>{new Date(pet.birthDate).toLocaleDateString()}</strong></p>
             </div>
           </div>
           <button className="btn btn-primary" onClick={() => setShowForm(!showForm)}>
@@ -60,7 +72,7 @@ const PetCard = ({ pet, onBack, onAddTreatment }) => {
                 <tr key={item.id} style={{ borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
                   <td style={{ padding: '1rem' }}><strong>{new Date(item.date).toLocaleDateString()}</strong></td>
                   <td style={{ padding: '1rem' }}>{item.type}</td>
-                  <td style={{ padding: '1rem' }}>{item.name}</td>
+                  <td style={{ padding: '1rem' }}>{item.name} {item.details && <small style={{ display: 'block', color: 'var(--text-muted)' }}>{item.details}</small>}</td>
                   <td style={{ padding: '1rem' }}>
                     <span className={`status-badge status-ok`}>✅ Realizado</span>
                   </td>

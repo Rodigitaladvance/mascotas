@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
+import AddPetModal from './AddPetModal';
 
-const Dashboard = ({ pets, onSelectPet }) => {
+const Dashboard = ({ pets, onSelectPet, onAddPet }) => {
+  const [showModal, setShowModal] = useState(false);
+
   const getStatus = (history) => {
-    if (!history || history.length === 0) return { label: 'Sin datos', emoji: '❓', class: 'status-pending' };
+    if (!history || history.length === 0) return { label: 'Sin datos', emoji: '❓', class: 'status-pending', days: 999 };
     
-    // Simplificación: consideramos que las vacunas/desparasitación duran 1 año
     const lastDate = new Date(Math.max(...history.map(h => new Date(h.date))));
     const nextEventDate = new Date(lastDate);
     nextEventDate.setFullYear(lastDate.getFullYear() + 1);
@@ -18,10 +20,9 @@ const Dashboard = ({ pets, onSelectPet }) => {
     return { label: 'Al día', emoji: '✅', class: 'status-ok', days: diffDays };
   };
 
-  // Encontrar el evento más cercano en el futuro de todos los animales
   const allStatus = pets.map(p => ({ ...getStatus(p.history), name: p.name }));
   const nextImportant = allStatus
-    .filter(s => s.days > 0)
+    .filter(s => s.days > 0 && s.days < 365)
     .sort((a, b) => a.days - b.days)[0];
 
   return (
@@ -31,14 +32,17 @@ const Dashboard = ({ pets, onSelectPet }) => {
           <h2>Panel de Control Sanitario</h2>
           <p style={{ color: 'var(--text-muted)' }}>Bienvenido. Aquí tienes el estado global de tus mascotas.</p>
         </div>
-        {nextImportant && (
-          <div className="glass-card" style={{ padding: '0.8rem 1.2rem', borderLeft: '4px solid var(--accent)' }}>
-            <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'block', fontWeight: 600 }}>PRÓXIMO EVENTO</span>
-            <strong style={{ fontSize: '1.1rem', color: 'var(--accent)' }}>
-              {nextImportant.emoji} {nextImportant.name}: faltan {nextImportant.days} días
-            </strong>
-          </div>
-        )}
+        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+          {nextImportant && (
+            <div className="glass-card" style={{ padding: '0.8rem 1.2rem', borderLeft: '4px solid var(--accent)' }}>
+              <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'block', fontWeight: 600 }}>PRÓXIMO EVENTO</span>
+              <strong style={{ fontSize: '1.1rem', color: 'var(--accent)' }}>
+                {nextImportant.emoji} {nextImportant.name}: faltan {nextImportant.days} días
+              </strong>
+            </div>
+          )}
+          <button className="btn btn-primary" onClick={() => setShowModal(true)}>+ Añadir Mascota</button>
+        </div>
       </section>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
@@ -64,9 +68,13 @@ const Dashboard = ({ pets, onSelectPet }) => {
                   width: '64px', height: '64px', borderRadius: '18px', 
                   background: 'linear-gradient(135deg, var(--secondary) 0%, #fff 100%)', 
                   display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.8rem',
-                  boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.05)'
+                  boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.05)', overflow: 'hidden'
                 }}>
-                  {pet.species === 'Perro' ? '🐕' : '🐈'}
+                  {pet.customImage ? (
+                    <img src={pet.customImage} alt={pet.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  ) : (
+                    pet.avatar || (pet.species === 'Perro' ? '🐕' : '🐈')
+                  )}
                 </div>
                 <div>
                   <h3 style={{ margin: 0, fontSize: '1.2rem' }}>{pet.name}</h3>
@@ -84,6 +92,8 @@ const Dashboard = ({ pets, onSelectPet }) => {
           );
         })}
       </div>
+
+      {showModal && <AddPetModal onAdd={onAddPet} onClose={() => setShowModal(false)} />}
     </div>
   );
 };
