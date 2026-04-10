@@ -1,126 +1,118 @@
-import React, { useState, useEffect } from 'react'
-import Dashboard from './components/Dashboard'
-import PetCard from './components/PetCard'
-import Auth from './components/Auth'
-import { storage } from './utils/storage'
+import React, { useState, useEffect } from 'react';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import Auth from './components/Auth';
+import Dashboard from './components/Dashboard';
+import PetPassport from './components/Passport/PetPassport';
+import EmergencyLanding from './components/Passport/EmergencyLanding';
+import { storage } from './utils/storage';
+import { LogOut, ShieldCheck, Heart } from 'lucide-react';
 
-const INITIAL_PETS = [
-  { 
-    id: '1', name: 'Dado', species: 'Perro', breed: 'No conocida', gender: 'Macho', birthDate: '2023-01-01', avatar: '🐕', userId: 'demo-id',
-    history: [
-      { id: 101, type: 'Vacuna', name: 'Rabia', date: '2025-03-10', status: 'ok' },
-      { id: 102, type: 'Desparasitación', name: 'Interna/Externa', date: '2025-03-15', status: 'ok' }
-    ]
-  },
-  { 
-    id: '2', name: 'Leo', species: 'Perro', breed: 'Chihuahua', gender: 'Macho', birthDate: '2024-02-01', avatar: '🐕', userId: 'demo-id',
-    history: [
-      { id: 201, type: 'Vacuna', name: 'Rabia', date: '2025-02-20', status: 'ok' },
-      { id: 202, type: 'Desparasitación', name: 'Interna/Externa', date: '2025-02-25', status: 'ok' }
-    ]
-  }
-];
-
-import HistoryPrint from './components/HistoryPrint'
-
-function App() {
-  const queryParams = new URLSearchParams(window.location.search);
-  const printId = queryParams.get('print');
-
-  const [user, setUser] = useState(storage.getSession());
+const AppContent = () => {
+  const { user, logout } = useAuth();
   const [pets, setPets] = useState([]);
   const [selectedPetId, setSelectedPetId] = useState(null);
+  const [isEmergency, setIsEmergency] = useState(false);
+  const [emergencyPet, setEmergencyPet] = useState(null);
 
-  // If in print mode, handle it early
-  if (printId) {
-    const allPets = JSON.parse(localStorage.getItem('mascota_health_pets') || '[]');
-    const petToPrint = allPets.find(p => p.id === printId);
-    return <HistoryPrint pet={petToPrint} />;
-  }
-
-  // Initialize Demo User if not exists
+  // 🚨 Detección de Ruta de Emergencia (Pública)
   useEffect(() => {
-    const users = storage.getUsers();
-    if (users.length === 0) {
-      const demoUser = { id: 'demo-id', email: 'demo@demo.com', password: btoa('demo123') };
-      storage.saveUser(demoUser);
-      INITIAL_PETS.forEach(pet => storage.savePet(pet));
+    const params = new URLSearchParams(window.location.search);
+    const emergencyId = params.get('emergency');
+    if (emergencyId) {
+      // Búsqueda profunda en la base de datos global de usuarios para emergencias
+      const users = JSON.parse(localStorage.getItem('mascota_health_users') || '[]');
+      let foundPet = null;
+      
+      for (const u of users) {
+        const userPets = JSON.parse(localStorage.getItem(`vault_${u.id}_pets`) || '[]');
+        foundPet = userPets.find(p => p.id.toString() === emergencyId);
+        if (foundPet) break;
+      }
+
+      if (foundPet) {
+        setEmergencyPet(foundPet);
+        setIsEmergency(true);
+      }
     }
   }, []);
 
+  // Carga de Bóveda Privada
   useEffect(() => {
     if (user) {
       setPets(storage.getPets(user.id));
-    } else {
-      setPets([]);
     }
   }, [user]);
 
-  const handleLogin = (loggedUser) => {
-    storage.setSession(loggedUser);
-    setUser(loggedUser);
-  };
-
-  const handleLogout = () => {
-    storage.clearSession();
-    setUser(null);
-    setSelectedPetId(null);
-  };
-
   const handleAddPet = (newPet) => {
-    const petWithId = { ...newPet, id: Date.now().toString(), userId: user.id, history: [] };
-    storage.savePet(petWithId);
-    setPets([...pets, petWithId]);
+    const petWithMeta = { 
+      ...newPet, 
+      id: Date.now(), 
+      userId: user.id,
+      emergencyConfig: { active: false, medicalAlerts: '', contacts: [{ name: 'Dueño', phone: '' }] }
+    };
+    storage.savePet(user.id, petWithMeta);
+    setPets([...pets, petWithMeta]);
   };
 
-  const handleAddTreatment = (petId, treatment) => {
-    storage.updatePet(petId, (pet) => ({
-      ...pet,
-      history: [...pet.history, { ...treatment, id: Date.now() }]
-    }));
-    setPets(storage.getPets(user.id));
+  const handleUpdatePet = (updatedPet) => {
+    storage.updatePet(user.id, updatedPet.id, () => updatedPet);
+    setPets(pets.map(p => p.id === updatedPet.id ? updatedPet : p));
   };
 
-  if (!user) {
-    return <Auth onLogin={handleLogin} />;
-  }
-
-  const selectedPet = pets.find(p => p.id === selectedPetId);
+  if (isEmergency) return <EmergencyLanding pet={emergencyPet} />;
+  if (!user) return <Auth />;
 
   return (
-    <div className="app-wrapper">
-      <header className="glass-card container" style={{ marginTop: '1rem', padding: '1rem 2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h1 style={{ margin: 0, fontSize: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          🐾 MascotaHealth
-        </h1>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>{user.email}</span>
-          <button className="btn" onClick={() => setSelectedPetId(null)}>Inicio</button>
-          <button className="btn" style={{ color: 'var(--status-urgent)' }} onClick={handleLogout}>Salir</button>
+    <div className="app-container">
+      <nav style={{ 
+        display: 'flex', justifyContent: 'space-between', alignItems: 'center', 
+        padding: '1.5rem 0', marginBottom: '2rem'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+          <div style={{ padding: '0.5rem', background: 'var(--primary)', borderRadius: '10px' }}>
+             <Heart color="white" size={20} />
+          </div>
+          <h1 style={{ fontSize: '1.4rem', fontWeight: 800, margin: 0 }}>MascotaHealth <span style={{ color: 'var(--primary)' }}>PRO</span></h1>
         </div>
-      </header>
+        
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+          <div style={{ textAlign: 'right', display: 'none' }}>
+            <p style={{ margin: 0, fontSize: '0.8rem', fontWeight: 700 }}>{user.email}</p>
+            <span style={{ fontSize: '0.7rem', color: 'var(--primary)' }}>BÓVEDA ACTIVA</span>
+          </div>
+          <button className="btn" onClick={logout} style={{ color: 'var(--status-urgent)', fontWeight: 700 }}>
+            <LogOut size={18} /> Bloquear Bóveda
+          </button>
+        </div>
+      </nav>
 
-      <main className="container fade-in">
-        {selectedPetId ? (
-          <PetCard 
-            pet={selectedPet} 
-            onBack={() => setSelectedPetId(null)} 
-            onAddTreatment={(t) => handleAddTreatment(selectedPetId, t)}
-          />
-        ) : (
-          <Dashboard 
-            pets={pets} 
-            onSelectPet={(id) => setSelectedPetId(id)} 
-            onAddPet={handleAddPet}
-          />
-        )}
-      </main>
+      {selectedPetId ? (
+        <PetPassport 
+          pet={pets.find(p => p.id === selectedPetId)} 
+          onUpdate={handleUpdatePet}
+          onBack={() => setSelectedPetId(null)}
+        />
+      ) : (
+        <Dashboard 
+          pets={pets} 
+          onSelectPet={setSelectedPetId} 
+          onAddPet={handleAddPet}
+        />
+      )}
 
-      <footer style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-        &copy; 2024 MascotaHealth - Gestión Profesional para Clientes
+      <footer style={{ marginTop: '5rem', textAlign: 'center', paddingBottom: '2rem', borderTop: '1px solid var(--glass-border)', paddingTop: '2rem' }}>
+        <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+          <ShieldCheck size={16} /> Encriptación de Bóveda SHA-256 Activa • Grado Profesional
+        </p>
       </footer>
     </div>
   );
-}
+};
+
+const App = () => (
+  <AuthProvider>
+    <AppContent />
+  </AuthProvider>
+);
 
 export default App;

@@ -1,134 +1,90 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { intelligence } from '../utils/intelligence';
+import { Calendar, Syringe, ClipboardList, CheckCircle2 } from 'lucide-react';
+import { motion } from 'framer-motion';
 
-const TreatmentForm = ({ onAdd }) => {
+const TreatmentForm = ({ onSave, species }) => {
   const [formData, setFormData] = useState({
-    type: 'Vacuna',
-    name: '',
+    type: 'Rabia',
     date: new Date().toISOString().split('T')[0],
-    isSchedule: false,
-    interval: '8',
-    details: '',
-    nextDateSuggestion: ''
+    notes: ''
   });
 
-  const getSmartAlert = (type, date) => {
-    const d = new Date(date);
-    if (type === 'Vacuna') d.setFullYear(d.getFullYear() + 1);
-    else if (type === 'Desparasitación') d.setMonth(d.getMonth() + 3);
-    else if (type === 'Revisión') d.setFullYear(d.getFullYear() + 1);
-    else return null;
-    return d.toISOString().split('T')[0];
-  };
+  const treatmentTypes = [
+    'Rabia', 'Parvovirus', 'Moquillo', 'Hexavalente', 'Leishmania', 
+    'Trivalente', 'Leucemia', 'Desparasitación Interna', 'Desparasitación Externa', 'Otro'
+  ];
 
-  useEffect(() => {
-    const suggestion = getSmartAlert(formData.type, formData.date);
-    setFormData(prev => ({ ...prev, nextDateSuggestion: suggestion }));
-  }, [formData.type, formData.date]);
+  const handleTypeChange = (type) => {
+    const nextDate = intelligence.getNextDate(species, type, new Date());
+    setFormData({ ...formData, type, date: nextDate });
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!formData.name) return;
-    
-    const finalDetails = formData.isSchedule 
-      ? `Frecuencia: cada ${formData.interval} horas. ${formData.details}`
-      : formData.details;
-
-    const finalData = {
-      ...formData,
-      status: 'ok',
-      details: finalDetails,
-      nextAlert: formData.nextDateSuggestion
-    };
-    onAdd(finalData);
+    if (!formData.type || !formData.date) return;
+    onSave(formData);
+    // Success micro-animation simulation (can be handled by parent modal)
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '1.5rem' }}>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-        <div>
-          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>Tipo de Tratamiento</label>
-          <select 
-            className="btn" 
-            style={{ width: '100%', background: 'white', border: '1px solid var(--glass-border)' }}
-            value={formData.type}
-            onChange={(e) => setFormData({...formData, type: e.target.value})}
-          >
-            <option>Vacuna</option>
-            <option>Desparasitación</option>
-            <option>Medicación</option>
-            <option>Revisión</option>
-          </select>
-        </div>
-        <div>
-          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>Fecha Realización</label>
-          <input 
-            type="date" 
-            className="btn" 
-            style={{ width: '100%', background: 'white', border: '1px solid var(--glass-border)' }} 
-            value={formData.date}
-            onChange={(e) => setFormData({...formData, date: e.target.value})}
-          />
-        </div>
+    <motion.form 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      onSubmit={handleSubmit} 
+      style={{ display: 'grid', gap: '1.5rem' }}
+    >
+      <div className="input-group">
+        <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.7rem', fontWeight: 600 }}>
+          <Syringe size={18} color="var(--primary)" /> Tipo de Tratamiento / Vacuna
+        </label>
+        <select 
+          className="btn"
+          style={{ width: '100%', background: 'white', border: '1px solid var(--glass-border)', padding: '1rem' }}
+          value={formData.type}
+          onChange={(e) => handleTypeChange(e.target.value)}
+        >
+          {treatmentTypes.map(t => <option key={t} value={t}>{t}</option>)}
+        </select>
+        <p style={{ marginTop: '0.5rem', fontSize: '0.75rem', color: 'var(--primary)', fontWeight: 700 }}>
+          <CheckCircle2 size={12} style={{ verticalAlign: 'middle' }} /> MOTOR DE INTELIGENCIA SUGIRIENDO INTERVALO
+        </p>
       </div>
 
-      <div>
-        <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>Nombre del Medicamento / Servicio</label>
+      <div className="input-group">
+        <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.7rem', fontWeight: 600 }}>
+          <Calendar size={18} color="var(--accent)" /> Fecha Programada
+        </label>
         <input 
-          type="text" 
-          placeholder="ej: Nobivac Rabia / Drontal Plus" 
-          className="btn" 
-          style={{ width: '100%', background: 'white', border: '1px solid var(--glass-border)' }} 
-          value={formData.name}
-          onChange={(e) => setFormData({...formData, name: e.target.value})}
+          type="date"
+          required
+          className="btn"
+          style={{ width: '100%', background: 'white', border: '1px solid var(--glass-border)', padding: '1rem' }}
+          value={formData.date}
+          min={new Date().toISOString().split('T')[0]} // No permitir fechas pasadas para agendar
+          onChange={(e) => setFormData({ ...formData, date: e.target.value })}
         />
       </div>
 
-      <div>
-        <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>Observaciones adicionales</label>
+      <div className="input-group">
+        <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.7rem', fontWeight: 600 }}>
+          <ClipboardList size={18} color="var(--text-muted)" /> Notas de la Bóveda
+        </label>
         <textarea 
-          placeholder="Dosis, reacciones, etc..."
-          className="btn" 
-          style={{ width: '100%', background: 'white', border: '1px solid var(--glass-border)', resize: 'vertical' }}
-          value={formData.details}
-          onChange={(e) => setFormData({...formData, details: e.target.value})}
+          placeholder="Lugar, marca de la vacuna o reacción esperada..."
+          style={{ 
+            width: '100%', minHeight: '80px', borderRadius: '15px', padding: '1rem',
+            border: '1px solid var(--glass-border)', background: 'white', fontSize: '0.9rem'
+          }}
+          value={formData.notes}
+          onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
         />
       </div>
 
-      {formData.nextDateSuggestion && (
-        <div className="fade-in" style={{ padding: '1rem', background: 'rgba(212, 163, 115, 0.1)', borderRadius: '12px', borderLeft: '4px solid var(--accent)' }}>
-          <p style={{ margin: 0, fontSize: '0.9rem' }}>
-            💡 <strong>Alerta Inteligente:</strong> Se sugiere la próxima dosis para el <strong>{new Date(formData.nextDateSuggestion).toLocaleDateString()}</strong>.
-          </p>
-        </div>
-      )}
-
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-        <input 
-          type="checkbox" 
-          id="isSchedule" 
-          checked={formData.isSchedule}
-          onChange={(e) => setFormData({...formData, isSchedule: e.target.checked})}
-        />
-        <label htmlFor="isSchedule" style={{ cursor: 'pointer' }}>¿Activar pauta de medicación horaria?</label>
-      </div>
-
-      {formData.isSchedule && (
-        <div className="fade-in" style={{ padding: '1rem', background: 'rgba(74, 124, 89, 0.05)', borderRadius: '12px' }}>
-          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>Frecuencia (horas)</label>
-          <input 
-            type="number" 
-            className="btn" 
-            style={{ width: '100px', background: 'white', border: '1px solid var(--glass-border)' }} 
-            value={formData.interval}
-            onChange={(e) => setFormData({...formData, interval: e.target.value})}
-          />
-        </div>
-      )}
-
-      <button type="submit" className="btn btn-primary" style={{ justifyContent: 'center', padding: '1rem' }}>
-        Confirmar y Notificar
+      <button type="submit" className="btn btn-primary" style={{ padding: '1rem', justifyContent: 'center', fontWeight: 700 }}>
+        Confirmar y Blindar Registro
       </button>
-    </form>
+    </motion.form>
   );
 };
 

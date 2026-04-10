@@ -1,5 +1,8 @@
-// Simulated Database Layer
+import { vault } from './vault';
+
+// Professional Multi-tenant Storage Layer
 export const storage = {
+  // Users are stored globally but passwords are hashed
   getUsers: () => JSON.parse(localStorage.getItem('mascota_health_users') || '[]'),
   
   saveUser: (user) => {
@@ -7,25 +10,29 @@ export const storage = {
     localStorage.setItem('mascota_health_users', JSON.stringify([...users, user]));
   },
 
+  // Pets are stored per-user using the Vault scoped key
   getPets: (userId) => {
-    const allPets = JSON.parse(localStorage.getItem('mascota_health_pets') || '[]');
-    return allPets.filter(p => p.userId === userId);
+    return vault.getScopedData(userId, 'pets') || [];
   },
 
-  savePet: (pet) => {
-    const allPets = JSON.parse(localStorage.getItem('mascota_health_pets') || '[]');
-    localStorage.setItem('mascota_health_pets', JSON.stringify([...allPets, pet]));
+  savePet: (userId, pet) => {
+    const allPets = storage.getPets(userId);
+    vault.setScopedData(userId, 'pets', [...allPets, pet]);
   },
 
-  updatePet: (petId, updateFn) => {
-    const allPets = JSON.parse(localStorage.getItem('mascota_health_pets') || '[]');
+  updatePet: (userId, petId, updateFn) => {
+    const allPets = storage.getPets(userId);
     const updated = allPets.map(p => p.id === petId ? updateFn(p) : p);
-    localStorage.setItem('mascota_health_pets', JSON.stringify(updated));
+    vault.setScopedData(userId, 'pets', updated);
   },
 
-  getSession: () => JSON.parse(localStorage.getItem('mascota_health_session')),
-  
-  setSession: (user) => localStorage.setItem('mascota_health_session', JSON.stringify(user)),
-  
-  clearSession: () => localStorage.removeItem('mascota_health_session')
+  // Document Storage (Base64)
+  saveDocument: (userId, petId, doc) => {
+    const docs = vault.getScopedData(userId, `docs_${petId}`) || [];
+    vault.setScopedData(userId, `docs_${petId}`, [...docs, doc]);
+  },
+
+  getDocuments: (userId, petId) => {
+    return vault.getScopedData(userId, `docs_${petId}`) || [];
+  }
 };
