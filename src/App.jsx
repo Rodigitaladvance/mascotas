@@ -56,7 +56,7 @@ const AppContent = () => {
        }}>
         <div className="logo-container" style={{ display: 'flex', alignItems: 'center', gap: '1.2rem' }}>
           <img 
-            src="https://raw.githubusercontent.com/Rodigitaladvance/mascotas/main/public/Brand/aura-logo.png" 
+            src="/brand/aura-logo.png" 
             alt="AURA Pets" 
             className="aura-logo-img" 
             style={{ height: '48px', filter: 'drop-shadow(0 0 10px var(--aura-gold-muted))' }} 
