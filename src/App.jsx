@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { useTranslation } from './context/LocalizationContext';
 import Auth from './components/Auth';
+import logo from './assets/logo.png';
 import Dashboard from './components/Aura/Dashboard';
 import GlobalPassport from './components/Aura/GlobalPassport';
 import SOSMode from './components/Aura/SOSMode';
@@ -56,7 +57,7 @@ const AppContent = () => {
        }}>
         <div className="logo-container" style={{ display: 'flex', alignItems: 'center', gap: '1.2rem' }}>
           <img 
-            src="./brand/logo.jpg" 
+            src={logo} 
             alt="AURA Pets" 
             className="aura-logo-img" 
             style={{ height: '48px', filter: 'drop-shadow(0 0 10px var(--aura-gold-muted))' }} 
