@@ -40,7 +40,7 @@ const AppContent = () => {
       {/* Luxury Navbar */}
       <nav className="aura-nav">
         <div className="logo-container">
-          <img src="/brand/aura-logo.png" alt="AURA Pets" className="aura-logo-img" />
+          <img src="https://raw.githubusercontent.com/Rodigitaladvance/mascotas/main/public/Brand/aura-logo.png" alt="AURA Pets" className="aura-logo-img" />
           <div style={{ width: '1px', height: '30px', background: 'var(--aura-border)' }}></div>
           <p style={{ margin: 0, fontSize: '0.9rem', letterSpacing: '2px', fontWeight: 300, opacity: 0.6 }}>BIOMETRIC VAULT</p>
         </div>
