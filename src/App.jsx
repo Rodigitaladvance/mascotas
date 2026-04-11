@@ -1,42 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Auth from './components/Auth';
-import Dashboard from './components/Dashboard';
-import PetPassport from './components/Passport/PetPassport';
-import EmergencyLanding from './components/Passport/EmergencyLanding';
+import Dashboard from './components/Aura/Dashboard';
+import GlobalPassport from './components/Aura/GlobalPassport';
+import SOSMode from './components/Aura/SOSMode';
 import { storage } from './utils/storage';
-import { LogOut, ShieldCheck, Heart } from 'lucide-react';
+import { LogOut, Globe, LayoutDashboard, ShieldAlert, Heart } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const AppContent = () => {
   const { user, logout } = useAuth();
   const [pets, setPets] = useState([]);
-  const [selectedPetId, setSelectedPetId] = useState(null);
-  const [isEmergency, setIsEmergency] = useState(false);
-  const [emergencyPet, setEmergencyPet] = useState(null);
+  const [activeTab, setActiveTab] = useState('dashboard');
+  const [isSOS, setIsSOS] = useState(false);
 
-  // 🚨 Detección de Ruta de Emergencia (Pública)
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const emergencyId = params.get('emergency');
-    if (emergencyId) {
-      // Búsqueda profunda en la base de datos global de usuarios para emergencias
-      const users = JSON.parse(localStorage.getItem('mascota_health_users') || '[]');
-      let foundPet = null;
-      
-      for (const u of users) {
-        const userPets = JSON.parse(localStorage.getItem(`vault_${u.id}_pets`) || '[]');
-        foundPet = userPets.find(p => p.id.toString() === emergencyId);
-        if (foundPet) break;
-      }
-
-      if (foundPet) {
-        setEmergencyPet(foundPet);
-        setIsEmergency(true);
-      }
-    }
-  }, []);
-
-  // Carga de Bóveda Privada
+  // Load private data
   useEffect(() => {
     if (user) {
       setPets(storage.getPets(user.id));
@@ -48,61 +26,81 @@ const AppContent = () => {
       ...newPet, 
       id: Date.now(), 
       userId: user.id,
-      emergencyConfig: { active: false, medicalAlerts: '', contacts: [{ name: 'Dueño', phone: '' }] }
+      emergencyConfig: { active: true, medicalAlerts: '', contacts: [{ name: 'Dueño', phone: '' }] }
     };
     storage.savePet(user.id, petWithMeta);
     setPets([...pets, petWithMeta]);
   };
 
-  const handleUpdatePet = (updatedPet) => {
-    storage.updatePet(user.id, updatedPet.id, () => updatedPet);
-    setPets(pets.map(p => p.id === updatedPet.id ? updatedPet : p));
-  };
-
-  if (isEmergency) return <EmergencyLanding pet={emergencyPet} />;
   if (!user) return <Auth />;
+  if (isSOS) return <SOSMode pet={pets[0]} onExit={() => setIsSOS(false)} />;
 
   return (
     <div className="app-container">
-      <nav style={{ 
-        display: 'flex', justifyContent: 'space-between', alignItems: 'center', 
-        padding: '1.5rem 0', marginBottom: '2rem'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
-          <div style={{ padding: '0.5rem', background: 'var(--primary)', borderRadius: '10px' }}>
-             <Heart color="white" size={20} />
-          </div>
-          <h1 style={{ fontSize: '1.4rem', fontWeight: 800, margin: 0 }}>MascotaHealth <span style={{ color: 'var(--primary)' }}>PRO</span></h1>
+      {/* Luxury Navbar */}
+      <nav className="aura-nav">
+        <div className="logo-container">
+          <img src="/brand/aura-logo.png" alt="AURA Pets" className="aura-logo-img" />
+          <div style={{ width: '1px', height: '30px', background: 'var(--aura-border)' }}></div>
+          <p style={{ margin: 0, fontSize: '0.9rem', letterSpacing: '2px', fontWeight: 300, opacity: 0.6 }}>BIOMETRIC VAULT</p>
         </div>
         
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-          <div style={{ textAlign: 'right', display: 'none' }}>
-            <p style={{ margin: 0, fontSize: '0.8rem', fontWeight: 700 }}>{user.email}</p>
-            <span style={{ fontSize: '0.7rem', color: 'var(--primary)' }}>BÓVEDA ACTIVA</span>
-          </div>
-          <button className="btn" onClick={logout} style={{ color: 'var(--status-urgent)', fontWeight: 700 }}>
-            <LogOut size={18} /> Bloquear Bóveda
+        <div style={{ display: 'flex', gap: '2.5rem', alignItems: 'center' }}>
+          <button 
+            className={`btn-aura ${activeTab === 'dashboard' ? 'btn-neon' : ''}`} 
+            onClick={() => setActiveTab('dashboard')}
+            style={{ border: 'none', padding: '0.5rem', opacity: activeTab === 'dashboard' ? 1 : 0.4 }}
+          >
+            <LayoutDashboard size={20} />
+          </button>
+          <button 
+            className={`btn-aura ${activeTab === 'passport' ? 'btn-neon' : ''}`} 
+            onClick={() => setActiveTab('passport')}
+            style={{ border: 'none', padding: '0.5rem', opacity: activeTab === 'passport' ? 1 : 0.4 }}
+          >
+            <Globe size={20} />
+          </button>
+          <button 
+            className="btn-aura" 
+            onClick={() => setIsSOS(true)}
+            style={{ border: 'none', padding: '0.5rem', color: 'var(--aura-neon-pink)', opacity: 0.8 }}
+          >
+            <ShieldAlert size={20} />
+          </button>
+          <button className="btn-aura" onClick={logout} style={{ border: 'none', padding: '0.5rem', opacity: 0.4 }}>
+            <LogOut size={20} />
           </button>
         </div>
       </nav>
 
-      {selectedPetId ? (
-        <PetPassport 
-          pet={pets.find(p => p.id === selectedPetId)} 
-          onUpdate={handleUpdatePet}
-          onBack={() => setSelectedPetId(null)}
-        />
-      ) : (
-        <Dashboard 
-          pets={pets} 
-          onSelectPet={setSelectedPetId} 
-          onAddPet={handleAddPet}
-        />
-      )}
+      <main style={{ minHeight: '70vh' }}>
+        <AnimatePresence mode="wait">
+          {activeTab === 'dashboard' && (
+            <motion.div 
+               key="dash"
+               initial={{ opacity: 0 }} 
+               animate={{ opacity: 1 }} 
+               exit={{ opacity: 0 }}
+            >
+              <Dashboard pets={pets} onAddPet={handleAddPet} onSelectPet={() => setActiveTab('passport')} />
+            </motion.div>
+          )}
+          {activeTab === 'passport' && (
+            <motion.div 
+               key="pass"
+               initial={{ opacity: 0 }} 
+               animate={{ opacity: 1 }} 
+               exit={{ opacity: 0 }}
+            >
+              <GlobalPassport pet={pets[0]} />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </main>
 
-      <footer style={{ marginTop: '5rem', textAlign: 'center', paddingBottom: '2rem', borderTop: '1px solid var(--glass-border)', paddingTop: '2rem' }}>
-        <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
-          <ShieldCheck size={16} /> Encriptación de Bóveda SHA-256 Activa • Grado Profesional
+      <footer style={{ marginTop: '8rem', padding: '3rem 0', borderTop: '1px solid rgba(255,255,255,0.05)', textAlign: 'center' }}>
+        <p style={{ color: 'var(--aura-text-muted)', fontSize: '0.7rem', letterSpacing: '4px', textTransform: 'uppercase' }}>
+          AURA Pets • International Sanitary Compliance Protocol v3.0
         </p>
       </footer>
     </div>

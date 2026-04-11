@@ -1,135 +1,156 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-
+/* AURA Pets - Quiet Luxury Design System */
 :root {
-  --primary: #4A7C59;
-  --primary-light: #8FBC8F;
-  --secondary: #FAF9F6;
-  --accent: #E9C46A;
-  --text: #1A1A1A;
-  --text-muted: #6B7280;
-  --glass: rgba(255, 255, 255, 0.75);
-  --glass-border: rgba(255, 255, 255, 0.5);
-  --status-ok: #52B788;
-  --status-pending: #F4A261;
-  --status-urgent: #E76F51;
-  --card-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+  --aura-gold: #D4AF37;
+  --aura-gold-muted: rgba(212, 175, 55, 0.4);
+  --aura-black: #000000;
+  --aura-obsidian: #050505;
+  --aura-text: #F5F5F7;
+  --aura-text-muted: #8E8E93;
+  --aura-neon-cyan: #00B4D8;
+  --aura-neon-pink: #FF006E;
+  --aura-glass: rgba(18, 18, 18, 0.8);
+  --aura-border: rgba(212, 175, 55, 0.15);
+  
+  --font-serif: 'Playfair Display', serif;
+  --font-sans: 'Inter', sans-serif;
 }
 
 * {
   box-sizing: border-box;
-  font-family: 'Plus Jakarta Sans', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
   margin: 0;
   padding: 0;
-  background-color: var(--secondary);
+  background-color: var(--aura-black);
+  color: var(--aura-text);
+  font-family: var(--font-sans);
+  overflow-x: hidden;
   background-image: 
-    radial-gradient(at 0% 0%, rgba(74, 124, 89, 0.05) 0px, transparent 50%),
-    radial-gradient(at 100% 0%, rgba(233, 196, 106, 0.05) 0px, transparent 50%);
-  color: var(--text);
-  line-height: 1.6;
-  min-height: 100vh;
+    radial-gradient(circle at top right, rgba(212, 175, 55, 0.05) 0%, transparent 60%),
+    radial-gradient(circle at bottom left, rgba(0, 180, 216, 0.03) 0%, transparent 40%);
+}
+
+h1, h2, h3, .luxury-title {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  color: var(--aura-gold);
 }
 
 .app-container {
-  max-width: 1280px;
+  max-width: 1440px;
   margin: 0 auto;
-  padding: 0 2rem;
+  padding: 0 4rem;
 }
 
-.glass-card {
-  background: var(--glass);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-radius: 24px;
-  border: 1px solid var(--glass-border);
-  box-shadow: var(--card-shadow);
-  position: relative;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+/* Glassmorphism Obsidian Style */
+.aura-card {
+  background: var(--aura-glass);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  border: 1px solid var(--aura-border);
+  border-radius: 20px;
+  padding: 2.5rem;
+  transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-.glass-card:hover {
-  border-color: rgba(255, 255, 255, 0.8);
-  box-shadow: 0 12px 48px 0 rgba(31, 38, 135, 0.12);
+.aura-card:hover {
+  border-color: var(--aura-gold-muted);
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.6), 0 0 20px rgba(212, 175, 55, 0.05);
 }
 
-.btn {
+/* Luxury Buttons */
+.btn-aura {
   display: inline-flex;
   align-items: center;
-  padding: 0.8rem 1.5rem;
-  border-radius: 14px;
-  border: 1px solid var(--glass-border);
-  background: white;
-  color: var(--text);
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-size: 0.95rem;
-  gap: 0.5rem;
-}
-
-.btn:hover {
-  background: var(--secondary);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-}
-
-.btn-primary {
-  background: var(--primary);
-  color: white;
-  border: none;
-}
-
-.btn-primary:hover {
-  background: #3d664a;
-  color: white;
-}
-
-.status-badge {
-  padding: 0.4rem 1rem;
-  border-radius: 100px;
+  justify-content: center;
+  padding: 1rem 2rem;
+  background: transparent;
+  border: 1px solid var(--aura-gold);
+  color: var(--aura-gold);
+  font-family: var(--font-sans);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 2px;
   font-size: 0.8rem;
-  font-weight: 700;
-  display: inline-flex;
+  cursor: pointer;
+  transition: all 0.4s;
+  border-radius: 1px; /* Sharp minimalist edges */
+}
+
+.btn-aura:hover {
+  background: var(--aura-gold);
+  color: var(--aura-black);
+  box-shadow: 0 0 30px rgba(212, 175, 55, 0.2);
+}
+
+.btn-neon {
+  border-color: var(--aura-neon-cyan);
+  color: var(--aura-neon-cyan);
+}
+
+.btn-neon:hover {
+  background: var(--aura-neon-cyan);
+  color: white;
+  box-shadow: 0 0 30px rgba(0, 180, 216, 0.3);
+}
+
+/* Custom UI Elements */
+.bio-ring {
+  position: relative;
+  display: flex;
   align-items: center;
-  gap: 0.4rem;
+  justify-content: center;
 }
 
-.status-ok { background: rgba(82, 183, 136, 0.1); color: #2D6A4F; }
-.status-pending { background: rgba(244, 162, 97, 0.1); color: #A44A3F; }
-.status-urgent { background: rgba(231, 111, 81, 0.1); color: #8F250C; }
+.status-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 8px;
+}
 
+.status-active { background: var(--aura-neon-cyan); box-shadow: 0 0 10px var(--aura-neon-cyan); }
+.status-warning { background: var(--aura-gold); box-shadow: 0 0 10px var(--aura-gold); }
+.status-danger { background: var(--aura-neon-pink); box-shadow: 0 0 10px var(--aura-neon-pink); }
+
+/* Fade Animations */
 .fade-in {
-  animation: fadeIn 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: auraFadeIn 1s ease forwards;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
+@keyframes auraFadeIn {
+  from { opacity: 0; transform: translateY(15px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* Custom Scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: rgba(0,0,0,0.1);
-  border-radius: 10px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(0,0,0,0.2);
+/* Luxury Navbar */
+.aura-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 3rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  margin-bottom: 4rem;
 }
 
-/* Animations for Mobile */
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.aura-logo-img {
+  height: 45px;
+  filter: brightness(1.2);
+}
+
 @media (max-width: 768px) {
-  .app-container {
-    padding: 0 1.2rem;
-  }
-  .dashboard-pro h1 {
-    font-size: 2rem;
-  }
+  .app-container { padding: 0 1.5rem; }
+  .aura-nav { padding: 2rem 0; }
 }
