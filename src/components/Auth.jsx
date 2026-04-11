@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { vault } from '../utils/vault';
 import { KeyRound, Mail, ShieldCheck, UserPlus, Lock } from 'lucide-react';
 import { motion } from 'framer-motion';
+import logo from '../assets/logo.png';
 
 const Auth = () => {
   const { login } = useAuth();
@@ -56,7 +57,7 @@ const Auth = () => {
       <div className="aura-card" style={{ width: '100%', maxWidth: '440px', textAlign: 'center' }}>
         <header style={{ marginBottom: '3.5rem' }}>
           <img 
-            src="https://raw.githubusercontent.com/Rodigitaladvance/mascotas/main/public/Brand/aura-logo.png" 
+            src={logo} 
             alt="AURA Logo" 
             style={{ height: '70px', marginBottom: '2rem', filter: 'drop-shadow(0 0 10px var(--aura-gold-muted))' }} 
           />

@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
@@ -112,27 +112,9 @@
     </style>
   </head>
   <body>
-    <div id="splash-screen">
-      <div class="aura-logo-container">
-        <div class="aura-glow"></div>
-        <img src="/favicon.png" alt="AURA Logo" class="aura-logo-splash">
-      </div>
-      <div class="loading-bar-container">
-        <div class="loading-bar"></div>
-      </div>
-      <div class="splash-legal">Secured by Vaultâ„¢ SHA-256</div>
-    </div>
+
     
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
-    
-    <script>
-      window.addEventListener('load', () => {
-        setTimeout(() => {
-          document.getElementById('splash-screen').classList.add('hidden');
-          document.body.style.overflow = 'auto';
-        }, 2000);
-      });
-    </script>
   </body>
 </html>
