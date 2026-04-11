@@ -1,24 +1,28 @@
-/* AURA Pets - Quiet Luxury Design System */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Inter:wght@300;400;500;600;700&display=swap');
+
 :root {
   --aura-gold: #D4AF37;
-  --aura-gold-muted: rgba(212, 175, 55, 0.4);
+  --aura-gold-muted: rgba(212, 175, 55, 0.2);
   --aura-black: #000000;
   --aura-obsidian: #050505;
-  --aura-text: #F5F5F7;
+  --aura-text: #FDFDFD;
   --aura-text-muted: #8E8E93;
-  --aura-neon-cyan: #00B4D8;
-  --aura-neon-pink: #FF006E;
-  --aura-glass: rgba(18, 18, 18, 0.8);
-  --aura-border: rgba(212, 175, 55, 0.15);
+  --aura-neon-cyan: #00F5FF;
+  --aura-neon-pink: #FF007A;
+  --aura-glass: rgba(10, 10, 10, 0.85);
+  --aura-border: rgba(212, 175, 55, 0.12);
   
   --font-serif: 'Playfair Display', serif;
   --font-sans: 'Inter', sans-serif;
+  
+  --shadow-gold: 0 10px 40px rgba(0,0,0,0.8), 0 0 20px rgba(212, 175, 55, 0.05);
 }
 
 * {
   box-sizing: border-box;
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  scrollbar-width: thin;
+  scrollbar-color: var(--aura-gold) transparent;
 }
 
 body {
@@ -28,129 +32,141 @@ body {
   color: var(--aura-text);
   font-family: var(--font-sans);
   overflow-x: hidden;
-  background-image: 
-    radial-gradient(circle at top right, rgba(212, 175, 55, 0.05) 0%, transparent 60%),
-    radial-gradient(circle at bottom left, rgba(0, 180, 216, 0.03) 0%, transparent 40%);
+  line-height: 1.6;
 }
 
 h1, h2, h3, .luxury-title {
   font-family: var(--font-serif);
-  font-weight: 500;
-  letter-spacing: -0.02em;
+  font-weight: 400;
   color: var(--aura-gold);
+  letter-spacing: -0.01em;
 }
 
 .app-container {
-  max-width: 1440px;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 0 4rem;
+  padding: 0 3rem;
 }
 
-/* Glassmorphism Obsidian Style */
+/* Glassmorphism Elite */
 .aura-card {
   background: var(--aura-glass);
-  backdrop-filter: blur(30px);
-  -webkit-backdrop-filter: blur(30px);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
   border: 1px solid var(--aura-border);
-  border-radius: 20px;
+  border-radius: 2px; /* Brutalist luxury / Sharp edges */
   padding: 2.5rem;
-  transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
 }
 
 .aura-card:hover {
-  border-color: var(--aura-gold-muted);
-  transform: translateY(-4px);
-  box-shadow: 0 20px 40px rgba(0,0,0,0.6), 0 0 20px rgba(212, 175, 55, 0.05);
+  border-color: var(--aura-gold);
+  background: rgba(15, 15, 15, 0.95);
+  box-shadow: var(--shadow-gold);
 }
 
-/* Luxury Buttons */
-.btn-aura {
-  display: inline-flex;
+/* Analog Gauge Styles (Chronograph) */
+.gauge-container {
+  width: 140px;
+  height: 140px;
+  position: relative;
+  border: 1px solid var(--aura-border);
+  border-radius: 50%;
+  display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1rem 2rem;
-  background: transparent;
+  background: radial-gradient(circle at center, #111 0%, #000 100%);
+}
+
+.gauge-needle {
+  position: absolute;
+  width: 2px;
+  height: 50px;
+  background: var(--aura-gold);
+  bottom: 50%;
+  left: calc(50% - 1px);
+  transform-origin: bottom center;
+  transition: transform 1.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 0 10px var(--aura-gold);
+  z-index: 5;
+}
+
+.gauge-cap {
+  width: 10px;
+  height: 10px;
+  background: var(--aura-black);
+  border: 2px solid var(--aura-gold);
+  border-radius: 50%;
+  z-index: 6;
+}
+
+.gauge-labels {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  font-size: 0.6rem;
+  color: var(--aura-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Localization Indicators */
+.locale-chip {
+  padding: 0.3rem 0.8rem;
+  border: 1px solid var(--aura-border);
+  font-size: 0.7rem;
+  letter-spacing: 2px;
+  font-weight: 600;
+  color: var(--aura-gold);
+}
+
+/* Custom Buttons */
+.btn-aura {
+  background: none;
   border: 1px solid var(--aura-gold);
   color: var(--aura-gold);
+  padding: 1rem 2.5rem;
   font-family: var(--font-sans);
-  font-weight: 500;
   text-transform: uppercase;
-  letter-spacing: 2px;
-  font-size: 0.8rem;
+  letter-spacing: 3px;
+  font-size: 0.75rem;
+  font-weight: 500;
   cursor: pointer;
   transition: all 0.4s;
-  border-radius: 1px; /* Sharp minimalist edges */
+  position: relative;
 }
 
 .btn-aura:hover {
   background: var(--aura-gold);
   color: var(--aura-black);
-  box-shadow: 0 0 30px rgba(212, 175, 55, 0.2);
+  box-shadow: 0 0 30px rgba(212, 175, 55, 0.3);
 }
 
-.btn-neon {
-  border-color: var(--aura-neon-cyan);
-  color: var(--aura-neon-cyan);
-}
-
-.btn-neon:hover {
-  background: var(--aura-neon-cyan);
+/* SOS Mode High Visibility */
+.sos-active {
+  background: #700;
   color: white;
-  box-shadow: 0 0 30px rgba(0, 180, 216, 0.3);
+  animation: bgPulse 2s infinite;
 }
 
-/* Custom UI Elements */
-.bio-ring {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+@keyframes bgPulse {
+  0% { background: #500; }
+  50% { background: #900; }
+  100% { background: #500; }
 }
 
-.status-indicator {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  display: inline-block;
-  margin-right: 8px;
-}
-
-.status-active { background: var(--aura-neon-cyan); box-shadow: 0 0 10px var(--aura-neon-cyan); }
-.status-warning { background: var(--aura-gold); box-shadow: 0 0 10px var(--aura-gold); }
-.status-danger { background: var(--aura-neon-pink); box-shadow: 0 0 10px var(--aura-neon-pink); }
-
-/* Fade Animations */
+/* Fade In */
 .fade-in {
-  animation: auraFadeIn 1s ease forwards;
+  animation: auraFade 1s forwards;
 }
 
-@keyframes auraFadeIn {
-  from { opacity: 0; transform: translateY(15px); }
+@keyframes auraFade {
+  from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
-}
-
-/* Luxury Navbar */
-.aura-nav {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 3rem 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  margin-bottom: 4rem;
-}
-
-.logo-container {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-}
-
-.aura-logo-img {
-  height: 45px;
-  filter: brightness(1.2);
 }
 
 @media (max-width: 768px) {
   .app-container { padding: 0 1.5rem; }
-  .aura-nav { padding: 2rem 0; }
 }

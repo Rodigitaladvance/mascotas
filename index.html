@@ -1,51 +1,108 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/Rodigitaladvance/mascotas/main/public/Brand/aura-logo.png" />
+    <link rel="icon" type="image/png" href="/brand/aura-logo.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AURA Pets | Global Luxury Animal Health</title>
+    <title>AURA Pets | Excelencia Sanitaria Global</title>
     
-    <!-- Premium Fonts -->
+    <!-- Premium Serif and Sans Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
-      /* Integrated Splash Screen */
+      :root {
+        --aura-black: #000000;
+        --aura-gold: #D4AF37;
+      }
+
+      body, html {
+        margin: 0;
+        padding: 0;
+        background: var(--aura-black);
+        height: 100%;
+        overflow: hidden;
+      }
+
       #splash-screen {
         position: fixed;
         inset: 0;
-        background: #000000;
+        background: var(--aura-black);
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
         z-index: 9999;
-        transition: opacity 0.8s ease, visibility 0.8s;
+        transition: opacity 1s cubic-bezier(0.4, 0, 0.2, 1), visibility 1s;
+      }
+
+      .aura-logo-container {
+        position: relative;
+        width: 220px;
+        height: 220px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
       }
 
       .aura-logo-splash {
-        width: 180px;
-        filter: drop-shadow(0 0 15px rgba(212, 175, 55, 0.4));
-        content: url("https://raw.githubusercontent.com/Rodigitaladvance/mascotas/main/public/Brand/aura-logo.png");
-        animation: auraPulse 3s ease-in-out infinite;
+        width: 100%;
+        filter: drop-shadow(0 0 20px rgba(212, 175, 55, 0.3));
+        animation: auraPulse 4s ease-in-out infinite;
+        z-index: 2;
+      }
+
+      .aura-glow {
+        position: absolute;
+        width: 150%;
+        height: 150%;
+        background: radial-gradient(circle, rgba(212, 175, 55, 0.15) 0%, transparent 70%);
+        animation: rotateGlow 10s linear infinite;
+        z-index: 1;
       }
 
       @keyframes auraPulse {
-        0%, 100% { transform: scale(1); opacity: 0.8; filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.3)); }
-        50% { transform: scale(1.05); opacity: 1; filter: drop-shadow(0 0 25px rgba(212, 175, 55, 0.6)); }
+        0%, 100% { transform: scale(1); opacity: 0.9; filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.2)); }
+        50% { transform: scale(1.05); opacity: 1; filter: drop-shadow(0 0 30px rgba(212, 175, 55, 0.5)); }
       }
 
-      .splash-loading-text {
-        color: #D4AF37;
+      @keyframes rotateGlow {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
+
+      .loading-bar-container {
+        width: 180px;
+        height: 1px;
+        background: rgba(212, 175, 55, 0.1);
+        margin-top: 3rem;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .loading-bar {
+        position: absolute;
+        width: 30%;
+        height: 100%;
+        background: var(--aura-gold);
+        box-shadow: 0 0 10px var(--aura-gold);
+        animation: loadingSlide 2s ease-in-out infinite;
+      }
+
+      @keyframes loadingSlide {
+        from { left: -30%; }
+        to { left: 130%; }
+      }
+
+      .splash-legal {
+        position: absolute;
+        bottom: 3rem;
+        color: rgba(212, 175, 55, 0.4);
         font-family: 'Inter', sans-serif;
-        font-size: 0.75rem;
-        letter-spacing: 5px;
-        margin-top: 2rem;
-        font-weight: 300;
+        font-size: 0.7rem;
+        letter-spacing: 4px;
         text-transform: uppercase;
-        opacity: 0.6;
       }
 
       #splash-screen.hidden {
@@ -56,19 +113,25 @@
   </head>
   <body>
     <div id="splash-screen">
-      <img src="/brand/aura-logo.png" alt="AURA Logo" class="aura-logo-splash">
-      <div class="splash-loading-text">Authenticating Vault</div>
+      <div class="aura-logo-container">
+        <div class="aura-glow"></div>
+        <img src="/brand/aura-logo.png" alt="AURA Logo" class="aura-logo-splash">
+      </div>
+      <div class="loading-bar-container">
+        <div class="loading-bar"></div>
+      </div>
+      <div class="splash-legal">Secured by Vault™ SHA-256</div>
     </div>
     
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
     
     <script>
-      // Automatically hide splash after a minimum duration or when React is ready
       window.addEventListener('load', () => {
         setTimeout(() => {
           document.getElementById('splash-screen').classList.add('hidden');
-        }, 1500);
+          document.body.style.overflow = 'auto';
+        }, 2000);
       });
     </script>
   </body>
