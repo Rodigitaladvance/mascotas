@@ -5,11 +5,38 @@ import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import { useTranslation } from '../../context/LocalizationContext';
 import ChronographGauge from './ChronographGauge';
 
-const Dashboard = ({ pets, onAddPet, onSelectPet }) => {
+const EMPTY_VITALS = { heartRate: '', activity: 50, weight: '', status: 'good', notes: '' };
+
+const Dashboard = ({ pets, onAddPet, onSelectPet, onUpdatePet }) => {
   const { t, locale } = useTranslation();
   const [showPerformanceDetail, setShowPerformanceDetail] = useState(false);
+  const [editingVitals, setEditingVitals] = useState(false);
+  const [vitalsForm, setVitalsForm] = useState(EMPTY_VITALS);
   const pet = pets?.[0] || null;
   const healthScore = 95;
+
+  const es = locale === 'es';
+
+  const openPerformance = () => {
+    const v = pet?.vitals;
+    setVitalsForm(v ? { ...EMPTY_VITALS, ...v } : EMPTY_VITALS);
+    setEditingVitals(!v);        // show form if no data, show view if data exists
+    setShowPerformanceDetail(true);
+  };
+
+  const saveVitals = () => {
+    if (!onUpdatePet || !pet) return;
+    const updated = { ...pet, vitals: { ...vitalsForm, lastUpdated: new Date().toISOString() } };
+    onUpdatePet(updated);
+    setEditingVitals(false);
+    setShowPerformanceDetail(false);
+  };
+
+  const STATUS_OPTS = es
+    ? [['optimal','Óptimo'],['good','Bueno'],['fair','Regular'],['critical','Crítico']]
+    : [['optimal','Optimal'],['good','Good'],['fair','Fair'],['critical','Critical']];
+
+  const STATUS_COLOR = { optimal:'var(--aura-neon-cyan)', good:'var(--aura-gold)', fair:'#ffaa00', critical:'var(--aura-neon-pink)' };
 
   const renderSpeciesPanel = () => {
     if (!pet) return null;
@@ -171,7 +198,7 @@ const Dashboard = ({ pets, onAddPet, onSelectPet }) => {
           <div 
             className="aura-card" 
             style={{ padding: '2rem', display: 'flex', gap: '1.2rem', alignItems: 'center', cursor: 'pointer' }}
-            onClick={() => setShowPerformanceDetail(true)}
+            onClick={openPerformance}
           >
             <div style={{ background: 'rgba(255,0,122,0.05)', padding: '1rem', borderRadius: 2 }}><Zap color="var(--aura-neon-pink)" /></div>
             <div>
@@ -210,29 +237,111 @@ const Dashboard = ({ pets, onAddPet, onSelectPet }) => {
               style={{ maxWidth: 500, width: '100%', padding: '3rem', position: 'relative' }}
               onClick={e => e.stopPropagation()}
             >
+              {/* Header */}
               <h2 style={{ fontSize: '1.8rem', marginBottom: '1.5rem', color: 'var(--aura-neon-pink)', display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
                 <Zap /> {t('dashboard.cardio')}
               </h2>
 
-              {/* Empty state — no vitals entered yet */}
-              <div style={{ padding: '3rem 2rem', textAlign: 'center', background: 'rgba(255,255,255,0.02)', borderRadius: 4, marginBottom: '2rem', border: '1px dashed rgba(255,0,122,0.2)' }}>
-                <Zap size={36} color="var(--aura-neon-pink)" style={{ opacity: 0.3, marginBottom: '1.2rem' }} />
-                <p style={{ margin: '0 0 0.5rem', fontWeight: 600, fontSize: '0.9rem' }}>
-                  {locale === 'es' ? 'Aún no hay datos de actividad' : 'No activity data yet'}
-                </p>
-                <p style={{ margin: 0, fontSize: '0.78rem', color: 'var(--aura-text-muted)', lineHeight: 1.6 }}>
-                  {locale === 'es'
-                    ? 'Añade registros de salud en el historial veterinario para ver las métricas de rendimiento de tu mascota aquí.'
-                    : 'Add health records in the veterinary history to see your pet\'s performance metrics here.'}
-                </p>
-              </div>
+              {/* ── VIEW MODE — vitals already saved ── */}
+              {!editingVitals && pet?.vitals ? (
+                <>
+                  <div style={{ display: 'grid', gap: '0.8rem', marginBottom: '2rem' }}>
+                    {[
+                      { label: es?'Frecuencia Cardíaca':'Heart Rate', value: `${pet.vitals.heartRate} BPM`, color: 'var(--aura-neon-pink)' },
+                      { label: es?'Actividad Diaria':'Daily Activity',  value: `${pet.vitals.activity}%`,         color: 'var(--aura-gold)' },
+                      { label: es?'Peso Actual':'Current Weight',       value: pet.vitals.weight ? `${pet.vitals.weight} kg` : '—', color: 'var(--aura-text)' },
+                      { label: es?'Estado General':'Overall Status',    value: STATUS_OPTS.find(o=>o[0]===pet.vitals.status)?.[1] || pet.vitals.status, color: STATUS_COLOR[pet.vitals.status] || 'var(--aura-text)' },
+                    ].map(({ label, value, color }) => (
+                      <div key={label} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'1rem 1.2rem', background:'rgba(255,255,255,0.03)', borderRadius:4 }}>
+                        <span style={{ fontSize:'0.85rem', color:'var(--aura-text-muted)' }}>{label}</span>
+                        <span style={{ fontWeight:700, color }}>{value}</span>
+                      </div>
+                    ))}
+                    {pet.vitals.notes && (
+                      <div style={{ padding:'1rem 1.2rem', background:'rgba(255,255,255,0.03)', borderRadius:4 }}>
+                        <p style={{ margin:'0 0 4px', fontSize:'0.7rem', letterSpacing:'2px', color:'var(--aura-text-muted)', textTransform:'uppercase' }}>{es?'Notas':'Notes'}</p>
+                        <p style={{ margin:0, fontSize:'0.85rem' }}>{pet.vitals.notes}</p>
+                      </div>
+                    )}
+                    <p style={{ margin:'4px 0 0', fontSize:'0.65rem', color:'var(--aura-text-muted)', textAlign:'right' }}>
+                      {es?'Actualizado':'Updated'}: {new Date(pet.vitals.lastUpdated).toLocaleDateString(es?'es-ES':'en-GB')}
+                    </p>
+                  </div>
+                  <div style={{ display:'flex', gap:'1rem' }}>
+                    <button className="btn-aura" style={{ flex:1 }} onClick={() => setShowPerformanceDetail(false)}>{es?'CERRAR':'CLOSE'}</button>
+                    <button className="btn-aura" style={{ flex:2, borderColor:'var(--aura-neon-pink)', color:'var(--aura-neon-pink)' }}
+                      onClick={() => setEditingVitals(true)}>{es?'EDITAR DATOS':'EDIT DATA'}</button>
+                  </div>
+                </>
+              ) : (
+                /* ── FORM MODE — enter / edit vitals ── */
+                <>
+                  <p style={{ color:'var(--aura-text-muted)', fontSize:'0.8rem', marginBottom:'1.5rem' }}>
+                    {es ? 'Introduce los últimos datos de salud de tu mascota:' : "Enter your pet's latest health data:"}
+                  </p>
 
-              <button
-                className="btn-aura btn-full"
-                onClick={() => setShowPerformanceDetail(false)}
-              >
-                {locale === 'es' ? 'CERRAR' : 'CLOSE'}
-              </button>
+                  {/* Heart rate */}
+                  <div className="form-group">
+                    <label className="input-label">{es?'Frecuencia Cardíaca (BPM)':'Heart Rate (BPM)'}</label>
+                    <input type="number" className="aura-input" min="1" max="400"
+                      placeholder={es?'Ej: 72':'E.g. 72'}
+                      value={vitalsForm.heartRate}
+                      onChange={e => setVitalsForm(p=>({...p, heartRate: e.target.value}))} />
+                  </div>
+
+                  {/* Activity slider */}
+                  <div className="form-group">
+                    <div style={{ display:'flex', justifyContent:'space-between', marginBottom:'0.6rem' }}>
+                      <label className="input-label" style={{ marginBottom:0 }}>{es?'Actividad Diaria':'Daily Activity'}</label>
+                      <span style={{ fontSize:'0.9rem', color:'var(--aura-gold)', fontWeight:700 }}>{vitalsForm.activity}%</span>
+                    </div>
+                    <input type="range" className="aura-range" min="0" max="100"
+                      value={vitalsForm.activity}
+                      onChange={e => setVitalsForm(p=>({...p, activity: parseInt(e.target.value)}))} />
+                  </div>
+
+                  {/* Weight */}
+                  <div className="form-group">
+                    <label className="input-label">{es?'Peso Actual (kg)':'Current Weight (kg)'}</label>
+                    <input type="number" className="aura-input" min="0" step="0.1"
+                      placeholder={es?'Ej: 28.5':'E.g. 28.5'}
+                      value={vitalsForm.weight}
+                      onChange={e => setVitalsForm(p=>({...p, weight: e.target.value}))} />
+                  </div>
+
+                  {/* Status */}
+                  <div className="form-group">
+                    <label className="input-label">{es?'Estado General':'Overall Status'}</label>
+                    <select className="aura-input aura-select"
+                      value={vitalsForm.status}
+                      onChange={e => setVitalsForm(p=>({...p, status: e.target.value}))}>
+                      {STATUS_OPTS.map(([val, lbl]) => <option key={val} value={val}>{lbl}</option>)}
+                    </select>
+                  </div>
+
+                  {/* Notes */}
+                  <div className="form-group">
+                    <label className="input-label">{es?'Notas Veterinarias (opcional)':'Vet Notes (optional)'}</label>
+                    <textarea className="aura-input" rows={3} style={{ resize:'vertical', minHeight:70 }}
+                      placeholder={es?'Observaciones del veterinario...':'Vet observations...'}
+                      value={vitalsForm.notes}
+                      onChange={e => setVitalsForm(p=>({...p, notes: e.target.value}))} />
+                  </div>
+
+                  <div style={{ display:'flex', gap:'1rem' }}>
+                    <button className="btn-aura" style={{ flex:1 }}
+                      onClick={() => { setShowPerformanceDetail(false); setEditingVitals(false); }}>
+                      {es?'CANCELAR':'CANCEL'}
+                    </button>
+                    <button className="btn-aura"
+                      style={{ flex:2, borderColor: vitalsForm.heartRate ? 'var(--aura-gold)' : 'var(--aura-border)', opacity: vitalsForm.heartRate ? 1 : 0.45 }}
+                      disabled={!vitalsForm.heartRate}
+                      onClick={saveVitals}>
+                      {es?'GUARDAR DATOS':'SAVE DATA'}
+                    </button>
+                  </div>
+                </>
+              )}
             </motion.div>
           </motion.div>
         )}
