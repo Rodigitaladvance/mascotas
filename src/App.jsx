@@ -131,6 +131,11 @@ const AppContent = () => {
     setPets(prev => prev.map(p => p.id === updatedPet.id ? updatedPet : p));
   };
 
+  const handleDeletePet = (petId) => {
+    storage.deletePet(user.id, petId);
+    setPets(prev => prev.filter(p => p.id !== petId));
+  };
+
   /* ── Auth / Onboarding gates ── */
   if (!user) return <Auth />;
   if (showOnboarding) return <Onboarding onComplete={handleOnboardingComplete} />;
@@ -226,7 +231,7 @@ const AppContent = () => {
           <Routes location={location} key={location.pathname}>
             <Route path="/dashboard" element={
               <motion.div {...TAB_VARIANTS}>
-                <Dashboard pets={pets} onAddPet={() => navigate('/registro')} onSelectPet={() => navigate('/passport')} onUpdatePet={handleUpdatePet} />
+                <Dashboard pets={pets} onAddPet={() => navigate('/registro')} onSelectPet={() => navigate('/passport')} onUpdatePet={handleUpdatePet} onDeletePet={handleDeletePet} />
               </motion.div>
             } />
             <Route path="/passport" element={

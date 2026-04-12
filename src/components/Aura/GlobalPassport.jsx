@@ -27,7 +27,9 @@ const statusLabel = (s, locale) => ({
 const buildRequirements = (pet, countryId, locale) => {
   const es = locale === 'es';
   const hasMicrochip = !!pet?.microchip?.trim();
+  const h = pet?.health || {};
 
+  /* Microchip */
   const chip = {
     icon: 'chip',
     label: 'Microchip ISO 11784/11785',
@@ -37,11 +39,37 @@ const buildRequirements = (pet, countryId, locale) => {
       : es ? 'Introduce el nº de microchip en el registro' : 'Enter microchip number in registration',
   };
 
+  /* Rabies vaccine — uses real data from pet.health */
+  const rv = h.rabiesVaccine || {};
   const rabies = {
     icon: 'syringe',
     label: es ? 'Vacuna Antirrábica' : 'Rabies Vaccination',
-    status: 'pending',
-    detail: es ? 'Pendiente — añade en historial veterinario' : 'Pending — add in veterinary history',
+    status: rv.status || 'pending',
+    detail: rv.status === 'ok' && rv.expiry
+      ? `${es ? 'Válida hasta' : 'Valid until'} ${new Date(rv.expiry).toLocaleDateString(es ? 'es-ES' : 'en-GB')}`
+      : es ? 'Pendiente — añade en Documentación' : 'Pending — add in Health Docs',
+  };
+
+  /* EU Passport — real data */
+  const ep = h.europeanPassport || {};
+  const euPassport = {
+    icon: 'doc',
+    label: 'Pasaporte Europeo EU',
+    status: ep.status || 'pending',
+    detail: ep.status === 'ok' && ep.number
+      ? `N.º ${ep.number} — ${es ? 'Firmado' : 'Signed'}`
+      : es ? 'Requiere firma veterinaria oficial' : 'Requires official vet signature',
+  };
+
+  /* Health cert — real data */
+  const hc = h.healthCert || {};
+  const healthCert = {
+    icon: 'vet',
+    label: es ? 'Certificado Sanitario' : 'Health Certificate',
+    status: hc.status || 'pending',
+    detail: hc.status === 'ok'
+      ? es ? 'Certificado emitido' : 'Certificate issued'
+      : hc.notes || (es ? 'Firma veterinaria pendiente' : 'Pending vet signature'),
   };
 
   const titreTest = {
@@ -59,27 +87,18 @@ const buildRequirements = (pet, countryId, locale) => {
   };
 
   switch (countryId) {
-    case 'ES': return [
-      chip,
-      rabies,
-      { icon: 'doc', label: 'Pasaporte Europeo EU', status: hasMicrochip ? 'pending' : 'pending',
-        detail: es ? 'Requiere firma veterinaria oficial' : 'Requires official vet signature' },
-      { icon: 'vet', label: es ? 'Certificado Sanitario' : 'Health Certificate', status: 'pending',
-        detail: es ? 'Firma veterinaria pendiente' : 'Pending vet signature' },
-    ];
+    case 'ES': return [chip, rabies, euPassport, healthCert];
     case 'UK': return [
       chip,
       rabies,
-      { icon: 'doc', label: 'Animal Health Certificate (AHC)', status: 'pending',
-        detail: es ? 'Certificado AHC — cumplimiento APHA' : 'AHC issued — APHA compliant' },
+      { ...healthCert, label: 'Animal Health Certificate (AHC)' },
       tapeworm,
     ];
     case 'US': return [
       chip,
-      { icon: 'syringe', label: 'Rabies Certificate (USDA)', status: 'pending',
-        detail: es ? 'Veterinario acreditado USDA' : 'USDA-accredited vet required' },
-      { icon: 'doc', label: 'CDC Health Certificate', status: 'pending',
-        detail: es ? 'Emitido en los 10 días previos al viaje' : 'Issued within 10 days of travel' },
+      { ...rabies, label: 'Rabies Certificate (USDA)',
+        detail: rabies.status === 'ok' ? rabies.detail : (es ? 'Veterinario acreditado USDA' : 'USDA-accredited vet required') },
+      { ...healthCert, label: 'CDC Health Certificate' },
       { icon: 'vet', label: 'Screwworm Inspection', status: 'pending',
         detail: es ? 'Requerido desde ciertos orígenes' : 'Required from specific origins' },
     ];
@@ -87,7 +106,7 @@ const buildRequirements = (pet, countryId, locale) => {
       chip,
       rabies,
       { icon: 'doc', label: 'CFIA Import Certificate', status: 'pending',
-        detail: es ? "Certificado de importación requerido" : "Import certificate required" },
+        detail: es ? 'Certificado de importación requerido' : 'Import certificate required' },
       { icon: 'vet', label: es ? 'Actualización Política Garrapatas 2025' : 'Tick Policy Update 2025', status: 'alert',
         detail: es ? 'Verificar país de origen con CFIA' : 'Verify origin country with CFIA' },
     ];

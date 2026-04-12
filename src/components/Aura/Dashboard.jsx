@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Shield, Activity, ChevronRight, Zap, Wind, Calendar, Award, PlusCircle } from 'lucide-react';
+import { Shield, Activity, ChevronRight, Zap, Wind, Calendar, Award, PlusCircle, Pencil } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import { useTranslation } from '../../context/LocalizationContext';
 import ChronographGauge from './ChronographGauge';
+import PetEditModal from './PetEditModal';
 
 const EMPTY_VITALS = { heartRate: '', activity: 50, weight: '', status: 'good', notes: '' };
 
-const Dashboard = ({ pets, onAddPet, onSelectPet, onUpdatePet }) => {
+const Dashboard = ({ pets, onAddPet, onSelectPet, onUpdatePet, onDeletePet }) => {
   const { t, locale } = useTranslation();
   const [showPerformanceDetail, setShowPerformanceDetail] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
   const [editingVitals, setEditingVitals] = useState(false);
   const [vitalsForm, setVitalsForm] = useState(EMPTY_VITALS);
   const pet = pets?.[0] || null;
@@ -166,8 +168,20 @@ const Dashboard = ({ pets, onAddPet, onSelectPet, onUpdatePet }) => {
             </div>
           </div>
           <div style={{ marginTop: '2.5rem', textAlign: 'center' }}>
-            <h3 style={{ fontSize: '1.8rem', color: 'var(--aura-text)' }}>{pet.name}</h3>
-            <p style={{ color: 'var(--aura-text-muted)', fontSize: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', margin: 0 }}>
+            <div style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:'0.8rem' }}>
+              <h3 style={{ fontSize: '1.8rem', color: 'var(--aura-text)', margin:0 }}>{pet.name}</h3>
+              <button onClick={() => setShowEditModal(true)}
+                title={es?'Editar perfil':'Edit profile'}
+                style={{ background:'none', border:'1px solid var(--aura-border)', color:'var(--aura-text-muted)',
+                  cursor:'pointer', borderRadius:'50%', width:28, height:28,
+                  display:'flex', alignItems:'center', justifyContent:'center',
+                  transition:'all 0.2s', flexShrink:0 }}
+                onMouseEnter={e=>{e.currentTarget.style.borderColor='var(--aura-gold)';e.currentTarget.style.color='var(--aura-gold)';}}
+                onMouseLeave={e=>{e.currentTarget.style.borderColor='var(--aura-border)';e.currentTarget.style.color='var(--aura-text-muted)';}}>
+                <Pencil size={13} />
+              </button>
+            </div>
+            <p style={{ color: 'var(--aura-text-muted)', fontSize: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', margin: '0.4rem 0 0' }}>
               <span className="status-indicator status-active" />
               {t('dashboard.systemCertified')}
             </p>
@@ -370,6 +384,18 @@ const Dashboard = ({ pets, onAddPet, onSelectPet, onUpdatePet }) => {
       )}
 
       <div style={{ height: '6rem' }} />
+
+      {/* ── Pet Edit Modal ── */}
+      <AnimatePresence>
+        {showEditModal && (
+          <PetEditModal
+            pet={pet}
+            onSave={(updated) => onUpdatePet && onUpdatePet(updated)}
+            onDelete={(id)  => onDeletePet && onDeletePet(id)}
+            onClose={() => setShowEditModal(false)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 };

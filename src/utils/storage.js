@@ -34,5 +34,10 @@ export const storage = {
 
   getDocuments: (userId, petId) => {
     return vault.getScopedData(userId, `docs_${petId}`) || [];
-  }
+  },
+
+  deletePet: (userId, petId) => {
+    const allPets = storage.getPets(userId);
+    vault.setScopedData(userId, 'pets', allPets.filter(p => p.id !== petId));
+  },
 };
