@@ -162,7 +162,9 @@ const Dashboard = ({ pets, onAddPet, onSelectPet }) => {
             <div style={{ background: 'rgba(0,245,255,0.05)', padding: '1rem', borderRadius: 2 }}><Wind color="var(--aura-neon-cyan)" /></div>
             <div>
               <h4 style={{ margin: '0 0 0.3rem', fontSize: '0.85rem', color: 'var(--aura-text)' }}>{t('dashboard.globalImmunity')}</h4>
-              <p style={{ margin: 0, fontSize: '0.7rem', color: 'var(--aura-text-muted)' }}>ISO-Cert: 2026-XQ</p>
+              <p style={{ margin: 0, fontSize: '0.7rem', color: 'var(--aura-text-muted)' }}>
+                {locale === 'es' ? 'Ver requisitos por país' : 'View per-country requirements'}
+              </p>
             </div>
           </div>
 
@@ -174,7 +176,9 @@ const Dashboard = ({ pets, onAddPet, onSelectPet }) => {
             <div style={{ background: 'rgba(255,0,122,0.05)', padding: '1rem', borderRadius: 2 }}><Zap color="var(--aura-neon-pink)" /></div>
             <div>
               <h4 style={{ margin: '0 0 0.3rem', fontSize: '0.85rem', color: 'var(--aura-text)' }}>{t('dashboard.cardio')}</h4>
-              <p style={{ margin: 0, fontSize: '0.7rem', color: 'var(--aura-text-muted)' }}>Optimum Performance</p>
+              <p style={{ margin: 0, fontSize: '0.7rem', color: 'var(--aura-text-muted)' }}>
+                {locale === 'es' ? 'Sin datos registrados aún' : 'No data recorded yet'}
+              </p>
             </div>
           </div>
 
@@ -209,39 +213,25 @@ const Dashboard = ({ pets, onAddPet, onSelectPet }) => {
               <h2 style={{ fontSize: '1.8rem', marginBottom: '1.5rem', color: 'var(--aura-neon-pink)', display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
                 <Zap /> {t('dashboard.cardio')}
               </h2>
-              <div style={{ marginBottom: '2rem' }}>
-                <p style={{ color: 'var(--aura-text-muted)', marginBottom: '1rem' }}>Estado de actividad en tiempo real</p>
-                <div style={{ padding: '1.5rem', background: 'rgba(255,255,255,0.03)', borderRadius: 4, display: 'grid', gap: '1rem' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span>Pulsaciones</span>
-                    <span style={{ color: 'var(--aura-neon-pink)', fontWeight: 700 }}>72 BPM</span>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span>Actividad Diaria</span>
-                    <span style={{ color: 'var(--aura-gold)', fontWeight: 700 }}>85%</span>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span>Estado</span>
-                    <span style={{ color: 'var(--aura-neon-cyan)', fontWeight: 700 }}>OPTIMO</span>
-                  </div>
-                </div>
+
+              {/* Empty state — no vitals entered yet */}
+              <div style={{ padding: '3rem 2rem', textAlign: 'center', background: 'rgba(255,255,255,0.02)', borderRadius: 4, marginBottom: '2rem', border: '1px dashed rgba(255,0,122,0.2)' }}>
+                <Zap size={36} color="var(--aura-neon-pink)" style={{ opacity: 0.3, marginBottom: '1.2rem' }} />
+                <p style={{ margin: '0 0 0.5rem', fontWeight: 600, fontSize: '0.9rem' }}>
+                  {locale === 'es' ? 'Aún no hay datos de actividad' : 'No activity data yet'}
+                </p>
+                <p style={{ margin: 0, fontSize: '0.78rem', color: 'var(--aura-text-muted)', lineHeight: 1.6 }}>
+                  {locale === 'es'
+                    ? 'Añade registros de salud en el historial veterinario para ver las métricas de rendimiento de tu mascota aquí.'
+                    : 'Add health records in the veterinary history to see your pet\'s performance metrics here.'}
+                </p>
               </div>
-              <div style={{ height: 100, display: 'flex', alignItems: 'flex-end', gap: 4 }}>
-                {[40, 60, 45, 70, 50, 80, 65, 90, 75, 85].map((h, i) => (
-                  <motion.div 
-                    key={i}
-                    initial={{ height: 0 }}
-                    animate={{ height: `${h}%` }}
-                    style={{ flex: 1, background: 'var(--aura-neon-pink)', borderRadius: '2px 2px 0 0' }}
-                  />
-                ))}
-              </div>
-              <button 
-                className="btn-aura btn-full" 
-                style={{ marginTop: '2.5rem' }}
+
+              <button
+                className="btn-aura btn-full"
                 onClick={() => setShowPerformanceDetail(false)}
               >
-                CERRAR DETALLE
+                {locale === 'es' ? 'CERRAR' : 'CLOSE'}
               </button>
             </motion.div>
           </motion.div>
