@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Shield, Activity, ChevronRight, Zap, Wind, Calendar, Award, PlusCircle } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import { useTranslation } from '../../context/LocalizationContext';
@@ -7,6 +6,7 @@ import ChronographGauge from './ChronographGauge';
 
 const Dashboard = ({ pets, onAddPet, onSelectPet }) => {
   const { t, locale } = useTranslation();
+  const [showPerformanceDetail, setShowPerformanceDetail] = useState(false);
   const pet = pets?.[0] || null;
   const healthScore = 95;
 
@@ -153,7 +153,11 @@ const Dashboard = ({ pets, onAddPet, onSelectPet }) => {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', alignContent: 'start' }}>
           {renderSpeciesPanel()}
 
-          <div className="aura-card" style={{ padding: '2rem', display: 'flex', gap: '1.2rem', alignItems: 'center' }}>
+          <div 
+            className="aura-card" 
+            style={{ padding: '2rem', display: 'flex', gap: '1.2rem', alignItems: 'center', cursor: 'pointer' }}
+            onClick={() => onSelectPet && onSelectPet(pet.id)}
+          >
             <div style={{ background: 'rgba(0,245,255,0.05)', padding: '1rem', borderRadius: 2 }}><Wind color="var(--aura-neon-cyan)" /></div>
             <div>
               <h4 style={{ margin: '0 0 0.3rem', fontSize: '0.85rem', color: 'var(--aura-text)' }}>{t('dashboard.globalImmunity')}</h4>
@@ -161,7 +165,11 @@ const Dashboard = ({ pets, onAddPet, onSelectPet }) => {
             </div>
           </div>
 
-          <div className="aura-card" style={{ padding: '2rem', display: 'flex', gap: '1.2rem', alignItems: 'center' }}>
+          <div 
+            className="aura-card" 
+            style={{ padding: '2rem', display: 'flex', gap: '1.2rem', alignItems: 'center', cursor: 'pointer' }}
+            onClick={() => setShowPerformanceDetail(true)}
+          >
             <div style={{ background: 'rgba(255,0,122,0.05)', padding: '1rem', borderRadius: 2 }}><Zap color="var(--aura-neon-pink)" /></div>
             <div>
               <h4 style={{ margin: '0 0 0.3rem', fontSize: '0.85rem', color: 'var(--aura-text)' }}>{t('dashboard.cardio')}</h4>
@@ -175,6 +183,69 @@ const Dashboard = ({ pets, onAddPet, onSelectPet }) => {
           </button>
         </div>
       </div>
+
+      {/* ── Performance Modal ── */}
+      <AnimatePresence>
+        {showPerformanceDetail && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            style={{ 
+              position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(10px)',
+              zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem'
+            }}
+            onClick={() => setShowPerformanceDetail(false)}
+          >
+            <motion.div 
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="aura-card"
+              style={{ maxWidth: 500, width: '100%', padding: '3rem', position: 'relative' }}
+              onClick={e => e.stopPropagation()}
+            >
+              <h2 style={{ fontSize: '1.8rem', marginBottom: '1.5rem', color: 'var(--aura-neon-pink)', display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                <Zap /> {t('dashboard.cardio')}
+              </h2>
+              <div style={{ marginBottom: '2rem' }}>
+                <p style={{ color: 'var(--aura-text-muted)', marginBottom: '1rem' }}>Estado de actividad en tiempo real</p>
+                <div style={{ padding: '1.5rem', background: 'rgba(255,255,255,0.03)', borderRadius: 4, display: 'grid', gap: '1rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span>Pulsaciones</span>
+                    <span style={{ color: 'var(--aura-neon-pink)', fontWeight: 700 }}>72 BPM</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span>Actividad Diaria</span>
+                    <span style={{ color: 'var(--aura-gold)', fontWeight: 700 }}>85%</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span>Estado</span>
+                    <span style={{ color: 'var(--aura-neon-cyan)', fontWeight: 700 }}>OPTIMO</span>
+                  </div>
+                </div>
+              </div>
+              <div style={{ height: 100, display: 'flex', alignItems: 'flex-end', gap: 4 }}>
+                {[40, 60, 45, 70, 50, 80, 65, 90, 75, 85].map((h, i) => (
+                  <motion.div 
+                    key={i}
+                    initial={{ height: 0 }}
+                    animate={{ height: `${h}%` }}
+                    style={{ flex: 1, background: 'var(--aura-neon-pink)', borderRadius: '2px 2px 0 0' }}
+                  />
+                ))}
+              </div>
+              <button 
+                className="btn-aura btn-full" 
+                style={{ marginTop: '2.5rem' }}
+                onClick={() => setShowPerformanceDetail(false)}
+              >
+                CERRAR DETALLE
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* ── Members Vault ── */}
       {pets.length > 1 && (

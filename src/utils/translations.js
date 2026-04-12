@@ -35,14 +35,14 @@ export const translations = {
       btnStart: "INICIAR CONFIGURACIÓN"
     },
     dashboard: {
-      executiveTitle: "Resumen Ejecutivo",
+      executiveTitle: "Estado de Salud",
       bioIntel: "Inteligencia Biológica",
       vitals: "Estado Vital",
       vaultTitle: "Bóveda de Miembros",
       scoreTitle: "Puntaje Aura",
       systemCertified: "Sistema Bio-Certificado por Vault™",
-      globalImmunity: "Inmunidad Global",
-      cardio: "Estado Cardiovascular",
+      globalImmunity: "Pasaporte de Vacunación",
+      cardio: "Rendimiento y Corazón",
       reportBtn: "Ver Reporte Veterinario Completo"
     },
     passport: {

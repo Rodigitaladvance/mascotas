@@ -15,7 +15,7 @@ const SPECIES = [
     img: 'https://images.unsplash.com/photo-1474511320723-9a56873867b5?w=200&q=80&fit=crop' },
   { id: 'bird',  label: 'Ave',      labelEn: 'Bird',   emoji: '🦜',
     img: 'https://images.unsplash.com/photo-1591198936750-16d8e15edb9e?w=200&q=80&fit=crop' },
-  { id: 'other', label: 'Otro', labelEn: 'Other', emoji: '+', img: null, isOther: true },
+  { id: 'other', label: 'OTRA MASCOTA', labelEn: 'Other Pet', emoji: '+', img: null, isOther: true },
 ];
 
 const COMPETITION_ES = ['Doma Clásica','Salto de Obstáculos','Endurance','Polo','Reining'];
@@ -282,8 +282,8 @@ const PetRegistration = ({ onSave, onCancel }) => {
                 }}
               >
                 <PlusCircle size={28} color="var(--aura-gold)" strokeWidth={1.5} />
-                <span style={{ fontSize: '0.55rem', letterSpacing: '1.5px', color: 'var(--aura-gold)', textTransform: 'uppercase', textAlign: 'center', lineHeight: 1.3, padding: '0 4px' }}>
-                  {locale === 'es' ? 'Otro' : 'Other'}
+                <span style={{ fontSize: '0.6rem', letterSpacing: '1px', color: 'var(--aura-gold)', textTransform: 'uppercase', textAlign: 'center', lineHeight: 1.2, padding: '0 4px', fontWeight: 'bold' }}>
+                  {locale === 'es' ? 'OTRA MASCOTA' : 'OTHER PET'}
                 </span>
                 {isSelected && (
                   <div className="species-check">✓ {locale==='es'?'Seleccionado':'Selected'}</div>
