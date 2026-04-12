@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Routes, Route, useNavigate, useLocation, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { LocalizationProvider, useTranslation } from './context/LocalizationContext';
 import Auth from './components/Auth';
@@ -18,11 +19,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 /* ── Tab definitions ── */
 const NAV_TABS = [
-  { id: 'dashboard', iconD: LayoutDashboard, label: 'Dashboard' },
-  { id: 'passport',  iconD: Globe,           label: 'Passport'  },
-  { id: 'add',       iconD: PlusCircle,      label: 'Registro', isCTA: true },
-  { id: 'privacy',   iconD: ShieldCheck,     label: 'Privacidad' },
-  { id: 'settings',  iconD: Settings,        label: 'Ajustes'   },
+  { id: 'dashboard', path: '/dashboard', iconD: LayoutDashboard, label: 'Dashboard' },
+  { id: 'passport',  path: '/passport',  iconD: Globe,           label: 'Passport'  },
+  { id: 'add',       path: '/registro',  iconD: PlusCircle,      label: 'Registro', isCTA: true },
+  { id: 'privacy',   path: '/privacy',   iconD: ShieldCheck,     label: 'Privacidad' },
+  { id: 'settings',  path: '/settings',  iconD: Settings,        label: 'Ajustes'   },
 ];
 
 const TAB_VARIANTS = {
@@ -33,13 +34,15 @@ const TAB_VARIANTS = {
 
 /* ════════════════════════════════
    Inner App — requires providers
+   We use AppContent within BrowserRouter (in main.jsx)
 ════════════════════════════════ */
 const AppContent = () => {
   const { user, logout } = useAuth();
   const { t, locale, setManualConfig, currency } = useTranslation();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const [pets, setPets]           = useState([]);
-  const [activeTab, setActiveTab] = useState('dashboard');
   const [isSOS, setIsSOS]         = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
 
@@ -65,13 +68,15 @@ const AppContent = () => {
     };
     storage.savePet(user.id, petWithMeta);
     setPets(prev => [...prev, petWithMeta]);
-    setActiveTab('dashboard');
+    navigate('/dashboard');
   };
 
   /* ── Auth / Onboarding gates ── */
   if (!user) return <Auth />;
   if (showOnboarding) return <Onboarding onComplete={handleOnboardingComplete} />;
   if (isSOS) return <SOSMode pet={pets[0]} onExit={() => setIsSOS(false)} />;
+
+  const activeId = NAV_TABS.find(tab => location.pathname === tab.path)?.id || 'dashboard';
 
   /* ── Main layout ── */
   return (
@@ -91,15 +96,15 @@ const AppContent = () => {
         </div>
 
         <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
-          {NAV_TABS.map(({ id, iconD: Icon, isCTA }) => (
-            <button key={id} onClick={() => setActiveTab(id)}
+          {NAV_TABS.map(({ id, path, iconD: Icon, isCTA }) => (
+            <button key={id} onClick={() => navigate(path)}
               className="btn-aura"
               style={{
                 padding: '0.5rem 1rem',
                 border: isCTA
                   ? '1px solid var(--aura-neon-cyan)'
-                  : activeTab === id ? '1px solid var(--aura-gold)' : '1px solid transparent',
-                color: isCTA ? 'var(--aura-neon-cyan)' : activeTab === id ? 'var(--aura-gold)' : 'var(--aura-text-muted)',
+                  : activeId === id ? '1px solid var(--aura-gold)' : '1px solid transparent',
+                color: isCTA ? 'var(--aura-neon-cyan)' : activeId === id ? 'var(--aura-gold)' : 'var(--aura-text-muted)',
                 opacity: 1,
                 display: 'flex', alignItems: 'center', gap: '0.4rem',
               }}>
@@ -123,79 +128,70 @@ const AppContent = () => {
       {/* ── Content ── */}
       <div className="app-container">
         <AnimatePresence mode="wait">
-          {activeTab === 'dashboard' && (
-            <motion.div key="dashboard" {...TAB_VARIANTS}>
-              <Dashboard pets={pets} onAddPet={() => setActiveTab('add')} onSelectPet={() => setActiveTab('passport')} />
-            </motion.div>
-          )}
-          {activeTab === 'passport' && (
-            <motion.div key="passport" {...TAB_VARIANTS} style={{ paddingTop: '2rem' }}>
-              <GlobalPassport pet={pets[0]} />
-            </motion.div>
-          )}
-          {activeTab === 'add' && (
-            <motion.div key="add" {...TAB_VARIANTS}>
-              <PetRegistration onSave={handleAddPet} onCancel={() => setActiveTab('dashboard')} />
-            </motion.div>
-          )}
-          {activeTab === 'privacy' && (
-            <motion.div key="privacy" {...TAB_VARIANTS} style={{ paddingTop: '2rem' }}>
-              <PrivacyVault />
-            </motion.div>
-          )}
-          {activeTab === 'settings' && (
-            <motion.div key="settings" {...TAB_VARIANTS}>
-              <div className="aura-card" style={{ maxWidth: 540, margin: '3rem auto' }}>
-                <h2 style={{ fontSize: '2rem', marginBottom: '3rem' }}>{t('common.settings')}</h2>
-
-                <div style={{ display: 'grid', gap: '3rem' }}>
-                  <div>
-                    <p style={{ fontSize: '0.68rem', letterSpacing: '2.5px', opacity: 0.5, marginBottom: '1.2rem', textTransform: 'uppercase' }}>
-                      {locale === 'es' ? 'Idioma y Región' : 'Language & Region'}
-                    </p>
-                    <div style={{ display: 'flex', gap: '1rem' }}>
-                      <button className={`btn-aura${locale === 'es' ? ' btn-neon' : ''}`}
-                        onClick={() => setManualConfig('es')}>ESPAÑOL</button>
-                      <button className={`btn-aura${locale === 'en' ? ' btn-neon' : ''}`}
-                        onClick={() => setManualConfig('en')}>ENGLISH</button>
+          <Routes location={location} key={location.pathname}>
+            <Route path="/dashboard" element={
+              <motion.div {...TAB_VARIANTS}>
+                <Dashboard pets={pets} onAddPet={() => navigate('/registro')} onSelectPet={() => navigate('/passport')} />
+              </motion.div>
+            } />
+            <Route path="/passport" element={
+              <motion.div {...TAB_VARIANTS} style={{ paddingTop: '2rem' }}>
+                <GlobalPassport pet={pets[0]} />
+              </motion.div>
+            } />
+            <Route path="/registro" element={
+              <motion.div {...TAB_VARIANTS}>
+                <PetRegistration onSave={handleAddPet} onCancel={() => navigate('/dashboard')} />
+              </motion.div>
+            } />
+            <Route path="/privacy" element={
+              <motion.div {...TAB_VARIANTS} style={{ paddingTop: '2rem' }}>
+                <PrivacyVault />
+              </motion.div>
+            } />
+            <Route path="/settings" element={
+              <motion.div {...TAB_VARIANTS}>
+                <div className="aura-card" style={{ maxWidth: 540, margin: '3rem auto' }}>
+                  <h2 style={{ fontSize: '2rem', marginBottom: '3rem' }}>{t('common.settings')}</h2>
+                  <div style={{ display: 'grid', gap: '3rem' }}>
+                    <div>
+                      <p style={{ fontSize: '0.68rem', letterSpacing: '2.5px', opacity: 0.5, marginBottom: '1.2rem', textTransform: 'uppercase' }}>
+                        {locale === 'es' ? 'Idioma y Región' : 'Language & Region'}
+                      </p>
+                      <div style={{ display: 'flex', gap: '1rem' }}>
+                        <button className={`btn-aura${locale === 'es' ? ' btn-neon' : ''}`}
+                          onClick={() => setManualConfig('es')}>ESPAÑOL</button>
+                        <button className={`btn-aura${locale === 'en' ? ' btn-neon' : ''}`}
+                          onClick={() => setManualConfig('en')}>ENGLISH</button>
+                      </div>
                     </div>
-                  </div>
-
-                  <div>
-                    <p style={{ fontSize: '0.68rem', letterSpacing: '2.5px', opacity: 0.5, marginBottom: '1.2rem', textTransform: 'uppercase' }}>
-                      {locale === 'es' ? 'Divisa de Referencia' : 'Reference Currency'}
-                    </p>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                      {['EUR','USD','GBP','AUD'].map(c => (
-                        <button key={c} className={`btn-aura${currency === c ? ' btn-neon' : ''}`}
-                          onClick={() => setManualConfig(null, c)}>{c}</button>
-                      ))}
+                    <div>
+                      <p style={{ fontSize: '0.68rem', letterSpacing: '2.5px', opacity: 0.5, marginBottom: '1.2rem', textTransform: 'uppercase' }}>
+                        {locale === 'es' ? 'Divisa de Referencia' : 'Reference Currency'}
+                      </p>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                        {['EUR','USD','GBP','AUD'].map(c => (
+                          <button key={c} className={`btn-aura${currency === c ? ' btn-neon' : ''}`}
+                            onClick={() => setManualConfig(null, c)}>{c}</button>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-
-                  <div style={{ paddingTop: '2rem', borderTop: '1px solid var(--aura-border)' }}>
-                    <p style={{ fontSize: '0.8rem', color: 'var(--aura-neon-cyan)', fontWeight: 700, margin: '0 0 0.5rem' }}>
-                      ESTÁNDAR GDPR / HIPAA ACTIVO
-                    </p>
-                    <p style={{ fontSize: '0.82rem', color: 'var(--aura-text-muted)', margin: 0 }}>
-                      {locale === 'es'
-                        ? 'Sus datos biométricos están cifrados localmente. Solo usted posee la llave.'
-                        : 'Your biometric data is locally encrypted. Only you hold the key.'}
-                    </p>
                   </div>
                 </div>
-              </div>
-            </motion.div>
-          )}
+              </motion.div>
+            } />
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          </Routes>
         </AnimatePresence>
       </div>
 
       {/* ── Mobile bottom tab bar ── */}
       <nav className="bottom-tab-bar">
-        {NAV_TABS.map(({ id, iconD: Icon, label, isCTA }) => (
+        {NAV_TABS.map(({ id, path, iconD: Icon, label, isCTA }) => (
           <button key={id}
-            className={`tab-btn${activeTab === id ? ' active' : ''}${isCTA ? ' confirm-tab' : ''}`}
-            onClick={() => setActiveTab(id)}>
+            className={`tab-btn${activeId === id ? ' active' : ''}${isCTA ? ' confirm-tab' : ''}`}
+            onClick={() => navigate(path)}>
             <Icon size={isCTA ? 22 : 20} />
             {!isCTA && <span>{label}</span>}
           </button>
@@ -209,13 +205,11 @@ const AppContent = () => {
   );
 };
 
-/* ── Root ── */
+/* ── Localization & Auth wrap only, Browser Router in main.jsx ── */
 const App = () => (
-  <LocalizationProvider>
     <AuthProvider>
       <AppContent />
     </AuthProvider>
-  </LocalizationProvider>
 );
 
 export default App;
