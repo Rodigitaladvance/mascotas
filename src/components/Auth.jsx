@@ -63,7 +63,7 @@ const Auth = () => {
           />
           <h1 style={{ fontSize: '2.4rem', margin: '0 0 0.5rem', letterSpacing: '-1px' }}>AURA <span style={{ color: 'var(--aura-gold)' }}>Pets</span></h1>
           <p style={{ color: 'var(--aura-text-muted)', fontSize: '0.85rem', letterSpacing: '2px', textTransform: 'uppercase' }}>
-            {isRegister ? 'Crear Registro Biométrico' : 'Portal de Acceso Vault™'}
+            {isRegister ? 'Crear Registro Biométrico' : 'Portal de Acceso AURA'}
           </p>
         </header>
 
@@ -111,7 +111,7 @@ const Auth = () => {
           )}
 
           <button type="submit" disabled={loading} className="btn-aura" style={{ padding: '1.2rem', width: '100%' }}>
-            {loading ? 'AUTENTICANDO...' : (isRegister ? 'ACTIVAR AURA PROTOCOL' : 'ACCEDER A LA BÓVEDA')}
+            {loading ? 'AUTENTICANDO...' : (isRegister ? 'ACTIVAR AURA PROTOCOL' : 'ACCEDER AL EXPEDIENTE')}
           </button>
         </form>
 

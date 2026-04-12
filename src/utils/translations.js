@@ -1,14 +1,14 @@
 export const translations = {
   es: {
     common: {
-      loading: "Autenticando Bóveda...",
+      loading: "Abriendo Expediente...",
       save: "Guardar",
       cancel: "Cancelar",
       back: "Regresar",
       next: "Siguiente",
       close: "Cerrar",
       settings: "Ajustes",
-      logout: "Bloquear Bóveda",
+      logout: "Cerrar Sesión Segura",
       active: "ACTIVO",
       compliance: "Protocolo Vital",
       identity: "Identidad Biométrica"
@@ -17,11 +17,11 @@ export const translations = {
       title: "AURA",
       subtitle: "Pets",
       slogan: "Excelencia Sanitaria Global",
-      loginTitle: "Portal de Acceso Vault™",
+      loginTitle: "Acceso a Expedientes",
       registerTitle: "Crear Registro Biométrico",
       emailLabel: "DIRECCIÓN DE ENLACE",
       passLabel: "CLAVE DE SEGURIDAD",
-      btnEnter: "ACCEDER A LA BÓVEDA",
+      btnEnter: "ACCEDER AL EXPEDIENTE",
       btnRegister: "ACTIVAR PROTOCOLO AURA",
       switchLogin: "¿YA TIENES UN REGISTRO? ENTRA AQUÍ",
       switchRegister: "¿NUEVO EN EL ECOSISTEMA? CREAR CUENTA",
@@ -38,11 +38,11 @@ export const translations = {
       executiveTitle: "Estado de Salud",
       bioIntel: "Inteligencia Biológica",
       vitals: "Estado Vital",
-      vaultTitle: "Bóveda de Miembros",
+      vaultTitle: "Mis Archivos de Mascotas",
       scoreTitle: "Puntaje Aura",
-      systemCertified: "Sistema Bio-Certificado por Vault™",
+      systemCertified: "Expediente Médicamente Verificado",
       globalImmunity: "Pasaporte de Vacunación",
-      cardio: "Rendimiento y Corazón",
+      cardio: "Historial de Rendimiento",
       reportBtn: "Ver Reporte Veterinario Completo"
     },
     passport: {
@@ -84,14 +84,14 @@ export const translations = {
   },
   en: {
     common: {
-      loading: "Authenticating Vault...",
+      loading: "Opening Records...",
       save: "Save",
       cancel: "Cancel",
       back: "Back",
       next: "Next",
       close: "Close",
       settings: "Settings",
-      logout: "Lock Vault",
+      logout: "Secure Logout",
       active: "ACTIVE",
       compliance: "Vital Protocol",
       identity: "Biometric Identity"
@@ -100,11 +100,11 @@ export const translations = {
       title: "AURA",
       subtitle: "Pets",
       slogan: "Global Sanitary Excellence",
-      loginTitle: "Vault™ Access Portal",
+      loginTitle: "Medical Records Access",
       registerTitle: "Create Biometric Record",
       emailLabel: "LINK ADDRESS",
       passLabel: "SECURITY KEY",
-      btnEnter: "ACCESS VAULT",
+      btnEnter: "ACCESS RECORDS",
       btnRegister: "ACTIVATE AURA PROTOCOL",
       switchLogin: "ALREADY REGISTERED? ENTER HERE",
       switchRegister: "NEW TO THE ECOSYSTEM? CREATE ACCOUNT",
@@ -118,14 +118,14 @@ export const translations = {
       btnStart: "START CONFIGURATION"
     },
     dashboard: {
-      executiveTitle: "Executive Summary",
+      executiveTitle: "Health Status",
       bioIntel: "Biological Intelligence",
       vitals: "Vital Status",
-      vaultTitle: "Members Vault",
+      vaultTitle: "Pet Records",
       scoreTitle: "Aura Score",
-      systemCertified: "Vault™ Bio-Certified System",
-      globalImmunity: "Global Immunity",
-      cardio: "Cardiovascular Status",
+      systemCertified: "Medically Verified Record",
+      globalImmunity: "Vaccination Passport",
+      cardio: "Performance History",
       reportBtn: "View Full Veterinary Report"
     },
     passport: {

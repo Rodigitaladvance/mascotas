@@ -68,7 +68,7 @@ const Dashboard = ({ pets, onAddPet, onSelectPet }) => {
     return (
       <div className="aura-card" style={{ gridColumn: 'span 2', display: 'flex', gap: '4rem', justifyContent: 'center' }}>
         <div style={{ textAlign: 'center' }}>
-          <p style={{ fontSize: '0.7rem', letterSpacing: '2px', opacity: 0.5 }}>IDENTIDAD VAULT™</p>
+          <p style={{ fontSize: '0.7rem', letterSpacing: '2px', opacity: 0.5 }}>EXPEDIENTE MÉDICO</p>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.5rem' }}>
             <Shield color="var(--aura-gold)" size={18} /> <span style={{ fontWeight: 600 }}>BIOMETRÍA OK</span>
           </div>
@@ -88,7 +88,7 @@ const Dashboard = ({ pets, onAddPet, onSelectPet }) => {
     <div style={{ textAlign: 'center', padding: '8rem 2rem' }}>
       <div style={{ fontSize: '4rem', marginBottom: '2rem' }}>🐾</div>
       <h2 style={{ fontSize: '2rem', marginBottom: '1rem' }}>
-        {locale === 'es' ? 'Bóveda Vacía' : 'Empty Vault'}
+        {locale === 'es' ? 'Mis Archivos' : 'My Records'}
       </h2>
       <p style={{ color: 'var(--aura-text-muted)', marginBottom: '3rem' }}>
         {locale === 'es' ? 'Registra tu primer miembro premium.' : 'Register your first premium member.'}
@@ -260,7 +260,7 @@ const Dashboard = ({ pets, onAddPet, onSelectPet }) => {
                   <div style={{ width: 40, height: 40, border: '1px solid var(--aura-gold)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem' }}>
                     {p.avatar}
                   </div>
-                  <span style={{ fontSize: '0.6rem', letterSpacing: '2px', opacity: 0.5 }}>VAULT ID</span>
+                  <span style={{ fontSize: '0.6rem', letterSpacing: '2px', opacity: 0.5 }}>EXPEDIENTE</span>
                 </div>
                 <h3 style={{ margin: '0 0 0.3rem', fontSize: '1.3rem', color: 'var(--aura-text)' }}>{p.name}</h3>
                 <p style={{ margin: 0, fontSize: '0.72rem', opacity: 0.6 }}>{p.speciesLabel || p.species} • TIER 1</p>

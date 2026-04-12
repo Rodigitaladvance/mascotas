@@ -10,31 +10,25 @@ export const LocalizationProvider = ({ children }) => {
   const [autoDetect, setAutoDetect] = useState(true);
 
   useEffect(() => {
-    if (autoDetect) {
-      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-      
-      // Auto-detection logic based on timezone
-      if (tz.includes('Europe/Madrid')) {
-        setLocale('es');
-        setCurrency('EUR');
-        setUnits('kg');
-      } else if (tz.includes('Australia/')) {
-        setLocale('en');
-        setCurrency('AUD');
-        setUnits('kg');
-      } else if (tz.includes('America/')) {
-        setLocale('en');
-        setCurrency('USD');
-        setUnits('lbs');
-      } else if (tz.includes('Europe/London')) {
-        setLocale('en');
-        setCurrency('GBP');
-        setUnits('kg');
-      } else {
-        // Default to Global Premium (English/USD)
-        setLocale('en');
-        setCurrency('USD');
-      }
+    if (!autoDetect) return;
+
+    // Primary: navigator.language (most reliable)
+    const lang = (navigator.language || navigator.languages?.[0] || 'en').toLowerCase();
+    const tz   = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+    if (lang.startsWith('es')) {
+      // Any Spanish locale → Spanish UI, EUR by default
+      setLocale('es');
+      setCurrency(tz.includes('America/') ? 'USD' : 'EUR');
+      setUnits('kg');
+    } else if (tz.includes('Australia/')) {
+      setLocale('en'); setCurrency('AUD'); setUnits('kg');
+    } else if (lang.startsWith('en-gb') || tz.includes('Europe/London')) {
+      setLocale('en'); setCurrency('GBP'); setUnits('kg');
+    } else if (tz.includes('America/')) {
+      setLocale('en'); setCurrency('USD'); setUnits('lbs');
+    } else {
+      setLocale('en'); setCurrency('USD'); setUnits('kg');
     }
   }, [autoDetect]);
 

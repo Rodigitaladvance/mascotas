@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, useNavigate, useLocation, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import { LocalizationProvider, useTranslation } from './context/LocalizationContext';
+import { useTranslation } from './context/LocalizationContext';
 import Auth from './components/Auth';
 import logo from './assets/logo.png';
 import Dashboard from './components/Aura/Dashboard';
@@ -12,8 +12,8 @@ import PrivacyVault from './components/Aura/PrivacyVault';
 import PetRegistration from './components/Aura/PetRegistration';
 import { storage } from './utils/storage';
 import {
-  LogOut, Globe, LayoutDashboard, ShieldAlert, ShieldCheck,
-  Settings, PlusCircle, FileBadge
+  LogOut, LayoutDashboard, ShieldAlert, ShieldCheck,
+  Settings, PlusCircle, Globe,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -32,12 +32,67 @@ const TAB_VARIANTS = {
   exit:    { opacity: 0, y: -6, transition: { duration: 0.25 } },
 };
 
+/* ── Session expiry modal ── */
+const SessionModal = ({ locale, onRenew, onLogout }) => {
+  const es = locale === 'es';
+  return (
+    <motion.div
+      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+      style={{
+        position: 'fixed', inset: 0, zIndex: 3000,
+        background: 'rgba(0,0,0,0.88)', backdropFilter: 'blur(16px)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem',
+      }}
+    >
+      <motion.div
+        initial={{ scale: 0.94, opacity: 0 }}
+        animate={{ scale: 1,    opacity: 1 }}
+        exit   ={{ scale: 0.94, opacity: 0 }}
+        transition={{ duration: 0.35, ease: [0.16,1,0.3,1] }}
+        className="aura-card"
+        style={{ maxWidth: 420, width: '100%', padding: '3rem', textAlign: 'center' }}
+      >
+        {/* Animated lock icon */}
+        <div style={{
+          width: 64, height: 64, borderRadius: '50%',
+          border: '2px solid var(--aura-gold)', margin: '0 auto 2rem',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          boxShadow: '0 0 24px rgba(212,175,55,0.25)',
+        }}>
+          <ShieldAlert size={28} color="var(--aura-gold)" />
+        </div>
+
+        <h2 style={{ fontSize: '1.6rem', marginBottom: '0.8rem' }}>
+          {es ? 'Sesión por Expirar' : 'Session Expiring'}
+        </h2>
+        <p style={{ color: 'var(--aura-text-muted)', fontSize: '0.88rem', lineHeight: 1.7, marginBottom: '2.5rem' }}>
+          {es
+            ? 'Tu sesión ha alcanzado el límite de seguridad. ¿Deseas continuar o cerrar la sesión?'
+            : 'Your session has reached the security limit. Do you want to continue or sign out?'}
+        </p>
+
+        <div style={{ display: 'flex', gap: '1rem' }}>
+          <button className="btn-aura" style={{ flex: 1, borderColor: 'var(--aura-border)' }}
+            onClick={onLogout}>
+            {es ? 'CERRAR SESIÓN' : 'SIGN OUT'}
+          </button>
+          <button
+            className="btn-aura"
+            style={{ flex: 2, borderColor: 'var(--aura-gold)', background: 'rgba(212,175,55,0.08)', color: 'var(--aura-gold)' }}
+            onClick={onRenew}>
+            {es ? '✓ CONTINUAR SESIÓN' : '✓ CONTINUE SESSION'}
+          </button>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+};
+
 /* ════════════════════════════════
    Inner App — requires providers
-   We use AppContent within BrowserRouter (in main.jsx)
 ════════════════════════════════ */
 const AppContent = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, renewSession, sessionWarning } = useAuth();
   const { t, locale, setManualConfig, currency } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
@@ -78,9 +133,39 @@ const AppContent = () => {
 
   const activeId = NAV_TABS.find(tab => location.pathname === tab.path)?.id || 'dashboard';
 
+  /* ── Language toggle button (reusable) ── */
+  const LangToggle = () => (
+    <div style={{ display: 'flex', gap: '2px', background: 'rgba(255,255,255,0.04)', borderRadius: 4, padding: '2px' }}>
+      {['es', 'en'].map(l => (
+        <button key={l} onClick={() => setManualConfig(l)}
+          style={{
+            background: locale === l ? 'var(--aura-gold)' : 'transparent',
+            color:      locale === l ? 'var(--aura-black)' : 'var(--aura-text-muted)',
+            border: 'none', cursor: 'pointer', padding: '0.3rem 0.6rem',
+            fontSize: '0.62rem', fontWeight: 700, letterSpacing: '1px',
+            borderRadius: 3, transition: 'all 0.25s', textTransform: 'uppercase',
+            fontFamily: 'var(--font-sans)',
+          }}>
+          {l === 'es' ? 'ES' : 'EN'}
+        </button>
+      ))}
+    </div>
+  );
+
   /* ── Main layout ── */
   return (
     <>
+      {/* ── Session expiry modal ── */}
+      <AnimatePresence>
+        {sessionWarning && (
+          <SessionModal
+            locale={locale}
+            onRenew={renewSession}
+            onLogout={logout}
+          />
+        )}
+      </AnimatePresence>
+
       {/* ── Desktop top nav ── */}
       <nav className="aura-nav">
         <div style={{ display: 'flex', alignItems: 'center', gap: '1.2rem' }}>
@@ -91,7 +176,7 @@ const AppContent = () => {
           <div style={{ width: 1, height: 24, background: 'var(--aura-border)' }} />
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             <span style={{ fontSize: '0.62rem', letterSpacing: '4px', color: 'var(--aura-gold)', fontWeight: 700 }}>EXCELENCIA</span>
-            <span style={{ fontSize: '0.72rem', letterSpacing: '2px', opacity: 0.45 }}>GLOBAL VAULT™</span>
+            <span style={{ fontSize: '0.72rem', letterSpacing: '2px', opacity: 0.45 }}>EXPEDIENTE MÉDICO</span>
           </div>
         </div>
 
@@ -116,6 +201,11 @@ const AppContent = () => {
             style={{ padding: '0.5rem 1rem', borderColor: 'var(--aura-neon-pink)', color: 'var(--aura-neon-pink)' }}>
             <ShieldAlert size={16} />
           </button>
+
+          <div style={{ width: 1, height: 20, background: 'var(--aura-border)' }} />
+
+          {/* Language toggle */}
+          <LangToggle />
 
           <div style={{ width: 1, height: 20, background: 'var(--aura-border)' }} />
           <button onClick={logout} className="btn-aura"
@@ -200,16 +290,31 @@ const AppContent = () => {
           <ShieldAlert size={20} />
           <span>SOS</span>
         </button>
+        {/* Mobile lang toggle */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, padding: '0.4rem 0.6rem' }}>
+          {['es','en'].map(l => (
+            <button key={l} onClick={() => setManualConfig(l)}
+              style={{
+                background: locale === l ? 'var(--aura-gold)' : 'transparent',
+                color:      locale === l ? 'var(--aura-black)' : 'var(--aura-text-muted)',
+                border: 'none', cursor: 'pointer', padding: '1px 5px',
+                fontSize: '0.55rem', fontWeight: 700, letterSpacing: '1px',
+                borderRadius: 2, fontFamily: 'var(--font-sans)',
+              }}>
+              {l.toUpperCase()}
+            </button>
+          ))}
+        </div>
       </nav>
     </>
   );
 };
 
-/* ── Localization & Auth wrap only, Browser Router in main.jsx ── */
+/* ── Localization & Auth wrap only, BrowserRouter in main.jsx ── */
 const App = () => (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
+  <AuthProvider>
+    <AppContent />
+  </AuthProvider>
 );
 
 export default App;

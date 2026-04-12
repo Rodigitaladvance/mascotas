@@ -9,7 +9,7 @@ const PrivacyVault = ({ onBack }) => {
     <div className="fade-in" style={{ padding: '2rem 0' }}>
       <header style={{ marginBottom: '4rem' }}>
         <span style={{ fontSize: '0.75rem', letterSpacing: '4px', opacity: 0.5, textTransform: 'uppercase' }}>Protocolo de Seguridad</span>
-        <h1 className="luxury-title" style={{ fontSize: '3rem', margin: '0.5rem 0' }}>Bóveda de Privacidad</h1>
+        <h1 className="luxury-title" style={{ fontSize: '3rem', margin: '0.5rem 0' }}>Privacidad y Seguridad</h1>
       </header>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'minmax(300px, 1fr) 300px', gap: '4rem' }}>
@@ -50,7 +50,7 @@ const PrivacyVault = ({ onBack }) => {
                     <span>Exportar Expediente Médico (JSON)</span> <Download size={18} />
                  </button>
                  <button className="btn-aura" style={{ display: 'flex', justifyContent: 'space-between', width: '100%', border: 'none', background: 'rgba(255,255,255,0.03)' }}>
-                    <span>Solicitar Portabilidad de Bóveda</span> <ChevronRight size={18} />
+                    <span>Solicitar Portabilidad de Datos</span> <ChevronRight size={18} />
                  </button>
                  <button className="btn-aura" style={{ display: 'flex', justifyContent: 'space-between', width: '100%', border: 'none', color: 'var(--aura-neon-pink)' }}>
                     <span>Destrucción Permanente de Datos</span> <Trash2 size={18} />
@@ -66,7 +66,7 @@ const PrivacyVault = ({ onBack }) => {
                  <div style={{ position: 'absolute', inset: '10px', border: '2px solid var(--aura-neon-cyan)', borderRadius: '50%', borderTopColor: 'transparent', animation: 'rotate 3s linear infinite' }}></div>
                  <ShieldCheck size={40} color="var(--aura-neon-cyan)" />
               </div>
-              <h4 style={{ color: 'var(--aura-neon-cyan)', letterSpacing: '2px', fontSize: '0.7rem' }}>ESTADO DE LA BÓVEDA</h4>
+              <h4 style={{ color: 'var(--aura-neon-cyan)', letterSpacing: '2px', fontSize: '0.7rem' }}>ESTADO DE SEGURIDAD</h4>
               <p style={{ fontSize: '1.2rem', fontWeight: 600, margin: '0.5rem 0' }}>CIFRADO ACTIVO</p>
               <p style={{ fontSize: '0.7rem', color: 'var(--aura-text-muted)' }}>Última Auditoría: 21:04 UTC</p>
            </div>

@@ -209,8 +209,16 @@ const PetRegistration = ({ onSave, onCancel }) => {
   const { t, locale } = useTranslation();
   const [subTab, setSubTab] = useState('info');
   const [selectedSpecies, setSelectedSpecies] = useState(null);
-  const [basicData, setBasicData] = useState({ name: '', age: '', weight: '', microchip: '' });
+  const [basicData, setBasicData] = useState({ name: '', age: '', weight: '', microchip: '', customPhoto: null });
   const [specificData, setSpecificData] = useState({});
+
+  const handleBasicPhoto = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => setBasicData(prev => ({ ...prev, customPhoto: ev.target.result }));
+    reader.readAsDataURL(file);
+  };
   const [saved, setSaved] = useState(false);
 
   const speciesLabel = (sp) => locale === 'es' ? sp.label : sp.labelEn;
@@ -221,7 +229,7 @@ const PetRegistration = ({ onSave, onCancel }) => {
       species: selectedSpecies.id,
       speciesLabel: speciesLabel(selectedSpecies),
       avatar: selectedSpecies.emoji,
-      customImage: specificData.customPhoto || null,
+      customImage: basicData.customPhoto || specificData.customPhoto || null,
       ...basicData,
       specific: specificData,
     };
@@ -245,7 +253,7 @@ const PetRegistration = ({ onSave, onCancel }) => {
       </motion.div>
       <h2 style={{ color:'var(--aura-neon-cyan)' }}>{locale==='es'?'Miembro Registrado':'Member Registered'}</h2>
       <p style={{ color:'var(--aura-text-muted)', textAlign:'center' }}>
-        {locale==='es'?'Añadido a la Bóveda AURA con encriptación AES-256.':'Added to the AURA Vault with AES-256 encryption.'}
+        {locale==='es'?'Añadido a tu Expediente Médico AURA con encriptación AES-256.':'Added to your AURA Medical Record with AES-256 encryption.'}
       </p>
     </div>
   );
@@ -256,7 +264,7 @@ const PetRegistration = ({ onSave, onCancel }) => {
         {locale==='es'?'Registro de Mascota':'Pet Registration'}
       </h1>
       <p style={{ textAlign:'center', color:'var(--aura-text-muted)', fontSize:'0.75rem', letterSpacing:'3px', marginBottom:'2.5rem' }}>
-        VAULT™ BIOMETRIC ENROLLMENT
+        EXPEDIENTE MÉDICO DIGITAL
       </p>
 
       {/* ── Species selector ── */}
@@ -352,6 +360,34 @@ const PetRegistration = ({ onSave, onCancel }) => {
                 <label className="input-label">Microchip ID</label>
                 <input className="aura-input" placeholder="900XXXXXXXXXXXX"
                   value={basicData.microchip} onChange={e => setBasicData({...basicData, microchip:e.target.value})} />
+              </div>
+
+              <div className="form-group">
+                <label className="input-label">{locale==='es'?'Fotografía de tu Mascota':'Pet Photo'}</label>
+                <label style={{
+                  display:'flex', alignItems:'center', justifyContent:'center', gap:'1rem',
+                  border:'1px dashed var(--aura-border-strong)', borderRadius:4,
+                  padding:'1.5rem', cursor:'pointer', transition:'border-color 0.3s',
+                }}
+                  onMouseEnter={e=>e.currentTarget.style.borderColor='var(--aura-gold)'}
+                  onMouseLeave={e=>e.currentTarget.style.borderColor='var(--aura-border-strong)'}
+                >
+                  {basicData.customPhoto ? (
+                    <img src={basicData.customPhoto} alt="preview"
+                      style={{ width:80, height:80, objectFit:'cover', borderRadius:4, border:'1px solid var(--aura-gold)' }} />
+                  ) : (
+                    <Upload size={26} color="var(--aura-gold)" />
+                  )}
+                  <div>
+                    <p style={{ margin:0, fontSize:'0.8rem', color:'var(--aura-gold)', fontWeight:600 }}>
+                      {locale==='es'?'Subir Fotografía':'Upload Photo'}
+                    </p>
+                    <p style={{ margin:'4px 0 0', fontSize:'0.68rem', color:'var(--aura-text-muted)' }}>
+                      JPG, PNG — {locale==='es'?'máx 5 MB':'max 5 MB'}
+                    </p>
+                  </div>
+                  <input type="file" accept="image/*" onChange={handleBasicPhoto} style={{ display:'none' }} />
+                </label>
               </div>
             </motion.div>
           ) : (

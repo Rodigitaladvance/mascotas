@@ -20,7 +20,7 @@ export const vault = {
   },
 
   // Vault auto-lock logic
-  sessionDuration: 15 * 60 * 1000, // 15 minutes
+  sessionDuration: 2 * 60 * 60 * 1000, // 2 hours
   
   isSessionExpired: (startTime) => {
     return (Date.now() - startTime) > vault.sessionDuration;
