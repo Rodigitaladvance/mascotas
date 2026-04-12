@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Shield, CheckCircle2, Upload, X } from 'lucide-react';
+import { Shield, CheckCircle2, Upload, PlusCircle } from 'lucide-react';
 import { useTranslation } from '../../context/LocalizationContext';
 
 /* ── Species config ── */
@@ -15,8 +15,7 @@ const SPECIES = [
     img: 'https://images.unsplash.com/photo-1474511320723-9a56873867b5?w=200&q=80&fit=crop' },
   { id: 'bird',  label: 'Ave',      labelEn: 'Bird',   emoji: '🦜',
     img: 'https://images.unsplash.com/photo-1591198936750-16d8e15edb9e?w=200&q=80&fit=crop' },
-  { id: 'other', label: 'Otro / Especial', labelEn: 'Other / Special', emoji: '✦',
-    img: null },
+  { id: 'other', label: 'Otro', labelEn: 'Other', emoji: '+', img: null, isOther: true },
 ];
 
 const COMPETITION_ES = ['Doma Clásica','Salto de Obstáculos','Endurance','Polo','Reining'];
@@ -252,7 +251,7 @@ const PetRegistration = ({ onSave, onCancel }) => {
   );
 
   return (
-    <motion.div className="fade-in" style={{ maxWidth:580, margin:'0 auto', padding:'2rem 0 6rem' }}>
+    <motion.div className="fade-in" style={{ maxWidth:580, margin:'0 auto', padding:'2rem 0 8rem' }}>
       <h1 className="luxury-title" style={{ fontSize:'2.4rem', textAlign:'center', marginBottom:'0.5rem' }}>
         {locale==='es'?'Registro de Mascota':'Pet Registration'}
       </h1>
@@ -266,27 +265,48 @@ const PetRegistration = ({ onSave, onCancel }) => {
           {locale==='es'?'Seleccionar Especie':'Select Species'}
         </label>
         <div className="species-selector">
-          {SPECIES.map(sp => (
-            <div key={sp.id}
-              className={`species-card${selectedSpecies?.id === sp.id ? ' selected' : ''}`}
-              onClick={() => { setSelectedSpecies(sp); setSpecificData({}); setSubTab('info'); }}
-            >
-              {sp.img ? (
+          {SPECIES.map(sp => {
+            const isSelected = selectedSpecies?.id === sp.id;
+            return sp.isOther ? (
+              /* ── Special "Other" card with gold + icon ── */
+              <div key={sp.id}
+                onClick={() => { setSelectedSpecies(sp); setSpecificData({}); setSubTab('specific'); }}
+                style={{
+                  flexShrink: 0, width: 90, height: 90,
+                  border: isSelected ? '2px solid var(--aura-gold)' : '2px dashed rgba(212,175,55,0.45)',
+                  borderRadius: 4, cursor: 'pointer', position: 'relative',
+                  display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                  gap: 6, background: isSelected ? 'rgba(212,175,55,0.08)' : 'transparent',
+                  transform: isSelected ? 'scale(1.05)' : 'scale(1)',
+                  transition: 'all 0.3s',
+                }}
+              >
+                <PlusCircle size={28} color="var(--aura-gold)" strokeWidth={1.5} />
+                <span style={{ fontSize: '0.55rem', letterSpacing: '1.5px', color: 'var(--aura-gold)', textTransform: 'uppercase', textAlign: 'center', lineHeight: 1.3, padding: '0 4px' }}>
+                  {locale === 'es' ? 'Otro' : 'Other'}
+                </span>
+                {isSelected && (
+                  <div className="species-check">✓ {locale==='es'?'Seleccionado':'Selected'}</div>
+                )}
+              </div>
+            ) : (
+              <div key={sp.id}
+                className={`species-card${isSelected ? ' selected' : ''}`}
+                onClick={() => {
+                  setSelectedSpecies(sp);
+                  setSpecificData({});
+                  /* Auto-switch to specific tab for species with dedicated fields */
+                  const hasSpecific = ['horse','exotic','bird'].includes(sp.id);
+                  setSubTab(hasSpecific ? 'specific' : 'info');
+                }}
+              >
                 <img src={sp.img} alt={sp.label} />
-              ) : (
-                <div style={{
-                  width:'100%', height:'100%', display:'flex', flexDirection:'column',
-                  alignItems:'center', justifyContent:'center', background:'rgba(212,175,55,0.06)',
-                  fontSize:'1.8rem',
-                }}>
-                  {sp.emoji}
-                </div>
-              )}
-              {selectedSpecies?.id === sp.id && (
-                <div className="species-check">✓ {locale==='es'?'Seleccionado':'Selected'}</div>
-              )}
-            </div>
-          ))}
+                {isSelected && (
+                  <div className="species-check">✓ {locale==='es'?'Seleccionado':'Selected'}</div>
+                )}
+              </div>
+            );
+          })}
         </div>
         {selectedSpecies && (
           <p style={{ margin:'1rem 0 0', fontSize:'0.72rem', letterSpacing:'2px', color:'var(--aura-gold)', textTransform:'uppercase' }}>
