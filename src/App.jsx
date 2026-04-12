@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import { useTranslation } from './context/LocalizationContext';
+import { LocalizationProvider, useTranslation } from './context/LocalizationContext';
 import Auth from './components/Auth';
 import logo from './assets/logo.png';
 import Dashboard from './components/Aura/Dashboard';
 import GlobalPassport from './components/Aura/GlobalPassport';
 import SOSMode from './components/Aura/SOSMode';
 import Onboarding from './components/Aura/Onboarding';
+import PrivacyVault from './components/Aura/PrivacyVault';
 import { storage } from './utils/storage';
-import { LogOut, Globe, LayoutDashboard, ShieldAlert, Settings, UserCircle } from 'lucide-react';
+import { LogOut, Globe, LayoutDashboard, ShieldAlert, ShieldCheck, Settings, UserCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const AppContent = () => {
@@ -175,9 +176,11 @@ const AppContent = () => {
 };
 
 const App = () => (
-  <AuthProvider>
-    <AppContent />
-  </AuthProvider>
+  <LocalizationProvider>
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
+  </LocalizationProvider>
 );
 
 export default App;
