@@ -241,7 +241,7 @@ const AppContent = () => {
             } />
             <Route path="/passport" element={
               <motion.div {...TAB_VARIANTS} style={{ paddingTop: '2rem' }}>
-                <GlobalPassport pet={pets[0]} />
+                <GlobalPassport pet={pets[0]} onUpdatePet={handleUpdatePet} />
               </motion.div>
             } />
             <Route path="/registro" element={

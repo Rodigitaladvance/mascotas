@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react';
-import { PlaneTakeoff, CheckCircle2, AlertCircle, FileText, X, Shield, Syringe, Stethoscope, FileCheck } from 'lucide-react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
+import { PlaneTakeoff, CheckCircle2, AlertCircle, FileText, X, Shield, Syringe, Stethoscope, FileCheck, Upload, Save } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from '../../context/LocalizationContext';
 
@@ -329,19 +329,105 @@ const CountryModal = ({ countryId, pet, locale, onClose }) => {
   );
 };
 
+const FIELD_LABEL = {
+  display: 'flex', alignItems: 'center', gap: '0.5rem',
+  fontSize: '0.68rem', letterSpacing: '1.5px', textTransform: 'uppercase',
+  color: 'var(--aura-gold)', fontWeight: 700,
+};
+
 /* ════════ Main Component ════════ */
-const GlobalPassport = ({ pet }) => {
+const GlobalPassport = ({ pet, onUpdatePet }) => {
   const { locale } = useTranslation();
   const [selectedCountry, setSelectedCountry] = useState(null);
+  const [saved, setSaved]                     = useState(false);
+  const certInputRef = useRef(null);
   const es = locale === 'es';
 
+  /* Draft state — editable fields in left panel */
+  const [draft, setDraft] = useState(() => ({
+    microchip:    pet?.microchip                       || '',
+    rabiesDate:   pet?.health?.rabiesVaccine?.date     || '',
+    rabiesBatch:  pet?.health?.rabiesVaccine?.batch    || '',
+    certFileName: pet?.health?.healthCert?.fileName    || '',
+  }));
+
+  /* Re-init when pet identity changes (different animal selected) */
+  useEffect(() => {
+    setDraft({
+      microchip:    pet?.microchip                       || '',
+      rabiesDate:   pet?.health?.rabiesVaccine?.date     || '',
+      rabiesBatch:  pet?.health?.rabiesVaccine?.batch    || '',
+      certFileName: pet?.health?.healthCert?.fileName    || '',
+    });
+  }, [pet?.id]);
+
+  const setD = (field) => (e) => setDraft(prev => ({ ...prev, [field]: e.target.value }));
+
+  /* Microchip validation: ISO 11784/11785 = exactly 15 digits */
+  const chipValid = draft.microchip.length === 15;
+
+  /* Compute a draft-based pet snapshot for real-time readiness */
+  const draftPet = useMemo(() => {
+    if (!pet) return pet;
+    return {
+      ...pet,
+      microchip: draft.microchip || pet.microchip,
+      health: {
+        ...pet.health,
+        rabiesVaccine: {
+          ...pet.health?.rabiesVaccine,
+          date:   draft.rabiesDate,
+          status: draft.rabiesDate ? 'ok' : (pet.health?.rabiesVaccine?.status || 'pending'),
+        },
+        healthCert: {
+          ...pet.health?.healthCert,
+          status:   draft.certFileName ? 'ok' : (pet.health?.healthCert?.status || 'pending'),
+          fileName: draft.certFileName,
+        },
+      },
+    };
+  }, [pet, draft]);
+
+  /* Memoize all country requirements — left panel uses draftPet for live feedback */
+  const draftReqs = useMemo(() => buildRequirements(draftPet, 'ES', locale), [draftPet, locale]);
+  const draftReadiness = calcReadiness(draftReqs);
+
+  /* Country cards (right panel) still reflect saved pet data */
   const allReqs = useMemo(
     () => Object.fromEntries(COUNTRY_IDS.map(id => [id, buildRequirements(pet, id, locale)])),
     [pet, locale],
   );
 
-  const summaryReqs = allReqs['ES'];
-  const overallReadiness = calcReadiness(summaryReqs);
+  /* ── Save handler ── */
+  const handleSave = () => {
+    if (!onUpdatePet) return;
+    const rabiesExpiry = draft.rabiesDate
+      ? new Date(new Date(draft.rabiesDate).setFullYear(new Date(draft.rabiesDate).getFullYear() + 1))
+          .toISOString().split('T')[0]
+      : (pet?.health?.rabiesVaccine?.expiry || '');
+
+    onUpdatePet({
+      ...pet,
+      microchip: draft.microchip || pet?.microchip,
+      health: {
+        ...pet?.health,
+        rabiesVaccine: {
+          date:   draft.rabiesDate,
+          batch:  draft.rabiesBatch,
+          expiry: rabiesExpiry,
+          status: draft.rabiesDate ? 'ok' : 'pending',
+        },
+        healthCert: {
+          ...pet?.health?.healthCert,
+          status:   draft.certFileName ? 'ok' : (pet?.health?.healthCert?.status || 'pending'),
+          fileName: draft.certFileName,
+          notes:    pet?.health?.healthCert?.notes || '',
+        },
+      },
+    });
+    setSaved(true);
+    setTimeout(() => setSaved(false), 3000);
+  };
 
   const handleExportAll = () => {
     const reqs = allReqs['ES'];
@@ -368,34 +454,190 @@ const GlobalPassport = ({ pet }) => {
         </header>
 
         <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'2.5rem', alignItems:'start' }}>
-          {/* Left – summary */}
+
+          {/* ── Left – editable passport form ── */}
           <div className="aura-card" style={{ padding:'2.5rem' }}>
+            {/* Readiness header — updates live as form is filled */}
             <div style={{ display:'flex', alignItems:'center', gap:'1.5rem', marginBottom:'2.5rem' }}>
-              <div style={{ width:56, height:56, borderRadius:'50%', background:'var(--aura-gold)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+              <div style={{ width:56, height:56, borderRadius:'50%', background:'var(--aura-gold)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
                 <PlaneTakeoff color="var(--aura-black)" size={28} />
               </div>
-              <div>
-                <h2 style={{ fontSize:'1.6rem', margin:'0 0 4px' }}>
-                  {es?'Disponibilidad':'Readiness'}: {overallReadiness}%
+              <div style={{ flex:1 }}>
+                <h2 style={{ fontSize:'1.6rem', margin:'0 0 6px' }}>
+                  {es?'Disponibilidad':'Readiness'}: {draftReadiness}%
                 </h2>
-                <p style={{ margin:0, color:'var(--aura-text-muted)', fontSize:'0.82rem' }}>
-                  {es?'Alineado con protocolos bio-sanitarios IATA.':'Aligned with IATA bio-security protocols.'}
-                </p>
+                <div style={{ height:4, background:'rgba(255,255,255,0.06)', borderRadius:2 }}>
+                  <motion.div
+                    animate={{ width:`${draftReadiness}%` }}
+                    transition={{ duration:0.5, ease:'easeOut' }}
+                    style={{
+                      height:'100%', borderRadius:2,
+                      background: draftReadiness>85?'var(--aura-neon-cyan)':draftReadiness>60?'var(--aura-gold)':'var(--aura-neon-pink)',
+                    }}
+                  />
+                </div>
               </div>
             </div>
 
-            {summaryReqs.map(({ label, status }) => (
-              <div key={label} style={{ padding:'1.2rem 0', borderBottom:'1px solid var(--aura-border)',
-                display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-                <span style={{ fontSize:'0.85rem', color:'var(--aura-text-muted)' }}>{label}</span>
-                <span style={{ fontWeight:600, fontSize:'0.72rem', letterSpacing:'1px', color:STATUS_COLOR[status] }}>
-                  {statusLabel(status, locale)}
+            {/* ── Microchip ISO ── */}
+            <div style={{ padding:'1.2rem 0', borderBottom:'1px solid var(--aura-border)' }}>
+              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'0.6rem' }}>
+                <label style={FIELD_LABEL}><Shield size={13}/> Microchip ISO 11784/11785</label>
+                <span style={{ fontSize:'0.6rem', letterSpacing:'1.5px', fontWeight:700,
+                  color: chipValid ? 'var(--aura-neon-cyan)' : 'var(--aura-gold)' }}>
+                  {chipValid ? '✓ VERIFICADO' : '⏳ PENDIENTE'}
                 </span>
               </div>
-            ))}
+              <input
+                type="text"
+                className="aura-input"
+                maxLength={15}
+                placeholder={es ? '000000000000000 (15 dígitos)' : '000000000000000 (15 digits)'}
+                value={draft.microchip}
+                onChange={e => setDraft(p => ({ ...p, microchip: e.target.value.replace(/\D/g,'') }))}
+                style={{ width:'100%', fontSize:'0.9rem', padding:'0.7rem 1rem', letterSpacing:'3px', fontFamily:'var(--font-mono, monospace)' }}
+              />
+              {draft.microchip.length > 0 && !chipValid && (
+                <p style={{ margin:'5px 0 0', fontSize:'0.68rem', color:'var(--aura-neon-pink)' }}>
+                  {draft.microchip.length}/15 {es ? 'dígitos' : 'digits'}
+                </p>
+              )}
+            </div>
+
+            {/* ── Vacuna Antirrábica ── */}
+            <div style={{ padding:'1.2rem 0', borderBottom:'1px solid var(--aura-border)' }}>
+              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'0.6rem' }}>
+                <label style={FIELD_LABEL}><Syringe size={13}/> {es ? 'Vacuna Antirrábica' : 'Rabies Vaccination'}</label>
+                {draft.rabiesDate && (
+                  <span style={{ fontSize:'0.6rem', letterSpacing:'1.5px', fontWeight:700, color:'var(--aura-neon-cyan)' }}>
+                    ✓ {es ? 'REGISTRADA' : 'REGISTERED'}
+                  </span>
+                )}
+              </div>
+              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'0.7rem' }}>
+                <div>
+                  <p style={{ margin:'0 0 5px', fontSize:'0.62rem', letterSpacing:'1px', color:'var(--aura-text-muted)', textTransform:'uppercase' }}>
+                    {es ? 'Fecha aplicación' : 'Date applied'}
+                  </p>
+                  <input
+                    type="date"
+                    className="aura-input"
+                    value={draft.rabiesDate}
+                    onChange={setD('rabiesDate')}
+                    style={{ width:'100%', fontSize:'0.8rem', padding:'0.6rem 0.8rem' }}
+                  />
+                </div>
+                <div>
+                  <p style={{ margin:'0 0 5px', fontSize:'0.62rem', letterSpacing:'1px', color:'var(--aura-text-muted)', textTransform:'uppercase' }}>
+                    {es ? 'Nº de lote' : 'Batch number'}
+                  </p>
+                  <input
+                    type="text"
+                    className="aura-input"
+                    placeholder="LOT-XXXXXX"
+                    value={draft.rabiesBatch}
+                    onChange={setD('rabiesBatch')}
+                    style={{ width:'100%', fontSize:'0.8rem', padding:'0.6rem 0.8rem' }}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* ── Certificado Sanitario (upload) ── */}
+            <div style={{ padding:'1.2rem 0', borderBottom:'1px solid var(--aura-border)' }}>
+              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'0.6rem' }}>
+                <label style={FIELD_LABEL}><FileCheck size={13}/> {es ? 'Certificado Sanitario' : 'Health Certificate'}</label>
+                {draft.certFileName && (
+                  <span style={{ fontSize:'0.6rem', letterSpacing:'1.5px', fontWeight:700, color:'var(--aura-neon-cyan)' }}>
+                    ✓ ADJUNTO
+                  </span>
+                )}
+              </div>
+              <input
+                type="file"
+                accept=".pdf,.jpg,.jpeg,.png"
+                ref={certInputRef}
+                style={{ display:'none' }}
+                onChange={e => {
+                  const file = e.target.files?.[0];
+                  if (file) setDraft(p => ({ ...p, certFileName: file.name }));
+                }}
+              />
+              <div style={{ display:'flex', gap:'0.6rem', alignItems:'center' }}>
+                <button
+                  type="button"
+                  className="btn-aura"
+                  onClick={() => certInputRef.current?.click()}
+                  style={{
+                    flex:1, fontSize:'0.72rem', padding:'0.7rem 1rem',
+                    display:'flex', alignItems:'center', justifyContent:'center', gap:'0.5rem',
+                    borderColor: draft.certFileName ? 'var(--aura-neon-cyan)' : 'var(--aura-border)',
+                    color: draft.certFileName ? 'var(--aura-neon-cyan)' : 'var(--aura-text-muted)',
+                    overflow:'hidden',
+                  }}
+                >
+                  <Upload size={13}/>
+                  <span style={{ overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
+                    {draft.certFileName
+                      ? draft.certFileName.length > 26 ? draft.certFileName.slice(0,24)+'…' : draft.certFileName
+                      : (es ? 'SUBIR ARCHIVO (PDF)' : 'UPLOAD FILE (PDF)')}
+                  </span>
+                </button>
+                {draft.certFileName && (
+                  <button
+                    type="button"
+                    style={{ background:'none', border:'none', color:'var(--aura-text-muted)', cursor:'pointer', padding:'4px', flexShrink:0 }}
+                    onClick={() => setDraft(p => ({ ...p, certFileName: '' }))}
+                  >
+                    <X size={14}/>
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* ── Pasaporte EU — read-only row ── */}
+            {(() => {
+              const euReq = draftReqs.find(r => r.label === 'Pasaporte Europeo EU');
+              if (!euReq) return null;
+              return (
+                <div style={{ padding:'1.2rem 0', borderBottom:'1px solid var(--aura-border)',
+                  display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+                  <span style={{ fontSize:'0.85rem', color:'var(--aura-text-muted)' }}>{euReq.label}</span>
+                  <span style={{ fontWeight:600, fontSize:'0.72rem', letterSpacing:'1px', color:STATUS_COLOR[euReq.status] }}>
+                    {statusLabel(euReq.status, locale)}
+                  </span>
+                </div>
+              );
+            })()}
+
+            {/* ── Save button ── */}
+            <button
+              type="button"
+              className="btn-aura"
+              onClick={handleSave}
+              style={{
+                marginTop:'1.8rem', width:'100%', padding:'1.1rem',
+                borderColor:'var(--aura-gold)', color:'var(--aura-gold)',
+                background:'rgba(212,175,55,0.06)',
+                display:'flex', alignItems:'center', justifyContent:'center', gap:'0.6rem',
+              }}
+            >
+              <Save size={16}/> {es ? 'GUARDAR CAMBIOS' : 'SAVE CHANGES'}
+            </button>
+
+            <AnimatePresence>
+              {saved && (
+                <motion.p
+                  initial={{ opacity:0, y:4 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0 }}
+                  style={{ margin:'0.7rem 0 0', fontSize:'0.72rem', color:'var(--aura-neon-cyan)', textAlign:'center', letterSpacing:'1px' }}
+                >
+                  ✓ {es ? 'Registros actualizados correctamente' : 'Records updated successfully'}
+                </motion.p>
+              )}
+            </AnimatePresence>
           </div>
 
-          {/* Right – destination cards */}
+          {/* ── Right – destination cards ── */}
           <div style={{ display:'grid', gap:'1rem' }}>
             <h3 style={{ margin:'0 0 0.8rem', fontSize:'1rem', opacity:0.7, letterSpacing:'2px',
               textTransform:'uppercase', fontFamily:'var(--font-sans)', color:'var(--aura-text-muted)' }}>
