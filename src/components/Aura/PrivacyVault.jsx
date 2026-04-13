@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ShieldCheck, Lock, EyeOff, Download, Trash2, ChevronRight, FileText, AlertTriangle } from 'lucide-react';
+import { ShieldCheck, Lock, EyeOff, Download, Trash2, ChevronRight, FileText, AlertTriangle, ExternalLink } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from '../../context/LocalizationContext';
 import { useAuth } from '../../context/AuthContext';
@@ -381,6 +381,24 @@ const PrivacyVault = () => {
                   </div>
                 </div>
                 <ChevronRight size={17} />
+              </button>
+
+              {/* Privacy Policy */}
+              <button className="btn-aura"
+                style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', background: 'rgba(255,255,255,0.02)' }}
+                onClick={() => window.open('/politicas.html', '_blank', 'noopener,noreferrer')}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                  <ExternalLink size={16} color="var(--aura-text-muted)" />
+                  <div style={{ textAlign: 'left' }}>
+                    <span style={{ display: 'block' }}>
+                      {es ? 'Política de Privacidad' : 'Privacy Policy'}
+                    </span>
+                    <span style={{ fontSize: '0.65rem', color: 'var(--aura-text-muted)', letterSpacing: '1px' }}>
+                      {es ? 'GDPR / LOPD · Rodigital Advance' : 'GDPR / LOPD · Rodigital Advance'}
+                    </span>
+                  </div>
+                </div>
+                <ExternalLink size={14} color="var(--aura-text-muted)" />
               </button>
 
               {/* Destroy */}

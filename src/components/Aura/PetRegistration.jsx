@@ -24,6 +24,13 @@ const COMPETITION_EN = ['Dressage','Show Jumping','Endurance','Polo','Reining'];
 const DIET_ES = ['Insectívora','Carnívora Estricta','Omnívora','Frugívora','Herbívora'];
 const DIET_EN  = ['Insectivore','Strict Carnivore','Omnivore','Frugivore','Herbivore'];
 
+/* Stored as English key; displayed in active locale */
+const SONG_OPTIONS = [
+  { value: 'Optimal',         es: 'Óptimo',           en: 'Optimal'        },
+  { value: 'Reduced',         es: 'Reducido',          en: 'Reduced'        },
+  { value: 'Breeding Season', es: 'Temporada de Cría', en: 'Breeding Season'},
+];
+
 /* ── Sub-tabs ── */
 const SubTabs = ({ tabs, active, onChange }) => (
   <div className="aura-tabs">
@@ -139,7 +146,10 @@ const BirdFields = ({ data, onChange, locale }) => (
       <label className="input-label">{locale==='es'?'Ciclo de Canto':'Song Cycle'}</label>
       <select className="aura-input aura-select" value={data.songCycle || ''}
         onChange={e => onChange({ ...data, songCycle: e.target.value })}>
-        {['Optimal','Reduced','Breeding Season'].map(o => <option key={o} value={o}>{o}</option>)}
+        <option value="">{locale === 'es' ? 'Seleccionar…' : 'Select…'}</option>
+        {SONG_OPTIONS.map(o => (
+          <option key={o.value} value={o.value}>{locale === 'es' ? o.es : o.en}</option>
+        ))}
       </select>
     </div>
   </div>
@@ -271,22 +281,20 @@ const PetRegistration = ({ onSave, onCancel }) => {
               <div key={sp.id}
                 onClick={() => { setSelectedSpecies(sp); setSpecificData({}); setSubTab('specific'); }}
                 style={{
-                  flexShrink: 0, width: 90, height: 90,
-                  border: isSelected ? '2px solid var(--aura-gold)' : '2px dashed rgba(212,175,55,0.45)',
-                  borderRadius: 4, cursor: 'pointer', position: 'relative',
+                  flexShrink: 0, width: 120, height: 120,
+                  border: isSelected ? '2px solid #d4af37' : '2px dashed rgba(212,175,55,0.45)',
+                  borderRadius: '50%', cursor: 'pointer', position: 'relative',
                   display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                  gap: 6, background: isSelected ? 'rgba(212,175,55,0.08)' : 'transparent',
-                  transform: isSelected ? 'scale(1.05)' : 'scale(1)',
+                  gap: 6, background: isSelected ? 'rgba(212,175,55,0.1)' : 'rgba(10,10,15,0.9)',
+                  transform: isSelected ? 'scale(1.08)' : 'scale(1)',
+                  boxShadow: isSelected ? '0 0 0 3px rgba(212,175,55,0.35), 0 0 20px rgba(212,175,55,0.8)' : 'none',
                   transition: 'all 0.3s',
                 }}
               >
-                <PlusCircle size={28} color="var(--aura-gold)" strokeWidth={1.5} />
-                <span style={{ fontSize: '0.6rem', letterSpacing: '1px', color: 'var(--aura-gold)', textTransform: 'uppercase', textAlign: 'center', lineHeight: 1.2, padding: '0 4px', fontWeight: 'bold' }}>
-                  {locale === 'es' ? 'OTRA MASCOTA' : 'OTHER PET'}
+                <PlusCircle size={30} color="var(--aura-gold)" strokeWidth={1.5} />
+                <span style={{ fontSize: '0.52rem', letterSpacing: '1px', color: 'var(--aura-gold)', textTransform: 'uppercase', textAlign: 'center', lineHeight: 1.2, padding: '0 8px', fontWeight: 700 }}>
+                  {locale === 'es' ? 'OTRA' : 'OTHER'}
                 </span>
-                {isSelected && (
-                  <div className="species-check">✓ {locale==='es'?'Seleccionado':'Selected'}</div>
-                )}
               </div>
             ) : (
               <div key={sp.id}
@@ -328,14 +336,49 @@ const PetRegistration = ({ onSave, onCancel }) => {
         <AnimatePresence mode="wait">
           {subTab === 'info' ? (
             <motion.div key="info" initial={{ opacity:0, x:-8 }} animate={{ opacity:1, x:0 }} exit={{ opacity:0, x:8 }}>
-              <div className="form-group">
-                <label className="input-label">{locale==='es'?'Nombre del Miembro':'Member Name'}</label>
-                <input className="aura-input"
-                  placeholder={locale==='es'?'Nombre de tu mascota':"Your pet's name"}
-                  value={basicData.name}
-                  onChange={e => setBasicData({...basicData, name:e.target.value})} />
+              {/* ── Photo + fields side by side ── */}
+              <div style={{ display:'grid', gridTemplateColumns:'96px 1fr', gap:'1.4rem', alignItems:'start', marginBottom:'1rem' }}>
+                {/* Photo circle */}
+                <label style={{ cursor:'pointer', display:'flex', flexDirection:'column', alignItems:'center', gap:'0.5rem' }}>
+                  <div style={{
+                    width:96, height:96, borderRadius:'50%', overflow:'hidden',
+                    border: basicData.customPhoto ? '2px solid var(--aura-gold)' : '2px dashed rgba(212,175,55,0.4)',
+                    background:'rgba(255,255,255,0.03)',
+                    display:'flex', alignItems:'center', justifyContent:'center',
+                    transition:'border-color 0.3s, box-shadow 0.3s',
+                    boxShadow: basicData.customPhoto ? '0 0 14px rgba(212,175,55,0.35)' : 'none',
+                  }}>
+                    {basicData.customPhoto
+                      ? <img src={basicData.customPhoto} alt="preview" style={{ width:'100%', height:'100%', objectFit:'cover' }} />
+                      : <Upload size={22} color="var(--aura-gold)" />}
+                  </div>
+                  <span style={{ fontSize:'0.58rem', letterSpacing:'1px', color:'var(--aura-text-muted)', textTransform:'uppercase' }}>
+                    {locale==='es'?'Foto':'Photo'}
+                  </span>
+                  <input type="file" accept="image/*" onChange={handleBasicPhoto} style={{ display:'none' }} />
+                </label>
+
+                {/* Name + Breed/Notes stacked */}
+                <div>
+                  <div className="form-group">
+                    <label className="input-label">{locale==='es'?'Nombre del Miembro':'Member Name'}</label>
+                    <input className="aura-input"
+                      placeholder={locale==='es'?'Nombre de tu mascota':"Your pet's name"}
+                      value={basicData.name}
+                      onChange={e => setBasicData({...basicData, name:e.target.value})} />
+                  </div>
+                  <div className="form-group">
+                    <label className="input-label">{locale==='es'?'Raza / Variedad':'Breed / Variety'}</label>
+                    <input className="aura-input"
+                      placeholder={locale==='es'?'Ej: Golden Retriever':'E.g: Golden Retriever'}
+                      value={basicData.breed || ''}
+                      onChange={e => setBasicData({...basicData, breed:e.target.value})} />
+                  </div>
+                </div>
               </div>
-              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'1rem' }}>
+
+              {/* ── Metrics row ── */}
+              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:'0.8rem' }}>
                 <div className="form-group">
                   <label className="input-label">{locale==='es'?'Edad':'Age'}</label>
                   <input className="aura-input" placeholder={locale==='es'?'Años':'Years'}
@@ -346,39 +389,11 @@ const PetRegistration = ({ onSave, onCancel }) => {
                   <input className="aura-input" placeholder="kg"
                     value={basicData.weight} onChange={e => setBasicData({...basicData, weight:e.target.value})} />
                 </div>
-              </div>
-              <div className="form-group">
-                <label className="input-label">Microchip ID</label>
-                <input className="aura-input" placeholder="900XXXXXXXXXXXX"
-                  value={basicData.microchip} onChange={e => setBasicData({...basicData, microchip:e.target.value})} />
-              </div>
-
-              <div className="form-group">
-                <label className="input-label">{locale==='es'?'Fotografía de tu Mascota':'Pet Photo'}</label>
-                <label style={{
-                  display:'flex', alignItems:'center', justifyContent:'center', gap:'1rem',
-                  border:'1px dashed var(--aura-border-strong)', borderRadius:4,
-                  padding:'1.5rem', cursor:'pointer', transition:'border-color 0.3s',
-                }}
-                  onMouseEnter={e=>e.currentTarget.style.borderColor='var(--aura-gold)'}
-                  onMouseLeave={e=>e.currentTarget.style.borderColor='var(--aura-border-strong)'}
-                >
-                  {basicData.customPhoto ? (
-                    <img src={basicData.customPhoto} alt="preview"
-                      style={{ width:80, height:80, objectFit:'cover', borderRadius:4, border:'1px solid var(--aura-gold)' }} />
-                  ) : (
-                    <Upload size={26} color="var(--aura-gold)" />
-                  )}
-                  <div>
-                    <p style={{ margin:0, fontSize:'0.8rem', color:'var(--aura-gold)', fontWeight:600 }}>
-                      {locale==='es'?'Subir Fotografía':'Upload Photo'}
-                    </p>
-                    <p style={{ margin:'4px 0 0', fontSize:'0.68rem', color:'var(--aura-text-muted)' }}>
-                      JPG, PNG — {locale==='es'?'máx 5 MB':'max 5 MB'}
-                    </p>
-                  </div>
-                  <input type="file" accept="image/*" onChange={handleBasicPhoto} style={{ display:'none' }} />
-                </label>
+                <div className="form-group">
+                  <label className="input-label">Microchip</label>
+                  <input className="aura-input" placeholder="900XXXXXXXXX"
+                    value={basicData.microchip} onChange={e => setBasicData({...basicData, microchip:e.target.value})} />
+                </div>
               </div>
             </motion.div>
           ) : (

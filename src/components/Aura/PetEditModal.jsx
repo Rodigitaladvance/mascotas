@@ -129,12 +129,18 @@ const DeregistrationModal = ({ pet, onConfirm, onCancel }) => {
 
   const proceed = () => {
     if (reason?.id === 'deceased') { setStep(2); return; }
+    /* Lost: non-destructive — mark BUSCANDO without data deletion */
+    if (reason?.id === 'lost') {
+      setStep(4);
+      setTimeout(() => onConfirm(pet.id, 'lost'), 1500);
+      return;
+    }
     setStep(3);
   };
 
   const confirm = () => {
     setStep(4);
-    setTimeout(() => onConfirm(pet.id), 2000);
+    setTimeout(() => onConfirm(pet.id, reason?.id), 2000);
   };
 
   return (
@@ -369,15 +375,21 @@ const DeregistrationModal = ({ pet, onConfirm, onCancel }) => {
                 animate={{ scale: [1, 1.1, 1] }}
                 transition={{ repeat: 1, duration: 0.6 }}
                 style={{ fontSize: '3.5rem', marginBottom: '1.5rem' }}>
-                🕊
+                {reason?.id === 'lost' ? '🔍' : '🕊'}
               </motion.div>
-              <h2 style={{ fontSize: '1.4rem', margin: '0 0 1rem', color: 'var(--aura-neon-cyan)' }}>
-                {es ? 'Expediente Cerrado' : 'Record Closed'}
+              <h2 style={{ fontSize: '1.4rem', margin: '0 0 1rem', color: reason?.id === 'lost' ? 'var(--aura-gold)' : 'var(--aura-neon-cyan)' }}>
+                {reason?.id === 'lost'
+                  ? (es ? 'Estado: BUSCANDO' : 'Status: MISSING')
+                  : (es ? 'Expediente Cerrado' : 'Record Closed')}
               </h2>
               <p style={{ fontSize: '0.82rem', color: 'var(--aura-text-muted)', lineHeight: 1.8, margin: 0 }}>
-                {es
-                  ? `Los datos de ${pet.name} han sido eliminados de la bóveda de forma permanente y segura.`
-                  : `${pet.name}'s data has been permanently and securely deleted from the vault.`}
+                {reason?.id === 'lost'
+                  ? (es
+                      ? `El expediente de ${pet.name} permanece activo. El código QR de emergencia ha sido activado en el Panel de Control.`
+                      : `${pet.name}'s record remains active. The emergency QR code has been activated in the Dashboard.`)
+                  : (es
+                      ? `Los datos de ${pet.name} han sido eliminados de la bóveda de forma permanente y segura.`
+                      : `${pet.name}'s data has been permanently and securely deleted from the vault.`)}
               </p>
               {reason?.id === 'deceased' && (
                 <p style={{ marginTop: '1rem', fontSize: '0.78rem', color: 'var(--aura-gold)', fontStyle: 'italic' }}>
@@ -653,7 +665,7 @@ const PetEditModal = ({ pet, onSave, onDelete, onClose }) => {
               onClick={() => setShowDeregistration(true)}
             >
               <HeartHandshake size={14} />
-              {es ? 'DAR DE BAJA / ELIMINAR REGISTRO' : 'DEREGISTER / DELETE RECORD'}
+              {es ? 'GESTIONAR ESTADO DEL MIEMBRO' : 'MANAGE MEMBER STATUS'}
             </button>
           </div>
 
@@ -665,7 +677,14 @@ const PetEditModal = ({ pet, onSave, onDelete, onClose }) => {
         {showDeregistration && (
           <DeregistrationModal
             pet={pet}
-            onConfirm={(id) => { onDelete(id); onClose(); }}
+            onConfirm={(id, reasonId) => {
+              if (reasonId === 'lost') {
+                onSave({ ...pet, status: 'BUSCANDO' });
+              } else {
+                onDelete(id);
+              }
+              onClose();
+            }}
             onCancel={() => setShowDeregistration(false)}
           />
         )}

@@ -121,8 +121,12 @@ const AppContent = () => {
   const location = useLocation();
 
   const [pets, setPets]           = useState([]);
+  const [activePetId, setActivePetId] = useState(null);
   const [isSOS, setIsSOS]         = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
+
+  /* Derive active pet — falls back to first pet if activePetId is null or stale */
+  const activePet = pets.find(p => p.id === activePetId) || pets[0] || null;
 
   useEffect(() => {
     if (user) {
@@ -156,14 +160,18 @@ const AppContent = () => {
 
   const handleDeletePet = (petId) => {
     storage.deletePet(user.id, petId);
-    setPets(prev => prev.filter(p => p.id !== petId));
+    setPets(prev => {
+      const remaining = prev.filter(p => p.id !== petId);
+      if (activePetId === petId) setActivePetId(remaining[0]?.id ?? null);
+      return remaining;
+    });
   };
 
   /* ── Auth / Onboarding gates ── */
   if (location.pathname === '/recuperar-acceso') return <RecuperarAcceso />;
   if (!user) return <Auth />;
   if (showOnboarding) return <Onboarding onComplete={handleOnboardingComplete} />;
-  if (isSOS) return <SOSMode pet={pets[0]} onExit={() => setIsSOS(false)} />;
+  if (isSOS) return <SOSMode pet={activePet} pets={pets} onActivePetChange={setActivePetId} onExit={() => setIsSOS(false)} />;
 
   const activeId = NAV_TABS.find(tab => location.pathname === tab.path)?.id || 'dashboard';
 
@@ -236,12 +244,12 @@ const AppContent = () => {
           <Routes location={location} key={location.pathname}>
             <Route path="/dashboard" element={
               <motion.div {...TAB_VARIANTS}>
-                <Dashboard pets={pets} onAddPet={() => navigate('/registro')} onSelectPet={() => navigate('/passport')} onUpdatePet={handleUpdatePet} onDeletePet={handleDeletePet} />
+                <Dashboard pets={pets} activePetId={activePetId} onActivePetChange={setActivePetId} onAddPet={() => navigate('/registro')} onSelectPet={() => navigate('/passport')} onUpdatePet={handleUpdatePet} onDeletePet={handleDeletePet} />
               </motion.div>
             } />
             <Route path="/passport" element={
               <motion.div {...TAB_VARIANTS} style={{ paddingTop: '2rem' }}>
-                <GlobalPassport pet={pets[0]} onUpdatePet={handleUpdatePet} />
+                <GlobalPassport pet={activePet} onUpdatePet={handleUpdatePet} />
               </motion.div>
             } />
             <Route path="/registro" element={

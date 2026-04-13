@@ -30,7 +30,18 @@ const buildQRText = (pet) => {
   return lines.filter(Boolean).join('\n');
 };
 
-const SOSMode = ({ pet, onExit }) => {
+const SOSMode = ({ pet, pets = [], onActivePetChange, onExit }) => {
+  /* local active pet — starts with prop, can be switched without leaving SOS */
+  const [activeSosPetId, setActiveSosPetId] = useState(() => pet?.id ?? null);
+  const [showSwitcher, setShowSwitcher]     = useState(false);
+  const activePet = pets.find(p => p.id === activeSosPetId) || pet;
+
+  const switchTo = (id) => {
+    setActiveSosPetId(id);
+    onActivePetChange?.(id);
+    setShowSwitcher(false);
+  };
+
   const [location, setLocation]     = useState(null);
   const [country, setCountry]       = useState(null);
   const [geoStatus, setGeoStatus]   = useState('idle'); // idle | loading | ok | error
@@ -88,7 +99,7 @@ const SOSMode = ({ pet, onExit }) => {
     }
   };
 
-  const qrText = buildQRText(pet);
+  const qrText = buildQRText(activePet);
 
   return (
     <div style={{
@@ -134,6 +145,54 @@ const SOSMode = ({ pet, onExit }) => {
           </button>
         </header>
 
+        {/* ── Member switcher bar (shown when >1 pet) ── */}
+        {pets.length > 1 && (
+          <div style={{ marginBottom: '1.8rem' }}>
+            <AnimatePresence>
+              {showSwitcher && (
+                <motion.div
+                  initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
+                  style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap',
+                    background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,0,122,0.3)',
+                    borderRadius: 4, padding: '1rem 1.4rem', marginBottom: '0.8rem' }}>
+                  <span style={{ fontSize: '0.62rem', letterSpacing: '2px', color: 'var(--aura-neon-pink)', fontWeight: 700, flexShrink: 0 }}>
+                    SELECCIONAR MIEMBRO:
+                  </span>
+                  {pets.map(p => {
+                    const sel = p.id === activeSosPetId;
+                    return (
+                      <button key={p.id} onClick={() => switchTo(p.id)}
+                        style={{ background: 'none', border: 'none', cursor: 'pointer',
+                          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.3rem', padding: 0 }}>
+                        <div style={{
+                          width: 48, height: 48, borderRadius: '50%', overflow: 'hidden',
+                          border: sel ? '2px solid var(--aura-neon-pink)' : '2px solid rgba(255,255,255,0.15)',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          fontSize: '1.3rem', background: 'rgba(255,255,255,0.04)',
+                          boxShadow: sel ? '0 0 14px rgba(255,0,122,0.6)' : 'none',
+                        }}>
+                          {p.customImage
+                            ? <img src={p.customImage} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            : p.avatar || '🐾'}
+                        </div>
+                        <span style={{ fontSize: '0.55rem', color: sel ? 'var(--aura-neon-pink)' : 'var(--aura-text-muted)',
+                          letterSpacing: '1px', fontWeight: sel ? 700 : 400 }}>
+                          {p.name}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </motion.div>
+              )}
+            </AnimatePresence>
+            <button onClick={() => setShowSwitcher(v => !v)} className="btn-aura"
+              style={{ fontSize: '0.7rem', borderColor: 'rgba(255,0,122,0.5)', color: 'var(--aura-neon-pink)',
+                display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              ⚡ CAMBIAR MIEMBRO ({pets.length})
+            </button>
+          </div>
+        )}
+
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
           {/* ── Pet card ── */}
           <div className="aura-card" style={{ background: 'rgba(255,0,80,0.07)', borderColor: 'var(--aura-neon-pink)', padding: '2.5rem', textAlign: 'center' }}>
@@ -142,15 +201,15 @@ const SOSMode = ({ pet, onExit }) => {
               background: 'rgba(255,255,255,0.05)', border: '2px solid var(--aura-neon-pink)', overflow: 'hidden',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}>
-              {pet?.customImage
-                ? <img src={pet.customImage} alt={pet?.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                : <span style={{ fontSize: '3.5rem' }}>{pet?.avatar || '🐾'}</span>}
+              {activePet?.customImage
+                ? <img src={activePet.customImage} alt={activePet?.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                : <span style={{ fontSize: '3.5rem' }}>{activePet?.avatar || '🐾'}</span>}
             </div>
-            <h2 style={{ fontSize: '2rem', margin: '0 0 4px', color: 'white' }}>{pet?.name || 'AURA Member'}</h2>
-            <p style={{ margin: '0 0 0.4rem', opacity: 0.7 }}>{pet?.speciesLabel || pet?.breed || '—'}</p>
-            {pet?.microchip && (
+            <h2 style={{ fontSize: '2rem', margin: '0 0 4px', color: 'white' }}>{activePet?.name || 'AURA Member'}</h2>
+            <p style={{ margin: '0 0 0.4rem', opacity: 0.7 }}>{activePet?.speciesLabel || activePet?.breed || '—'}</p>
+            {activePet?.microchip && (
               <p style={{ margin: 0, fontSize: '0.7rem', letterSpacing: '1px', color: 'var(--aura-gold)' }}>
-                CHIP: {pet.microchip}
+                CHIP: {activePet.microchip}
               </p>
             )}
           </div>
@@ -195,7 +254,7 @@ const SOSMode = ({ pet, onExit }) => {
             </div>
 
             {/* Emergency contacts */}
-            {pet?.emergencyConfig?.contacts?.map((c, i) => c.phone ? (
+            {activePet?.emergencyConfig?.contacts?.map((c, i) => c.phone ? (
               <div key={i} className="aura-card" style={{ padding: '1.4rem', display: 'flex', alignItems: 'center', gap: '1.2rem' }}>
                 <Phone size={22} color="var(--aura-gold)" />
                 <div style={{ flex: 1 }}>
@@ -246,7 +305,7 @@ const SOSMode = ({ pet, onExit }) => {
                 </p>
                 <p style={{ margin: '0 0 1rem', fontSize: '0.82rem', color: 'var(--aura-text-muted)', lineHeight: 1.7 }}>
                   Cualquier veterinario puede escanear este código para acceder a los datos críticos
-                  de {pet?.name || 'la mascota'} sin necesidad de la app.
+                  de {activePet?.name || 'la mascota'} sin necesidad de la app.
                 </p>
                 <pre style={{
                   margin: 0, fontSize: '0.68rem', color: 'var(--aura-text-muted)',
@@ -261,13 +320,13 @@ const SOSMode = ({ pet, onExit }) => {
         </AnimatePresence>
 
         {/* ── Medical alerts ── */}
-        {pet?.emergencyConfig?.medicalAlerts && (
+        {activePet?.emergencyConfig?.medicalAlerts && (
           <div className="aura-card" style={{ marginTop: '2rem', background: 'white', color: 'black', padding: '2rem' }}>
             <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', color: 'var(--aura-neon-pink)', marginBottom: '1rem', fontSize: '1.1rem' }}>
               <AlertCircle size={24} /> ALERTAS MÉDICAS CRÍTICAS
             </h3>
             <p style={{ margin: 0, fontSize: '1rem', fontWeight: 600, lineHeight: 1.7 }}>
-              {pet.emergencyConfig.medicalAlerts}
+              {activePet.emergencyConfig.medicalAlerts}
             </p>
           </div>
         )}

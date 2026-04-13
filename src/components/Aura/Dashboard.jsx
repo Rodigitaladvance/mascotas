@@ -8,13 +8,14 @@ import PetEditModal from './PetEditModal';
 
 const EMPTY_VITALS = { heartRate: '', activity: 50, weight: '', status: 'good', notes: '' };
 
-const Dashboard = ({ pets, onAddPet, onSelectPet, onUpdatePet, onDeletePet }) => {
+const Dashboard = ({ pets, activePetId, onActivePetChange, onAddPet, onSelectPet, onUpdatePet, onDeletePet }) => {
   const { t, locale } = useTranslation();
   const [showPerformanceDetail, setShowPerformanceDetail] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingVitals, setEditingVitals] = useState(false);
   const [vitalsForm, setVitalsForm] = useState(EMPTY_VITALS);
-  const pet = pets?.[0] || null;
+  /* Active pet: prop-driven with first-pet fallback */
+  const pet = pets?.find(p => p.id === activePetId) || pets?.[0] || null;
   const healthScore = 95;
 
   const es = locale === 'es';
@@ -146,6 +147,68 @@ const Dashboard = ({ pets, onAddPet, onSelectPet, onUpdatePet, onDeletePet }) =>
         </button>
       </header>
 
+      {/* ══ Medallion carousel ══ */}
+      {pets.length > 0 && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', overflowX: 'auto', paddingBottom: '0.5rem', marginBottom: '2.5rem' }}>
+          {pets.map(p => {
+            const isActive = p.id === (activePetId || pets[0]?.id);
+            return (
+              <motion.button
+                key={p.id}
+                whileTap={{ scale: 0.94 }}
+                onClick={() => onActivePetChange?.(p.id)}
+                style={{
+                  flexShrink: 0, background: 'none', border: 'none', cursor: 'pointer',
+                  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.45rem', padding: 0,
+                }}
+              >
+                <div style={{
+                  width: 64, height: 64, borderRadius: '50%', overflow: 'hidden',
+                  border: isActive ? '2px solid #d4af37' : '2px solid rgba(212,175,55,0.25)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: '1.6rem', background: 'var(--aura-surface)',
+                  boxShadow: isActive
+                    ? '0 0 0 3px rgba(212,175,55,0.3), 0 0 18px rgba(212,175,55,0.75)'
+                    : 'none',
+                  transition: 'box-shadow 0.3s, border-color 0.3s',
+                }}>
+                  {p.customImage
+                    ? <img src={p.customImage} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    : <span>{p.avatar || '🐾'}</span>}
+                </div>
+                <span style={{
+                  fontSize: '0.6rem', letterSpacing: '1.5px', textTransform: 'uppercase',
+                  color: isActive ? 'var(--aura-gold)' : 'var(--aura-text-muted)',
+                  fontWeight: isActive ? 700 : 400, whiteSpace: 'nowrap',
+                  maxWidth: 72, overflow: 'hidden', textOverflow: 'ellipsis',
+                }}>
+                  {p.name}
+                </span>
+                {p.status === 'BUSCANDO' && (
+                  <motion.span animate={{ opacity: [1, 0.3, 1] }} transition={{ repeat: Infinity, duration: 1.4 }}
+                    style={{ fontSize: '0.5rem', color: '#ffaa00', letterSpacing: '1px', marginTop: -4 }}>
+                    🔍 {es ? 'BUSCANDO' : 'MISSING'}
+                  </motion.span>
+                )}
+              </motion.button>
+            );
+          })}
+
+          {/* ── Add new member button ── */}
+          <button onClick={onAddPet} style={{
+            flexShrink: 0, width: 64, height: 64, borderRadius: '50%',
+            border: '2px dashed rgba(212,175,55,0.35)', background: 'none',
+            cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            color: 'var(--aura-gold)', transition: 'border-color 0.2s',
+          }}
+            onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(212,175,55,0.75)'}
+            onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(212,175,55,0.35)'}
+          >
+            <PlusCircle size={22} />
+          </button>
+        </div>
+      )}
+
       {/* ── Main grid ── */}
       <div style={{ display: 'grid', gridTemplateColumns: 'minmax(320px, 1fr) 1.6fr', gap: '2.5rem' }}>
 
@@ -168,6 +231,12 @@ const Dashboard = ({ pets, onAddPet, onSelectPet, onUpdatePet, onDeletePet }) =>
             </div>
           </div>
           <div style={{ marginTop: '2.5rem', textAlign: 'center' }}>
+            {/* Pet photo / avatar */}
+            <div style={{ width: 56, height: 56, borderRadius: '50%', overflow: 'hidden', border: '2px solid var(--aura-gold)', margin: '0 auto 1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.6rem', background: 'rgba(255,255,255,0.04)' }}>
+              {pet.customImage
+                ? <img src={pet.customImage} alt={pet.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                : pet.avatar || '🐾'}
+            </div>
             <div style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:'0.8rem' }}>
               <h3 style={{ fontSize: '1.8rem', color: 'var(--aura-text)', margin:0 }}>{pet.name}</h3>
               <button onClick={() => setShowEditModal(true)}
@@ -181,6 +250,18 @@ const Dashboard = ({ pets, onAddPet, onSelectPet, onUpdatePet, onDeletePet }) =>
                 <Pencil size={13} />
               </button>
             </div>
+            {pet.status === 'BUSCANDO' && (
+              <motion.div
+                animate={{ opacity: [1, 0.5, 1] }}
+                transition={{ repeat: Infinity, duration: 1.6, ease: 'easeInOut' }}
+                style={{ margin:'0.6rem auto 0', display:'inline-flex', alignItems:'center', gap:'0.5rem',
+                  background:'rgba(255,170,0,0.12)', border:'1px solid rgba(255,170,0,0.5)',
+                  borderRadius:4, padding:'0.35rem 0.9rem' }}>
+                <span style={{ fontSize:'0.62rem', letterSpacing:'2.5px', color:'#ffaa00', fontWeight:700 }}>
+                  🔍 {es ? 'BUSCANDO — QR ACTIVO' : 'MISSING — QR ACTIVE'}
+                </span>
+              </motion.div>
+            )}
             <p style={{ color: 'var(--aura-text-muted)', fontSize: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', margin: '0.4rem 0 0' }}>
               <span className="status-indicator status-active" />
               {t('dashboard.systemCertified')}
@@ -360,28 +441,6 @@ const Dashboard = ({ pets, onAddPet, onSelectPet, onUpdatePet, onDeletePet }) =>
           </motion.div>
         )}
       </AnimatePresence>
-
-      {/* ── Members Vault ── */}
-      {pets.length > 1 && (
-        <section style={{ marginTop: '6rem' }}>
-          <h2 style={{ fontSize: '2.2rem', marginBottom: '2.5rem' }}>{t('dashboard.vaultTitle')}</h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(240px,1fr))', gap: '1.5rem' }}>
-            {pets.map(p => (
-              <motion.div key={p.id} whileHover={{ y: -6 }} className="aura-card"
-                style={{ cursor: 'pointer', padding: '1.8rem' }} onClick={() => onSelectPet(p.id)}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
-                  <div style={{ width: 40, height: 40, border: '1px solid var(--aura-gold)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem' }}>
-                    {p.avatar}
-                  </div>
-                  <span style={{ fontSize: '0.6rem', letterSpacing: '2px', opacity: 0.5 }}>EXPEDIENTE</span>
-                </div>
-                <h3 style={{ margin: '0 0 0.3rem', fontSize: '1.3rem', color: 'var(--aura-text)' }}>{p.name}</h3>
-                <p style={{ margin: 0, fontSize: '0.72rem', opacity: 0.6 }}>{p.speciesLabel || p.species} • TIER 1</p>
-              </motion.div>
-            ))}
-          </div>
-        </section>
-      )}
 
       <div style={{ height: '6rem' }} />
 

@@ -50,15 +50,15 @@ const buildRequirements = (pet, countryId, locale) => {
       : es ? 'Pendiente — añade en Documentación' : 'Pending — add in Health Docs',
   };
 
-  /* EU Passport — real data */
-  const ep = h.europeanPassport || {};
+  /* Physical Passport — linked to uploaded file */
+  const pp = h.physicalPassport || {};
   const euPassport = {
     icon: 'doc',
-    label: 'Pasaporte Europeo EU',
-    status: ep.status || 'pending',
-    detail: ep.status === 'ok' && ep.number
-      ? `N.º ${ep.number} — ${es ? 'Firmado' : 'Signed'}`
-      : es ? 'Requiere firma veterinaria oficial' : 'Requires official vet signature',
+    label: es ? 'Pasaporte Físico' : 'Physical Passport',
+    status: pp.status || 'pending',
+    detail: pp.status === 'ok' && pp.fileName
+      ? `${es ? 'Documento custodiado' : 'Document on file'}: ${pp.fileName.length > 30 ? pp.fileName.slice(0,28)+'…' : pp.fileName}`
+      : es ? 'Vincula el pasaporte físico para completar' : 'Link physical passport to complete',
   };
 
   /* Health cert — real data */
@@ -340,24 +340,27 @@ const GlobalPassport = ({ pet, onUpdatePet }) => {
   const { locale } = useTranslation();
   const [selectedCountry, setSelectedCountry] = useState(null);
   const [saved, setSaved]                     = useState(false);
-  const certInputRef = useRef(null);
+  const certInputRef     = useRef(null);
+  const passportInputRef = useRef(null);
   const es = locale === 'es';
 
   /* Draft state — editable fields in left panel */
   const [draft, setDraft] = useState(() => ({
-    microchip:    pet?.microchip                       || '',
-    rabiesDate:   pet?.health?.rabiesVaccine?.date     || '',
-    rabiesBatch:  pet?.health?.rabiesVaccine?.batch    || '',
-    certFileName: pet?.health?.healthCert?.fileName    || '',
+    microchip:        pet?.microchip                            || '',
+    rabiesDate:       pet?.health?.rabiesVaccine?.date          || '',
+    rabiesBatch:      pet?.health?.rabiesVaccine?.batch         || '',
+    certFileName:     pet?.health?.healthCert?.fileName         || '',
+    passportFileName: pet?.health?.physicalPassport?.fileName   || '',
   }));
 
   /* Re-init when pet identity changes (different animal selected) */
   useEffect(() => {
     setDraft({
-      microchip:    pet?.microchip                       || '',
-      rabiesDate:   pet?.health?.rabiesVaccine?.date     || '',
-      rabiesBatch:  pet?.health?.rabiesVaccine?.batch    || '',
-      certFileName: pet?.health?.healthCert?.fileName    || '',
+      microchip:        pet?.microchip                            || '',
+      rabiesDate:       pet?.health?.rabiesVaccine?.date          || '',
+      rabiesBatch:      pet?.health?.rabiesVaccine?.batch         || '',
+      certFileName:     pet?.health?.healthCert?.fileName         || '',
+      passportFileName: pet?.health?.physicalPassport?.fileName   || '',
     });
   }, [pet?.id]);
 
@@ -383,6 +386,11 @@ const GlobalPassport = ({ pet, onUpdatePet }) => {
           ...pet.health?.healthCert,
           status:   draft.certFileName ? 'ok' : (pet.health?.healthCert?.status || 'pending'),
           fileName: draft.certFileName,
+        },
+        physicalPassport: {
+          ...pet.health?.physicalPassport,
+          status:   draft.passportFileName ? 'ok' : (pet.health?.physicalPassport?.status || 'pending'),
+          fileName: draft.passportFileName || pet.health?.physicalPassport?.fileName || '',
         },
       },
     };
@@ -422,6 +430,10 @@ const GlobalPassport = ({ pet, onUpdatePet }) => {
           status:   draft.certFileName ? 'ok' : (pet?.health?.healthCert?.status || 'pending'),
           fileName: draft.certFileName,
           notes:    pet?.health?.healthCert?.notes || '',
+        },
+        physicalPassport: {
+          fileName: draft.passportFileName,
+          status:   draft.passportFileName ? 'ok' : 'pending',
         },
       },
     });
@@ -595,20 +607,60 @@ const GlobalPassport = ({ pet, onUpdatePet }) => {
               </div>
             </div>
 
-            {/* ── Pasaporte EU — read-only row ── */}
-            {(() => {
-              const euReq = draftReqs.find(r => r.label === 'Pasaporte Europeo EU');
-              if (!euReq) return null;
-              return (
-                <div style={{ padding:'1.2rem 0', borderBottom:'1px solid var(--aura-border)',
-                  display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-                  <span style={{ fontSize:'0.85rem', color:'var(--aura-text-muted)' }}>{euReq.label}</span>
-                  <span style={{ fontWeight:600, fontSize:'0.72rem', letterSpacing:'1px', color:STATUS_COLOR[euReq.status] }}>
-                    {statusLabel(euReq.status, locale)}
+            {/* ── Pasaporte Físico (PDF/JPG) ── */}
+            <div style={{ padding:'1.2rem 0', borderBottom:'1px solid var(--aura-border)' }}>
+              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'0.8rem' }}>
+                <label style={FIELD_LABEL}><FileText size={13}/> {es ? 'Pasaporte Físico' : 'Physical Passport'}</label>
+                {draft.passportFileName && (
+                  <motion.span
+                    initial={{ opacity:0, scale:0.8 }} animate={{ opacity:1, scale:1 }}
+                    style={{ fontSize:'0.6rem', letterSpacing:'1.5px', fontWeight:700, color:'var(--aura-neon-cyan)' }}>
+                    ✓ {es ? 'DOCUMENTO CUSTODIADO' : 'DOCUMENT ON FILE'}
+                  </motion.span>
+                )}
+              </div>
+              <input
+                type="file"
+                accept=".pdf,.jpg,.jpeg,.png"
+                ref={passportInputRef}
+                style={{ display:'none' }}
+                onChange={e => {
+                  const file = e.target.files?.[0];
+                  if (file) setDraft(p => ({ ...p, passportFileName: file.name }));
+                }}
+              />
+              <div style={{ display:'flex', gap:'0.6rem', alignItems:'center' }}>
+                <button
+                  type="button"
+                  className="btn-aura"
+                  onClick={() => passportInputRef.current?.click()}
+                  style={{
+                    flex:1, fontSize:'0.72rem', padding:'0.75rem 1rem',
+                    display:'flex', alignItems:'center', justifyContent:'center', gap:'0.5rem',
+                    borderColor: draft.passportFileName ? 'var(--aura-neon-cyan)' : 'var(--aura-gold)',
+                    color:       draft.passportFileName ? 'var(--aura-neon-cyan)' : 'var(--aura-gold)',
+                    background:  draft.passportFileName ? 'rgba(0,245,255,0.05)' : 'rgba(212,175,55,0.04)',
+                    overflow:'hidden',
+                  }}
+                >
+                  <Upload size={13}/>
+                  <span style={{ overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
+                    {draft.passportFileName
+                      ? (draft.passportFileName.length > 26 ? draft.passportFileName.slice(0,24)+'…' : draft.passportFileName)
+                      : (es ? 'VINCULAR PASAPORTE ORIGINAL' : 'LINK ORIGINAL PASSPORT')}
                   </span>
-                </div>
-              );
-            })()}
+                </button>
+                {draft.passportFileName && (
+                  <button
+                    type="button"
+                    style={{ background:'none', border:'none', color:'var(--aura-text-muted)', cursor:'pointer', padding:'4px', flexShrink:0 }}
+                    onClick={() => setDraft(p => ({ ...p, passportFileName: '' }))}
+                  >
+                    <X size={14}/>
+                  </button>
+                )}
+              </div>
+            </div>
 
             {/* ── Save button ── */}
             <button
@@ -664,7 +716,19 @@ const GlobalPassport = ({ pet, onUpdatePet }) => {
                   <div style={{ display:'flex', alignItems:'center', gap:'1.2rem' }}>
                     <span style={{ fontSize:'1.5rem' }}>{meta.flag}</span>
                     <div>
-                      <h4 style={{ margin:'0 0 2px', fontSize:'0.95rem', fontWeight:600, color:'var(--aura-text)' }}>{meta.name}</h4>
+                      <h4 style={{ margin:'0 0 2px', fontSize:'0.95rem', fontWeight:600 }}>
+                        <span
+                          onClick={e => {
+                            e.stopPropagation();
+                            window.open(`/politicas.html?lang=${locale}`, '_blank', 'noopener,noreferrer');
+                          }}
+                          style={{ color:'var(--aura-text)', cursor:'pointer', transition:'color 0.2s' }}
+                          onMouseEnter={e => { e.currentTarget.style.color = '#d4af37'; }}
+                          onMouseLeave={e => { e.currentTarget.style.color = 'var(--aura-text)'; }}
+                        >
+                          {meta.name}
+                        </span>
+                      </h4>
                       {meta.note && <p style={{ margin:0, fontSize:'0.68rem', color:'var(--aura-gold)' }}>⚠ {meta.note.split('.')[0]}</p>}
                     </div>
                   </div>
