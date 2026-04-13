@@ -22,3 +22,10 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Claude Code internals
+.claude/
+
+# Windows system files
+desktop.ini
+Thumbs.db
