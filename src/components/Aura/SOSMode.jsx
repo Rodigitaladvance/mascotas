@@ -1,86 +1,279 @@
-import React from 'react';
-import { ShieldAlert, Phone, MapPin, Heart, AlertCircle, Zap, ShieldCheck } from 'lucide-react';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect } from 'react';
+import { ShieldAlert, Phone, MapPin, AlertCircle, X, Wifi, WifiOff } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { QRCodeSVG } from 'qrcode.react';
+
+/* ── Emergency number by ISO country code ── */
+const EMERGENCY = {
+  ES: '112', PT: '112', DE: '112', FR: '15', IT: '118',
+  GB: '999', IE: '999',
+  US: '911', CA: '911', MX: '911',
+  AU: '000', NZ: '111',
+};
+const getEmergencyNumber = (countryCode) =>
+  EMERGENCY[countryCode?.toUpperCase()] ?? '112';
+
+/* ── Build QR text from pet data ── */
+const buildQRText = (pet) => {
+  const lines = [
+    '🚨 EMERGENCIA VETERINARIA — AURA Pets',
+    `Mascota: ${pet?.name || 'N/A'}`,
+    `Especie: ${pet?.speciesLabel || pet?.species || 'N/A'}`,
+    pet?.breed ? `Raza: ${pet.breed}` : null,
+    pet?.microchip ? `Microchip: ${pet.microchip}` : null,
+    pet?.age ? `Edad: ${pet.age}` : null,
+    pet?.weight ? `Peso: ${pet.weight} kg` : null,
+    '---',
+    pet?.emergencyConfig?.medicalAlerts ? `Alertas Médicas: ${pet.emergencyConfig.medicalAlerts}` : null,
+    ...(pet?.emergencyConfig?.contacts ?? []).map(c => `Contacto: ${c.name} ${c.phone}`),
+  ];
+  return lines.filter(Boolean).join('\n');
+};
 
 const SOSMode = ({ pet, onExit }) => {
+  const [location, setLocation]     = useState(null);
+  const [country, setCountry]       = useState(null);
+  const [geoStatus, setGeoStatus]   = useState('idle'); // idle | loading | ok | error
+  const [showQR, setShowQR]         = useState(false);
+
+  /* ── Geolocation + reverse geocode ── */
+  useEffect(() => {
+    if (!navigator.geolocation) {
+      setGeoStatus('error');
+      return;
+    }
+    setGeoStatus('loading');
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const { latitude: lat, longitude: lon } = pos.coords;
+        setLocation({ lat, lon });
+        setGeoStatus('ok');
+        try {
+          const res = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`,
+            { headers: { 'Accept-Language': 'en' } },
+          );
+          const data = await res.json();
+          setCountry(data?.address?.country_code?.toUpperCase() ?? null);
+        } catch {
+          /* fall back to language-based detection */
+          const lang = navigator.language?.split('-')[1]?.toUpperCase();
+          setCountry(lang || null);
+        }
+      },
+      () => {
+        setGeoStatus('error');
+        const lang = navigator.language?.split('-')[1]?.toUpperCase();
+        setCountry(lang || null);
+      },
+      { timeout: 10_000, maximumAge: 60_000 },
+    );
+  }, []);
+
+  const emergencyNumber = getEmergencyNumber(country);
+
+  const handleCall = () => window.open(`tel:${emergencyNumber}`);
+
+  const handleMap = () => {
+    if (location) {
+      window.open(
+        `https://www.google.com/maps/search/Hospital+Veterinario+24h/@${location.lat},${location.lon},14z`,
+        '_blank',
+      );
+    } else {
+      window.open(
+        `https://www.google.com/maps/search/Hospital+Veterinario+24h`,
+        '_blank',
+      );
+    }
+  };
+
+  const qrText = buildQRText(pet);
+
   return (
-    <div className="fade-in" style={{ 
+    <div style={{
       minHeight: '100vh', background: 'var(--aura-black)', position: 'fixed', inset: 0, zIndex: 1000,
-      padding: '4rem 2rem', color: 'white'
+      overflowY: 'auto', color: 'white',
     }}>
-      <motion.div 
-        animate={{ opacity: [1, 0.6, 1] }} 
-        transition={{ repeat: Infinity, duration: 2 }}
-        style={{ 
-          background: 'var(--aura-neon-pink)', color: 'white', padding: '1rem', 
-          textAlign: 'center', position: 'fixed', top: 0, left: 0, width: '100%',
-          letterSpacing: '5px', fontWeight: 900, fontSize: '1rem'
+      {/* ── Pulsing SOS banner ── */}
+      <motion.div
+        animate={{ opacity: [1, 0.55, 1] }}
+        transition={{ repeat: Infinity, duration: 1.8 }}
+        style={{
+          background: 'var(--aura-neon-pink)', color: 'white', padding: '0.9rem',
+          textAlign: 'center', letterSpacing: '6px', fontWeight: 900, fontSize: '1rem',
         }}
       >
-        MODO SOS ACTIVO
+        🚨 MODO SOS ACTIVO
       </motion.div>
 
-      <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-        <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4rem' }}>
-           <h1 style={{ fontSize: '2.5rem', margin: 0, color: 'white', fontFamily: 'var(--font-serif)' }}>Emergencia Sanitaria</h1>
-           <button 
-             onClick={onExit}
-             className="btn-aura" 
-             style={{ borderColor: 'white', color: 'white' }}
-           >
-             SALIR DEL MODO SOS
-           </button>
+      <div style={{ maxWidth: 860, margin: '0 auto', padding: '2.5rem 2rem 6rem' }}>
+        {/* ── Header ── */}
+        <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem' }}>
+          <div>
+            <h1 style={{ fontSize: '2.2rem', margin: '0 0 4px', fontFamily: 'var(--font-serif)' }}>
+              Emergencia Sanitaria
+            </h1>
+            {/* Geo status pill */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              {geoStatus === 'ok'
+                ? <><Wifi size={13} color="var(--aura-neon-cyan)" />
+                    <span style={{ fontSize: '0.65rem', color: 'var(--aura-neon-cyan)', letterSpacing: '1.5px' }}>
+                      UBICACIÓN DETECTADA · {country || '…'}  —  Emergencias: {emergencyNumber}
+                    </span></>
+                : geoStatus === 'loading'
+                  ? <span style={{ fontSize: '0.65rem', color: 'var(--aura-gold)', letterSpacing: '1.5px' }}>Detectando ubicación…</span>
+                  : <><WifiOff size={13} color="var(--aura-gold)" />
+                      <span style={{ fontSize: '0.65rem', color: 'var(--aura-gold)', letterSpacing: '1.5px' }}>
+                        UBICACIÓN NO DISPONIBLE · Nº por defecto: {emergencyNumber}
+                      </span></>}
+            </div>
+          </div>
+          <button onClick={onExit} className="btn-aura" style={{ borderColor: 'rgba(255,255,255,0.3)', color: 'white' }}>
+            SALIR DEL MODO SOS
+          </button>
         </header>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
-          {/* Pet Vital Info */}
-          <div className="aura-card" style={{ background: 'rgba(255,0,0,0.1)', borderColor: 'var(--aura-neon-pink)', padding: '3rem', textAlign: 'center' }}>
-             <div style={{ 
-               width: '150px', height: '150px', borderRadius: '40px', margin: '0 auto 2rem',
-               background: 'var(--aura-obsidian)', border: '1px solid var(--aura-neon-pink)', overflow: 'hidden'
-             }}>
-                {pet?.customImage ? <img src={pet.customImage} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <div style={{ fontSize: '4rem', marginTop: '1rem' }}>{pet?.avatar || '🐾'}</div>}
-             </div>
-             <h2 style={{ fontSize: '2.5rem', margin: '0 0 0.5rem', color: 'white' }}>{pet?.name || 'AURA Member'}</h2>
-             <p style={{ fontSize: '1.2rem', opacity: 0.8 }}>{pet?.breed || 'Desconocido'}</p>
+          {/* ── Pet card ── */}
+          <div className="aura-card" style={{ background: 'rgba(255,0,80,0.07)', borderColor: 'var(--aura-neon-pink)', padding: '2.5rem', textAlign: 'center' }}>
+            <div style={{
+              width: 130, height: 130, borderRadius: '50%', margin: '0 auto 1.5rem',
+              background: 'rgba(255,255,255,0.05)', border: '2px solid var(--aura-neon-pink)', overflow: 'hidden',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              {pet?.customImage
+                ? <img src={pet.customImage} alt={pet?.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                : <span style={{ fontSize: '3.5rem' }}>{pet?.avatar || '🐾'}</span>}
+            </div>
+            <h2 style={{ fontSize: '2rem', margin: '0 0 4px', color: 'white' }}>{pet?.name || 'AURA Member'}</h2>
+            <p style={{ margin: '0 0 0.4rem', opacity: 0.7 }}>{pet?.speciesLabel || pet?.breed || '—'}</p>
+            {pet?.microchip && (
+              <p style={{ margin: 0, fontSize: '0.7rem', letterSpacing: '1px', color: 'var(--aura-gold)' }}>
+                CHIP: {pet.microchip}
+              </p>
+            )}
           </div>
 
-          {/* Action Grid */}
-          <div style={{ display: 'grid', gap: '1.5rem' }}>
-             <div className="aura-card" style={{ padding: '2rem', display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-                <Phone size={32} color="var(--aura-neon-pink)" />
-                <div style={{ flex: 1 }}>
-                   <h3 style={{ margin: 0, fontSize: '1.2rem' }}>Contacto de Emergencia</h3>
-                   <p style={{ margin: 0, opacity: 0.7 }}>+34 600 000 000 (Dueño)</p>
-                </div>
-                <button className="btn-aura btn-neon" style={{ borderColor: 'var(--aura-neon-pink)', color: 'var(--aura-neon-pink)' }}>LLAMAR</button>
-             </div>
+          {/* ── Actions ── */}
+          <div style={{ display: 'grid', gap: '1.2rem', alignContent: 'start' }}>
+            {/* Call emergency */}
+            <div className="aura-card" style={{ padding: '1.6rem', display: 'flex', alignItems: 'center', gap: '1.2rem' }}>
+              <Phone size={28} color="var(--aura-neon-pink)" />
+              <div style={{ flex: 1 }}>
+                <h3 style={{ margin: '0 0 2px', fontSize: '1rem' }}>Emergencias Veterinarias</h3>
+                <p style={{ margin: 0, opacity: 0.6, fontSize: '0.8rem' }}>
+                  Llamar al {emergencyNumber}
+                  {country ? ` (${country})` : ''}
+                </p>
+              </div>
+              <button
+                className="btn-aura"
+                style={{ borderColor: 'var(--aura-neon-pink)', color: 'var(--aura-neon-pink)', whiteSpace: 'nowrap' }}
+                onClick={handleCall}
+              >
+                LLAMAR {emergencyNumber}
+              </button>
+            </div>
 
-             <div className="aura-card" style={{ padding: '2rem', display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-                <MapPin size={32} color="var(--aura-neon-pink)" />
+            {/* Map */}
+            <div className="aura-card" style={{ padding: '1.6rem', display: 'flex', alignItems: 'center', gap: '1.2rem' }}>
+              <MapPin size={28} color="var(--aura-neon-pink)" />
+              <div style={{ flex: 1 }}>
+                <h3 style={{ margin: '0 0 2px', fontSize: '1rem' }}>Hospital Veterinario 24h</h3>
+                <p style={{ margin: 0, opacity: 0.6, fontSize: '0.8rem' }}>
+                  {geoStatus === 'ok' ? 'Buscar cerca de tu posición' : 'Buscar en Google Maps'}
+                </p>
+              </div>
+              <button
+                className="btn-aura"
+                style={{ borderColor: 'var(--aura-neon-pink)', color: 'var(--aura-neon-pink)' }}
+                onClick={handleMap}
+              >
+                MAPA
+              </button>
+            </div>
+
+            {/* Emergency contacts */}
+            {pet?.emergencyConfig?.contacts?.map((c, i) => c.phone ? (
+              <div key={i} className="aura-card" style={{ padding: '1.4rem', display: 'flex', alignItems: 'center', gap: '1.2rem' }}>
+                <Phone size={22} color="var(--aura-gold)" />
                 <div style={{ flex: 1 }}>
-                   <h3 style={{ margin: 0, fontSize: '1.2rem' }}>Hospital 24h Más Cercano</h3>
-                   <p style={{ margin: 0, opacity: 0.7 }}>Hospital Veterinario AURA (a 1.2km)</p>
+                  <h3 style={{ margin: '0 0 2px', fontSize: '0.9rem' }}>{c.name}</h3>
+                  <p style={{ margin: 0, opacity: 0.6, fontSize: '0.8rem' }}>{c.phone}</p>
                 </div>
-                <button className="btn-aura btn-neon" style={{ borderColor: 'var(--aura-neon-pink)', color: 'var(--aura-neon-pink)' }}>MAPA</button>
-             </div>
+                <button
+                  className="btn-aura"
+                  style={{ borderColor: 'var(--aura-gold)', color: 'var(--aura-gold)', fontSize: '0.7rem' }}
+                  onClick={() => window.open(`tel:${c.phone}`)}
+                >
+                  LLAMAR
+                </button>
+              </div>
+            ) : null)}
+
+            {/* QR toggle */}
+            <button
+              className="btn-aura"
+              style={{ borderColor: 'var(--aura-neon-cyan)', color: 'var(--aura-neon-cyan)', padding: '1rem' }}
+              onClick={() => setShowQR(v => !v)}
+            >
+              {showQR ? 'OCULTAR CÓDIGO QR' : 'MOSTRAR CÓDIGO QR DE EMERGENCIA'}
+            </button>
           </div>
         </div>
 
-        {/* Vital Warnings */}
-        <div className="aura-card" style={{ marginTop: '2rem', background: 'white', color: 'black', padding: '3rem' }}>
-           <h3 style={{ display: 'flex', alignItems: 'center', gap: '1rem', color: 'var(--aura-neon-pink)', marginBottom: '1.5rem', fontSize: '1.5rem' }}>
-              <AlertCircle size={32} /> ESPECIFICACIONES CRÍTICAS
-           </h3>
-           <div style={{ fontSize: '1.3rem', fontWeight: 600 }}>
-             <p>• Alergia severa a la Penicilina.</p>
-             <p>• Requiere hidratación inmediata en caso de golpe de calor.</p>
-             <p>• No suministrar sedantes sin verificación de ID Vault.</p>
-           </div>
-        </div>
+        {/* ── QR Code panel ── */}
+        <AnimatePresence>
+          {showQR && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}
+              className="aura-card"
+              style={{ marginTop: '2rem', padding: '2.5rem', display: 'flex', gap: '2.5rem', alignItems: 'center', flexWrap: 'wrap' }}
+            >
+              <div style={{ background: 'white', padding: '1rem', borderRadius: 4 }}>
+                <QRCodeSVG
+                  value={qrText}
+                  size={160}
+                  bgColor="#ffffff"
+                  fgColor="#0A0A0F"
+                  level="M"
+                />
+              </div>
+              <div style={{ flex: 1 }}>
+                <p style={{ fontSize: '0.65rem', letterSpacing: '3px', color: 'var(--aura-neon-cyan)', textTransform: 'uppercase', margin: '0 0 0.8rem' }}>
+                  QR de Emergencia
+                </p>
+                <p style={{ margin: '0 0 1rem', fontSize: '0.82rem', color: 'var(--aura-text-muted)', lineHeight: 1.7 }}>
+                  Cualquier veterinario puede escanear este código para acceder a los datos críticos
+                  de {pet?.name || 'la mascota'} sin necesidad de la app.
+                </p>
+                <pre style={{
+                  margin: 0, fontSize: '0.68rem', color: 'var(--aura-text-muted)',
+                  background: 'rgba(255,255,255,0.03)', border: '1px solid var(--aura-border)',
+                  borderRadius: 4, padding: '0.8rem', whiteSpace: 'pre-wrap', lineHeight: 1.6,
+                }}>
+                  {qrText}
+                </pre>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-        <div style={{ marginTop: '3rem', textAlign: 'center', opacity: 0.5, fontSize: '0.8rem', letterSpacing: '2px' }}>
-          PROTOCOLO DE SEGURIDAD AURA Pets v3.0 PROTECTED
+        {/* ── Medical alerts ── */}
+        {pet?.emergencyConfig?.medicalAlerts && (
+          <div className="aura-card" style={{ marginTop: '2rem', background: 'white', color: 'black', padding: '2rem' }}>
+            <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', color: 'var(--aura-neon-pink)', marginBottom: '1rem', fontSize: '1.1rem' }}>
+              <AlertCircle size={24} /> ALERTAS MÉDICAS CRÍTICAS
+            </h3>
+            <p style={{ margin: 0, fontSize: '1rem', fontWeight: 600, lineHeight: 1.7 }}>
+              {pet.emergencyConfig.medicalAlerts}
+            </p>
+          </div>
+        )}
+
+        <div style={{ marginTop: '3rem', textAlign: 'center', opacity: 0.4, fontSize: '0.7rem', letterSpacing: '2px' }}>
+          PROTOCOLO DE SEGURIDAD AURA Pets v3.0 · {new Date().toLocaleDateString()}
         </div>
       </div>
     </div>

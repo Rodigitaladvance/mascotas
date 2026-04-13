@@ -115,16 +115,29 @@ const Auth = () => {
           </button>
         </form>
 
-        <footer style={{ marginTop: '2.5rem' }}>
-          <button 
-            style={{ 
-              background: 'none', border: 'none', color: 'var(--aura-text-muted)', 
+        <footer style={{ marginTop: '2.5rem', display: 'grid', gap: '0.8rem', justifyItems: 'center' }}>
+          <button
+            style={{
+              background: 'none', border: 'none', color: 'var(--aura-text-muted)',
               fontSize: '0.8rem', cursor: 'pointer', textDecoration: 'underline', letterSpacing: '1px'
             }}
             onClick={() => setIsRegister(!isRegister)}
           >
             {isRegister ? '¿YA TIENES UN REGISTRO? ENTRA AQUÍ' : '¿NUEVO EN EL ECOSISTEMA? CREAR CUENTA'}
           </button>
+          {!isRegister && (
+            <a
+              href="/recuperar-acceso"
+              style={{
+                color: 'var(--aura-gold)', fontSize: '0.75rem', letterSpacing: '1.5px',
+                textDecoration: 'none', opacity: 0.75, fontWeight: 600,
+              }}
+              onMouseEnter={e => e.currentTarget.style.opacity = '1'}
+              onMouseLeave={e => e.currentTarget.style.opacity = '0.75'}
+            >
+              ¿OLVIDÓ SU CLAVE DE SEGURIDAD?
+            </a>
+          )}
         </footer>
       </div>
     </div>

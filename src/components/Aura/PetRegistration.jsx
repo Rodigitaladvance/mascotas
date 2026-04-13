@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Shield, CheckCircle2, Upload, PlusCircle } from 'lucide-react';
 import { useTranslation } from '../../context/LocalizationContext';
+import { readImageAsDataURL } from '../../utils/imageUpload';
 
 /* ── Species config ── */
 const SPECIES = [
@@ -146,13 +147,8 @@ const BirdFields = ({ data, onChange, locale }) => (
 
 /* ── Other/Special fields ── */
 const OtherFields = ({ data, onChange, locale }) => {
-  const handlePhoto = (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => onChange({ ...data, customPhoto: ev.target.result });
-    reader.readAsDataURL(file);
-  };
+  const handlePhoto = (e) =>
+    readImageAsDataURL(e.target.files?.[0], (src) => onChange({ ...data, customPhoto: src }));
 
   return (
     <div>
@@ -212,13 +208,8 @@ const PetRegistration = ({ onSave, onCancel }) => {
   const [basicData, setBasicData] = useState({ name: '', age: '', weight: '', microchip: '', customPhoto: null });
   const [specificData, setSpecificData] = useState({});
 
-  const handleBasicPhoto = (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => setBasicData(prev => ({ ...prev, customPhoto: ev.target.result }));
-    reader.readAsDataURL(file);
-  };
+  const handleBasicPhoto = (e) =>
+    readImageAsDataURL(e.target.files?.[0], (src) => setBasicData(prev => ({ ...prev, customPhoto: src })));
   const [saved, setSaved] = useState(false);
 
   const speciesLabel = (sp) => locale === 'es' ? sp.label : sp.labelEn;

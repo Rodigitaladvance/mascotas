@@ -10,6 +10,7 @@ import SOSMode from './components/Aura/SOSMode';
 import Onboarding from './components/Aura/Onboarding';
 import PrivacyVault from './components/Aura/PrivacyVault';
 import PetRegistration from './components/Aura/PetRegistration';
+import RecuperarAcceso from './components/Aura/RecuperarAcceso';
 import { storage } from './utils/storage';
 import {
   LogOut, LayoutDashboard, ShieldAlert, ShieldCheck,
@@ -30,6 +31,28 @@ const TAB_VARIANTS = {
   initial: { opacity: 0, y: 10 },
   animate: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.16,1,0.3,1] } },
   exit:    { opacity: 0, y: -6, transition: { duration: 0.25 } },
+};
+
+/* ── Language toggle ── */
+const LangToggle = () => {
+  const { locale, setManualConfig } = useTranslation();
+  return (
+    <div style={{ display: 'flex', gap: '2px', background: 'rgba(255,255,255,0.04)', borderRadius: 4, padding: '2px' }}>
+      {['es', 'en'].map(l => (
+        <button key={l} onClick={() => setManualConfig(l)}
+          style={{
+            background: locale === l ? 'var(--aura-gold)' : 'transparent',
+            color:      locale === l ? 'var(--aura-black)' : 'var(--aura-text-muted)',
+            border: 'none', cursor: 'pointer', padding: '0.3rem 0.6rem',
+            fontSize: '0.62rem', fontWeight: 700, letterSpacing: '1px',
+            borderRadius: 3, transition: 'all 0.25s', textTransform: 'uppercase',
+            fontFamily: 'var(--font-sans)',
+          }}>
+          {l === 'es' ? 'ES' : 'EN'}
+        </button>
+      ))}
+    </div>
+  );
 };
 
 /* ── Session expiry modal ── */
@@ -137,30 +160,12 @@ const AppContent = () => {
   };
 
   /* ── Auth / Onboarding gates ── */
+  if (location.pathname === '/recuperar-acceso') return <RecuperarAcceso />;
   if (!user) return <Auth />;
   if (showOnboarding) return <Onboarding onComplete={handleOnboardingComplete} />;
   if (isSOS) return <SOSMode pet={pets[0]} onExit={() => setIsSOS(false)} />;
 
   const activeId = NAV_TABS.find(tab => location.pathname === tab.path)?.id || 'dashboard';
-
-  /* ── Language toggle button (reusable) ── */
-  const LangToggle = () => (
-    <div style={{ display: 'flex', gap: '2px', background: 'rgba(255,255,255,0.04)', borderRadius: 4, padding: '2px' }}>
-      {['es', 'en'].map(l => (
-        <button key={l} onClick={() => setManualConfig(l)}
-          style={{
-            background: locale === l ? 'var(--aura-gold)' : 'transparent',
-            color:      locale === l ? 'var(--aura-black)' : 'var(--aura-text-muted)',
-            border: 'none', cursor: 'pointer', padding: '0.3rem 0.6rem',
-            fontSize: '0.62rem', fontWeight: 700, letterSpacing: '1px',
-            borderRadius: 3, transition: 'all 0.25s', textTransform: 'uppercase',
-            fontFamily: 'var(--font-sans)',
-          }}>
-          {l === 'es' ? 'ES' : 'EN'}
-        </button>
-      ))}
-    </div>
-  );
 
   /* ── Main layout ── */
   return (

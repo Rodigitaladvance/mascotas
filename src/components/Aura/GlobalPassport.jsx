@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { PlaneTakeoff, CheckCircle2, AlertCircle, FileText, X, Shield, Syringe, Stethoscope, FileCheck } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from '../../context/LocalizationContext';
@@ -204,7 +204,7 @@ const exportPDF = (country, reqs, pet, readiness, locale) => {
   if (win) {
     win.document.write(html);
     win.document.close();
-    setTimeout(() => { win.print(); }, 400);
+    setTimeout(() => { win.print(); }, 100);
   }
 };
 
@@ -335,14 +335,17 @@ const GlobalPassport = ({ pet }) => {
   const [selectedCountry, setSelectedCountry] = useState(null);
   const es = locale === 'es';
 
-  /* Build summary requirements for overview panel (Spain as primary) */
-  const summaryReqs = buildRequirements(pet, 'ES', locale);
+  const allReqs = useMemo(
+    () => Object.fromEntries(COUNTRY_IDS.map(id => [id, buildRequirements(pet, id, locale)])),
+    [pet, locale],
+  );
+
+  const summaryReqs = allReqs['ES'];
   const overallReadiness = calcReadiness(summaryReqs);
 
   const handleExportAll = () => {
-    const meta = COUNTRY_META['ES'];
-    const reqs = buildRequirements(pet, 'ES', locale);
-    exportPDF(meta, reqs, pet, calcReadiness(reqs), locale);
+    const reqs = allReqs['ES'];
+    exportPDF(COUNTRY_META['ES'], reqs, pet, calcReadiness(reqs), locale);
   };
 
   return (
@@ -400,7 +403,7 @@ const GlobalPassport = ({ pet }) => {
             </h3>
             {COUNTRY_IDS.map(id => {
               const meta = COUNTRY_META[id];
-              const reqs = buildRequirements(pet, id, locale);
+              const reqs = allReqs[id];
               const ready = calcReadiness(reqs);
               const compliant = ready >= 80;
               return (

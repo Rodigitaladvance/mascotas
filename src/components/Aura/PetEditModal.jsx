@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Upload, Trash2, Shield, CheckCircle2, AlertCircle } from 'lucide-react';
+import { X, Upload, Trash2 } from 'lucide-react';
 import { useTranslation } from '../../context/LocalizationContext';
+import { readImageAsDataURL } from '../../utils/imageUpload';
 
 const TABS = (es) => [
-  { id: 'profile', label: es ? 'Perfil'           : 'Profile'    },
-  { id: 'health',  label: es ? 'Documentación'    : 'Health Docs' },
+  { id: 'profile', label: es ? 'Perfil'        : 'Profile'    },
+  { id: 'health',  label: es ? 'Documentación' : 'Health Docs' },
 ];
 
 const STATUS_OPTS = (es) => [
@@ -37,8 +38,7 @@ const PetEditModal = ({ pet, onSave, onDelete, onClose }) => {
   const { locale } = useTranslation();
   const es = locale === 'es';
 
-  /* ── form state mirrors pet shape ── */
-  const [tab, setTab]         = useState('profile');
+  const [tab, setTab]             = useState('profile');
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   /* Profile fields */
@@ -48,32 +48,26 @@ const PetEditModal = ({ pet, onSave, onDelete, onClose }) => {
   const [microchip, setMicrochip] = useState(pet.microchip || '');
   const [photo,     setPhoto]     = useState(pet.customImage || null);
 
-  /* Health / documentation fields */
-  const h = pet.health || {};
-  const rv = h.rabiesVaccine    || {};
-  const ep = h.europeanPassport || {};
-  const hc = h.healthCert       || {};
+  /* Health / documentation fields — single object */
+  const h  = pet.health            || {};
+  const rv = h.rabiesVaccine       || {};
+  const ep = h.europeanPassport    || {};
+  const hc = h.healthCert          || {};
 
-  const [rabiesDate,   setRabiesDate]   = useState(rv.date   || '');
-  const [rabiesExpiry, setRabiesExpiry] = useState(rv.expiry || '');
-  const [rabiesStatus, setRabiesStatus] = useState(rv.status || 'pending');
+  const [health, setHealth] = useState({
+    rabiesDate:   rv.date           || '',
+    rabiesExpiry: rv.expiry         || '',
+    rabiesStatus: rv.status         || 'pending',
+    euNumber:     ep.number         || '',
+    euStatus:     ep.status         || 'pending',
+    certStatus:   hc.status         || 'pending',
+    certNotes:    hc.notes          || '',
+    rega:         pet.specific?.rega || '',
+  });
 
-  const [euNumber,  setEuNumber]  = useState(ep.number || '');
-  const [euStatus,  setEuStatus]  = useState(ep.status || 'pending');
+  const setH = (field) => (e) => setHealth(prev => ({ ...prev, [field]: e.target.value }));
 
-  const [certStatus, setCertStatus] = useState(hc.status || 'pending');
-  const [certNotes,  setCertNotes]  = useState(hc.notes  || '');
-
-  /* REGA (horse only) */
-  const [rega, setRega] = useState(pet.specific?.rega || '');
-
-  const handlePhoto = (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => setPhoto(ev.target.result);
-    reader.readAsDataURL(file);
-  };
+  const handlePhoto = (e) => readImageAsDataURL(e.target.files?.[0], setPhoto);
 
   const handleSave = () => {
     const updated = {
@@ -83,12 +77,12 @@ const PetEditModal = ({ pet, onSave, onDelete, onClose }) => {
       customImage: photo,
       specific: {
         ...pet.specific,
-        ...(pet.species === 'horse' ? { rega } : {}),
+        ...(pet.species === 'horse' ? { rega: health.rega } : {}),
       },
       health: {
-        rabiesVaccine:    { date: rabiesDate, expiry: rabiesExpiry, status: rabiesStatus },
-        europeanPassport: { number: euNumber,  status: euStatus  },
-        healthCert:       { status: certStatus, notes: certNotes  },
+        rabiesVaccine:    { date: health.rabiesDate, expiry: health.rabiesExpiry, status: health.rabiesStatus },
+        europeanPassport: { number: health.euNumber,  status: health.euStatus  },
+        healthCert:       { status: health.certStatus, notes: health.certNotes  },
       },
     };
     onSave(updated);
@@ -195,17 +189,17 @@ const PetEditModal = ({ pet, onSave, onDelete, onClose }) => {
             <SectionTitle>{es?'Vacuna Antirrábica':'Rabies Vaccine'}</SectionTitle>
             <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'1rem' }}>
               <Field label={es?'Fecha de Aplicación':'Application Date'}>
-                <input type="date" className="aura-input" value={rabiesDate}
-                  onChange={e => setRabiesDate(e.target.value)} />
+                <input type="date" className="aura-input" value={health.rabiesDate}
+                  onChange={setH('rabiesDate')} />
               </Field>
               <Field label={es?'Fecha de Vencimiento':'Expiry Date'}>
-                <input type="date" className="aura-input" value={rabiesExpiry}
-                  onChange={e => setRabiesExpiry(e.target.value)} />
+                <input type="date" className="aura-input" value={health.rabiesExpiry}
+                  onChange={setH('rabiesExpiry')} />
               </Field>
             </div>
             <Field label={es?'Estado':'Status'}>
-              <select className="aura-input aura-select" value={rabiesStatus}
-                onChange={e => setRabiesStatus(e.target.value)}>
+              <select className="aura-input aura-select" value={health.rabiesStatus}
+                onChange={setH('rabiesStatus')}>
                 {STATUS_OPTS(es).map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
               </select>
             </Field>
@@ -213,13 +207,13 @@ const PetEditModal = ({ pet, onSave, onDelete, onClose }) => {
             {/* ─ Pasaporte Europeo ─ */}
             <SectionTitle>{es?'Pasaporte Europeo EU':'European Passport EU'}</SectionTitle>
             <Field label={es?'Número de Pasaporte':'Passport Number'}>
-              <input className="aura-input" value={euNumber}
-                onChange={e => setEuNumber(e.target.value)}
+              <input className="aura-input" value={health.euNumber}
+                onChange={setH('euNumber')}
                 placeholder="ES-2024-XXXX" />
             </Field>
             <Field label={es?'Estado':'Status'}>
-              <select className="aura-input aura-select" value={euStatus}
-                onChange={e => setEuStatus(e.target.value)}>
+              <select className="aura-input aura-select" value={health.euStatus}
+                onChange={setH('euStatus')}>
                 {STATUS_OPTS(es).map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
               </select>
             </Field>
@@ -227,14 +221,14 @@ const PetEditModal = ({ pet, onSave, onDelete, onClose }) => {
             {/* ─ Certificado Sanitario ─ */}
             <SectionTitle>{es?'Certificado Sanitario':'Health Certificate'}</SectionTitle>
             <Field label={es?'Estado':'Status'}>
-              <select className="aura-input aura-select" value={certStatus}
-                onChange={e => setCertStatus(e.target.value)}>
+              <select className="aura-input aura-select" value={health.certStatus}
+                onChange={setH('certStatus')}>
                 {STATUS_OPTS(es).map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
               </select>
             </Field>
             <Field label={es?'Notas del Veterinario (opcional)':'Vet Notes (optional)'}>
               <textarea className="aura-input" rows={3} style={{ resize:'vertical', minHeight:70 }}
-                value={certNotes} onChange={e => setCertNotes(e.target.value)}
+                value={health.certNotes} onChange={setH('certNotes')}
                 placeholder={es?'Observaciones...':'Observations...'} />
             </Field>
 
@@ -243,8 +237,8 @@ const PetEditModal = ({ pet, onSave, onDelete, onClose }) => {
               <>
                 <SectionTitle>{es?'Pasaporte REGA (España)':'REGA Passport (Spain)'}</SectionTitle>
                 <Field label={es?'Número REGA':'REGA Number'}>
-                  <input className="aura-input" value={rega}
-                    onChange={e => setRega(e.target.value)}
+                  <input className="aura-input" value={health.rega}
+                    onChange={setH('rega')}
                     placeholder="ES-XXX-XXXX" />
                 </Field>
               </>

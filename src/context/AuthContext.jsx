@@ -45,7 +45,7 @@ export const AuthProvider = ({ children }) => {
     const interval = setInterval(() => {
       const session = JSON.parse(localStorage.getItem('mascota_health_session'));
       if (session && vault.isSessionExpired(session.startTime)) {
-        setSessionWarning(true); // show modal instead of alert
+        setSessionWarning(prev => prev ? prev : true);
       }
     }, 60_000);
     return () => clearInterval(interval);
