@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Inter:wght@300;400;500;600;700&display=swap');
+/* Fonts loaded via <link> in index.html — no @import needed */
 
 :root {
   --aura-gold: #D4AF37;
@@ -606,7 +606,17 @@ h1, h2, h3, .luxury-title {
     padding-right: max(1rem, env(safe-area-inset-right));
   }
 
-  /* 3 — ALL dashboard grids forced to single column */
+  /* 3 — Dashboard hero header: reduce giant title & top padding */
+  .fade-in > header {
+    padding-top: 1.2rem !important;
+    padding-bottom: 0.8rem !important;
+  }
+  .fade-in > header h1 {
+    font-size: clamp(1.6rem, 8vw, 2.2rem) !important;
+    line-height: 1.15 !important;
+  }
+
+  /* ALL dashboard grids forced to single column */
   .dashboard-layout {
     grid-template-columns: 1fr !important;
   }
