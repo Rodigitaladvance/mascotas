@@ -123,9 +123,6 @@ h1, h2, h3, .luxury-title {
   grid-template-columns: minmax(0, 1fr) 1.6fr;
   gap: 2.5rem;
 }
-.dash-cards-grid {
-  grid-template-columns: 1fr 1fr;
-}
 @media (max-width: 780px) {
   .dashboard-layout { grid-template-columns: 1fr; }
 }
@@ -623,11 +620,6 @@ h1, h2, h3, .luxury-title {
   .dashboard-layout {
     grid-template-columns: 1fr !important;
   }
-  .dash-cards-grid {
-    grid-template-columns: 1fr !important;
-  }
-  /* span-2 button collapses correctly in 1-col grid */
-
   /* 4 — SOS main grid: 2-col → 1-col */
   .sos-main-grid {
     grid-template-columns: 1fr !important;

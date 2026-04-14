@@ -46,7 +46,7 @@ const Dashboard = ({ pets, activePetId, onActivePetChange, onAddPet, onSelectPet
     const sid = pet.species?.toLowerCase();
 
     if (sid === 'horse') return (
-      <div className="aura-card" style={{ gridColumn: 'span 2', display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '2rem' }}>
+      <div className="aura-card" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '2rem' }}>
         {[
           { icon: <Calendar color="var(--aura-gold)" />, label: t('species.horse.lastFarrier'), value: pet.specific?.lastFarrier || '—' },
           { icon: <Award color="var(--aura-gold)" />, label: t('species.horse.competition'),  value: pet.specific?.competition || '—' },
@@ -62,7 +62,7 @@ const Dashboard = ({ pets, activePetId, onActivePetChange, onAddPet, onSelectPet
     );
 
     if (sid === 'exotic') return (
-      <div className="aura-card" style={{ gridColumn: 'span 2', display: 'flex', justifyContent: 'space-around', alignItems: 'center', padding: '3rem' }}>
+      <div className="aura-card" style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', padding: '3rem', flexWrap: 'wrap', gap: '1.5rem' }}>
         <ChronographGauge value={pet.specific?.temp ?? 28} min={0} max={50}  label={t('species.exotic.temp')}     unit="°C" color="var(--aura-neon-cyan)" />
         <ChronographGauge value={pet.specific?.humidity ?? 65} min={0} max={100} label={t('species.exotic.humidity')} unit="%" color="var(--aura-gold)" />
         <div style={{ textAlign: 'center' }}>
@@ -74,7 +74,7 @@ const Dashboard = ({ pets, activePetId, onActivePetChange, onAddPet, onSelectPet
     );
 
     if (sid === 'bird') return (
-      <div className="aura-card" style={{ gridColumn: 'span 2', display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '2rem', textAlign: 'center' }}>
+      <div className="aura-card" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '2rem', textAlign: 'center' }}>
         <div>
           <p style={{ fontSize: '0.7rem', letterSpacing: '2px', opacity: 0.5 }}>{t('species.bird.ringing')}</p>
           <p style={{ fontSize: '1.3rem', fontWeight: 700 }}>{pet.specific?.ringing || 'AUR-99X-Z'}</p>
@@ -96,7 +96,7 @@ const Dashboard = ({ pets, activePetId, onActivePetChange, onAddPet, onSelectPet
     );
 
     return (
-      <div className="aura-card" style={{ gridColumn: 'span 2', display: 'flex', gap: '4rem', justifyContent: 'center' }}>
+      <div className="aura-card" style={{ display: 'flex', gap: '2rem', justifyContent: 'center', flexWrap: 'wrap' }}>
         <div style={{ textAlign: 'center' }}>
           <p style={{ fontSize: '0.7rem', letterSpacing: '2px', opacity: 0.5 }}>EXPEDIENTE MÉDICO</p>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.5rem' }}>
@@ -273,38 +273,45 @@ const Dashboard = ({ pets, activePetId, onActivePetChange, onAddPet, onSelectPet
         </div>
 
         {/* Right column */}
-        <div className="dash-cards-grid" style={{ display: 'grid', gap: '2rem', alignContent: 'start' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
           {renderSpeciesPanel()}
 
-          <div 
-            className="aura-card" 
-            style={{ padding: '2rem', display: 'flex', gap: '1.2rem', alignItems: 'center', cursor: 'pointer' }}
-            onClick={() => onSelectPet && onSelectPet(pet.id)}
-          >
-            <div style={{ background: 'rgba(0,245,255,0.05)', padding: '1rem', borderRadius: 2 }}><Wind color="var(--aura-neon-cyan)" /></div>
-            <div>
-              <h4 style={{ margin: '0 0 0.3rem', fontSize: '0.85rem', color: 'var(--aura-text)' }}>{t('dashboard.globalImmunity')}</h4>
-              <p style={{ margin: 0, fontSize: '0.7rem', color: 'var(--aura-text-muted)' }}>
-                {locale === 'es' ? 'Ver requisitos por país' : 'View per-country requirements'}
-              </p>
+          {/* Action cards — always equal, side by side */}
+          <div style={{ display: 'flex', gap: '1rem' }}>
+            <div
+              className="aura-card"
+              style={{ flex: 1, padding: '1.4rem 1rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.7rem', textAlign: 'center', cursor: 'pointer', borderRadius: 12 }}
+              onClick={() => onSelectPet && onSelectPet(pet.id)}
+            >
+              <div style={{ width: 52, height: 52, borderRadius: '50%', background: 'rgba(0,245,255,0.06)', border: '1px solid rgba(0,245,255,0.22)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <Wind color="var(--aura-neon-cyan)" size={22} />
+              </div>
+              <div>
+                <h4 style={{ margin: '0 0 0.25rem', fontSize: '0.78rem', color: 'var(--aura-text)', fontFamily: 'var(--font-sans)' }}>{t('dashboard.globalImmunity')}</h4>
+                <p style={{ margin: 0, fontSize: '0.62rem', color: 'var(--aura-text-muted)' }}>
+                  {locale === 'es' ? 'Ver por país' : 'By country'}
+                </p>
+              </div>
+            </div>
+
+            <div
+              className="aura-card"
+              style={{ flex: 1, padding: '1.4rem 1rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.7rem', textAlign: 'center', cursor: 'pointer', borderRadius: 12 }}
+              onClick={openPerformance}
+            >
+              <div style={{ width: 52, height: 52, borderRadius: '50%', background: 'rgba(255,0,122,0.06)', border: '1px solid rgba(255,0,122,0.22)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <Zap color="var(--aura-neon-pink)" size={22} />
+              </div>
+              <div>
+                <h4 style={{ margin: '0 0 0.25rem', fontSize: '0.78rem', color: 'var(--aura-text)', fontFamily: 'var(--font-sans)' }}>{t('dashboard.cardio')}</h4>
+                <p style={{ margin: 0, fontSize: '0.62rem', color: 'var(--aura-text-muted)' }}>
+                  {locale === 'es' ? 'Sin datos aún' : 'No data yet'}
+                </p>
+              </div>
             </div>
           </div>
 
-          <div 
-            className="aura-card" 
-            style={{ padding: '2rem', display: 'flex', gap: '1.2rem', alignItems: 'center', cursor: 'pointer' }}
-            onClick={openPerformance}
-          >
-            <div style={{ background: 'rgba(255,0,122,0.05)', padding: '1rem', borderRadius: 2 }}><Zap color="var(--aura-neon-pink)" /></div>
-            <div>
-              <h4 style={{ margin: '0 0 0.3rem', fontSize: '0.85rem', color: 'var(--aura-text)' }}>{t('dashboard.cardio')}</h4>
-              <p style={{ margin: 0, fontSize: '0.7rem', color: 'var(--aura-text-muted)' }}>
-                {locale === 'es' ? 'Sin datos registrados aún' : 'No data recorded yet'}
-              </p>
-            </div>
-          </div>
-
-          <button className="btn-aura" style={{ gridColumn: 'span 2', padding: '1.4rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
+          <button className="btn-aura" style={{ width: '100%', padding: '1.4rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
             onClick={() => onSelectPet && onSelectPet(pet?.id)}>
             {t('dashboard.reportBtn')} <ChevronRight size={14} />
           </button>
