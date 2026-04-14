@@ -273,7 +273,7 @@ const Dashboard = ({ pets, activePetId, onActivePetChange, onAddPet, onSelectPet
         </div>
 
         {/* Right column */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', alignContent: 'start' }}>
+        <div className="dash-cards-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', alignContent: 'start' }}>
           {renderSpeciesPanel()}
 
           <div 

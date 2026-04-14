@@ -590,10 +590,37 @@ h1, h2, h3, .luxury-title {
 .fade-in { animation: auraFade 0.7s forwards; }
 .aura-pulse-logo { animation: auraPulse 2.5s infinite; }
 
-/* ── Mobile ── */
+/* ══════════════════════════════════════
+   MOBILE-ONLY (≤900px) — desktop untouched
+   ══════════════════════════════════════ */
 @media (max-width: 900px) {
-  .app-container { padding: 0 1rem 130px; }
-  .aura-nav { padding: 1rem 1rem; }
+
+  /* 1 — Hide top nav: all navigation via bottom tab bar */
+  .aura-nav { display: none; }
+
+  /* 2 — App container: safe-area insets for notch/Dynamic Island */
+  .app-container {
+    padding-top: 1.2rem;
+    padding-bottom: max(130px, calc(80px + env(safe-area-inset-bottom)));
+    padding-left:  max(1rem, env(safe-area-inset-left));
+    padding-right: max(1rem, env(safe-area-inset-right));
+  }
+
+  /* 3 — Dashboard inner cards: 2-col → 1-col */
+  .dash-cards-grid {
+    grid-template-columns: 1fr !important;
+  }
+  /* the span-2 button collapses correctly in 1-col grid */
+
+  /* 4 — SOS main grid: 2-col → 1-col */
+  .sos-main-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* 5 — Bottom tab bar safe-area bottom padding */
+  .bottom-tab-bar {
+    padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+  }
 }
 
 /* ── Very small screens: iPhone SE, Galaxy A series (≤375px) ── */

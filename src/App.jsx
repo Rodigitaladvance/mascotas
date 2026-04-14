@@ -298,6 +298,17 @@ const AppContent = () => {
                         ))}
                       </div>
                     </div>
+                    {/* Logout — accessible on mobile where top nav is hidden */}
+                    <div>
+                      <p style={{ fontSize: '0.68rem', letterSpacing: '2.5px', opacity: 0.5, marginBottom: '1.2rem', textTransform: 'uppercase' }}>
+                        {locale === 'es' ? 'Sesión' : 'Session'}
+                      </p>
+                      <button className="btn-aura" style={{ width: '100%', borderColor: 'rgba(255,255,255,0.15)', color: 'var(--aura-text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.6rem' }}
+                        onClick={logout}>
+                        <LogOut size={15} />
+                        {locale === 'es' ? 'CERRAR SESIÓN' : 'SIGN OUT'}
+                      </button>
+                    </div>
                   </div>
                 </div>
               </motion.div>
