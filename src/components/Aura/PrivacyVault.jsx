@@ -295,26 +295,26 @@ const PrivacyVault = () => {
         )}
       </AnimatePresence>
 
-      <header style={{ marginBottom: '4rem' }}>
+      <header style={{ marginBottom: '2.5rem' }}>
         <span style={{ fontSize: '0.75rem', letterSpacing: '4px', opacity: 0.5, textTransform: 'uppercase' }}>
           {es ? 'Protocolo de Seguridad' : 'Security Protocol'}
         </span>
-        <h1 className="luxury-title" style={{ fontSize: '3rem', margin: '0.5rem 0' }}>
+        <h1 className="luxury-title" style={{ fontSize: 'clamp(1.8rem, 5vw, 3rem)', margin: '0.5rem 0' }}>
           {es ? 'Privacidad y Seguridad' : 'Privacy & Security'}
         </h1>
       </header>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(300px, 1fr) 300px', gap: '4rem' }}>
+      <div className="vault-layout">
         <div style={{ display: 'grid', gap: '2rem' }}>
           {/* Shield card */}
-          <div className="aura-card" style={{ padding: '3rem' }}>
-            <div style={{ display: 'flex', gap: '2rem', alignItems: 'start' }}>
-              <div style={{ padding: '1.2rem', background: 'rgba(0,245,255,0.05)', borderRadius: '50%', flexShrink: 0 }}>
-                <ShieldCheck color="var(--aura-neon-cyan)" size={32} />
+          <div className="aura-card" style={{ padding: '2.5rem' }}>
+            <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'start', flexWrap: 'wrap' }}>
+              <div style={{ padding: '1rem', background: 'rgba(0,245,255,0.05)', borderRadius: '50%', flexShrink: 0 }}>
+                <ShieldCheck color="var(--aura-neon-cyan)" size={28} />
               </div>
-              <div>
-                <h3 style={{ fontSize: '1.5rem', margin: '0 0 1rem' }}>{es ? 'El Escudo AURA™' : 'AURA Shield™'}</h3>
-                <p style={{ color: 'var(--aura-text-muted)', lineHeight: '1.8', margin: 0 }}>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <h3 style={{ fontSize: 'clamp(1.1rem, 3vw, 1.5rem)', margin: '0 0 0.8rem' }}>{es ? 'El Escudo AURA™' : 'AURA Shield™'}</h3>
+                <p style={{ color: 'var(--aura-text-muted)', lineHeight: '1.8', margin: 0, maxWidth: '90%' }}>
                   {es
                     ? 'Utilizamos encriptación de grado militar AES-256 para proteger cada dato registrado. La clave de cifrado se genera localmente en su dispositivo y nunca se transmite a nuestros servidores. Solo usted tiene el control absoluto sobre la información sanitaria de sus miembros.'
                     : 'We use military-grade AES-256 encryption to protect every registered record. The encryption key is generated locally on your device and never transmitted to our servers.'}
@@ -324,7 +324,7 @@ const PrivacyVault = () => {
           </div>
 
           {/* Compliance cards */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
+          <div className="compliance-grid">
             <div className="aura-card" style={{ padding: '2rem' }}>
               <Lock size={24} color="var(--aura-gold)" style={{ marginBottom: '1.5rem' }} />
               <h4 style={{ margin: '0 0 0.5rem' }}>HIPAA (USA)</h4>

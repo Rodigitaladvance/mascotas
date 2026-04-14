@@ -31,6 +31,7 @@
 
 html {
   height: 100%;
+  overflow-x: hidden;
   overflow-y: scroll;
 }
 
@@ -51,6 +52,7 @@ body {
 
 #root {
   min-height: 100vh;
+  overflow-x: hidden;
   overflow-y: auto;
 }
 
@@ -65,9 +67,50 @@ h1, h2, h3, .luxury-title {
 /* ── Layout ── */
 .app-container {
   max-width: 1400px;
+  width: 100%;
   margin: 0 auto;
   padding: 0 3rem;
   min-height: 100vh;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+/* ── Responsive grids ── */
+.passport-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2.5rem;
+  align-items: start;
+}
+@media (max-width: 780px) {
+  .passport-layout { grid-template-columns: 1fr; }
+}
+
+.vault-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  gap: 3rem;
+}
+@media (max-width: 780px) {
+  .vault-layout { grid-template-columns: 1fr; gap: 2rem; }
+}
+
+.compliance-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+@media (max-width: 500px) {
+  .compliance-grid { grid-template-columns: 1fr; }
+}
+
+.dashboard-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 1.6fr;
+  gap: 2.5rem;
+}
+@media (max-width: 780px) {
+  .dashboard-layout { grid-template-columns: 1fr; }
 }
 
 /* ── Cards ── */
@@ -513,8 +556,8 @@ h1, h2, h3, .luxury-title {
 .aura-pulse-logo { animation: auraPulse 2.5s infinite; }
 
 @media (max-width: 900px) {
-  .app-container { padding: 0 1.2rem 120px; }
-  .aura-nav { padding: 1rem 1.2rem; }
+  .app-container { padding: 0 1rem 130px; }
+  .aura-nav { padding: 1rem 1rem; }
 }
 @media (min-width: 901px) {
   .bottom-tab-bar { display: none; }

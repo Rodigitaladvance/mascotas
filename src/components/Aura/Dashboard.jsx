@@ -210,7 +210,7 @@ const Dashboard = ({ pets, activePetId, onActivePetChange, onAddPet, onSelectPet
       )}
 
       {/* ── Main grid ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(320px, 1fr) 1.6fr', gap: '2.5rem' }}>
+      <div className="dashboard-layout">
 
         {/* Bio-Ring */}
         <div className="aura-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '3.5rem 2rem' }}>

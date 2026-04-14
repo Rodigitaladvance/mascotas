@@ -450,7 +450,7 @@ const GlobalPassport = ({ pet, onUpdatePet }) => {
     <>
       <div className="fade-in">
         {/* Header */}
-        <header style={{ padding:'3rem 0 2.5rem', display:'flex', justifyContent:'space-between', alignItems:'flex-end', flexWrap:'wrap', gap:'1rem' }}>
+        <header style={{ padding:'2.5rem 0 2rem', display:'flex', justifyContent:'space-between', alignItems:'flex-end', flexWrap:'wrap', gap:'1rem' }}>
           <div>
             <span style={{ fontSize:'0.7rem', letterSpacing:'5px', color:'var(--aura-gold)', fontWeight:700, textTransform:'uppercase', display:'block', marginBottom:'0.8rem' }}>
               {es?'Logística Transfronteriza':'Cross-Border Logistics'}
@@ -465,7 +465,7 @@ const GlobalPassport = ({ pet, onUpdatePet }) => {
           </div>
         </header>
 
-        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'2.5rem', alignItems:'start' }}>
+        <div className="passport-layout">
 
           {/* ── Left – editable passport form ── */}
           <div className="aura-card" style={{ padding:'2.5rem' }}>
@@ -690,10 +690,10 @@ const GlobalPassport = ({ pet, onUpdatePet }) => {
           </div>
 
           {/* ── Right – destination cards ── */}
-          <div style={{ display:'grid', gap:'1rem' }}>
-            <h3 style={{ margin:'0 0 0.8rem', fontSize:'1rem', opacity:0.7, letterSpacing:'2px',
-              textTransform:'uppercase', fontFamily:'var(--font-sans)', color:'var(--aura-text-muted)' }}>
-              {es?'Destinos Prioritarios — pulsa para detalles':'Priority Destinations — tap for details'}
+          <div style={{ display:'grid', gap:'1.2rem' }}>
+            <h3 style={{ margin:'0 0 1.2rem', fontSize:'0.68rem', letterSpacing:'4px',
+              textTransform:'uppercase', fontFamily:'var(--font-sans)', color:'var(--aura-text-muted)', fontWeight:600 }}>
+              {es?'Destinos Prioritarios':'Priority Destinations'}
             </h3>
             {COUNTRY_IDS.map(id => {
               const meta = COUNTRY_META[id];
@@ -708,9 +708,10 @@ const GlobalPassport = ({ pet, onUpdatePet }) => {
                   className="aura-card"
                   onClick={() => setSelectedCountry(id)}
                   style={{
-                    padding:'1.2rem 1.6rem', cursor:'pointer',
+                    padding:'1.4rem 1.6rem', cursor:'pointer',
                     display:'flex', justifyContent:'space-between', alignItems:'center',
                     borderLeft: compliant ? '3px solid var(--aura-neon-cyan)' : '3px solid var(--aura-gold)',
+                    minWidth: 0,
                   }}
                 >
                   <div style={{ display:'flex', alignItems:'center', gap:'1.2rem' }}>
