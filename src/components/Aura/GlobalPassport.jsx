@@ -200,12 +200,24 @@ const exportPDF = (country, reqs, pet, readiness, locale) => {
     </div>
   </body></html>`;
 
-  const win = window.open('', '_blank');
+  /* Blob URL approach — works on iOS Safari, avoids document.write() */
+  const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+  const url  = URL.createObjectURL(blob);
+  const win  = window.open(url, '_blank');
   if (win) {
-    win.document.write(html);
-    win.document.close();
-    setTimeout(() => { win.print(); }, 100);
+    win.addEventListener('load', () => {
+      try { win.print(); } catch (_) { /* iOS: user can print via share sheet */ }
+    });
+  } else {
+    /* Popup blocked — fallback: download the HTML file */
+    const a = Object.assign(document.createElement('a'), {
+      href: url, download: `AURA_Passport_${country.code}.html`,
+    });
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   }
+  setTimeout(() => URL.revokeObjectURL(url), 15000);
 };
 
 /* ── Country modal ── */
@@ -450,17 +462,30 @@ const GlobalPassport = ({ pet, onUpdatePet }) => {
     <>
       <div className="fade-in">
         {/* Header */}
-        <header style={{ padding:'2.5rem 0 2rem', display:'flex', justifyContent:'space-between', alignItems:'flex-end', flexWrap:'wrap', gap:'1rem' }}>
-          <div>
-            <span style={{ fontSize:'0.7rem', letterSpacing:'5px', color:'var(--aura-gold)', fontWeight:700, textTransform:'uppercase', display:'block', marginBottom:'0.8rem' }}>
+        <header style={{ padding:'2rem 0 1.5rem', display:'flex', justifyContent:'space-between', alignItems:'center', flexWrap:'wrap', gap:'1rem' }}>
+          <div style={{ flex:1, minWidth:0 }}>
+            <span style={{ fontSize:'0.7rem', letterSpacing:'5px', color:'var(--aura-gold)', fontWeight:700, textTransform:'uppercase', display:'block', marginBottom:'0.6rem' }}>
               {es?'Logística Transfronteriza':'Cross-Border Logistics'}
             </span>
-            <h1 style={{ fontSize:'clamp(2.2rem,4vw,3.5rem)', margin:0 }}>
+            <h1 style={{ fontSize:'clamp(1.5rem,5vw,3.5rem)', margin:0 }}>
               {es?'Pasaporte Sanitario Global':'Global Sanitary Passport'}
             </h1>
           </div>
-          <div style={{ textAlign:'right' }}>
-            <p style={{ margin:'0 0 4px', fontWeight:700, fontSize:'1.1rem' }}>{pet?.name || 'AURA Member'}</p>
+          <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:'0.5rem', flexShrink:0 }}>
+            {/* Pet avatar */}
+            <div style={{
+              width:52, height:52, borderRadius:'50%', overflow:'hidden',
+              border:'2px solid var(--aura-gold)',
+              background:'rgba(212,175,55,0.08)',
+              display:'flex', alignItems:'center', justifyContent:'center',
+              boxShadow:'0 0 12px rgba(212,175,55,0.3)',
+            }}>
+              {pet?.customImage
+                ? <img src={pet.customImage} alt={pet?.name} style={{ width:'100%', height:'100%', objectFit:'cover' }} />
+                : <span style={{ fontSize:'1.5rem' }}>{pet?.avatar || '🐾'}</span>
+              }
+            </div>
+            <p style={{ margin:0, fontWeight:700, fontSize:'0.95rem', textAlign:'center' }}>{pet?.name || 'AURA Member'}</p>
             <span className="locale-chip">TIER 1 TRAVELER</span>
           </div>
         </header>

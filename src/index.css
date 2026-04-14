@@ -606,11 +606,14 @@ h1, h2, h3, .luxury-title {
     padding-right: max(1rem, env(safe-area-inset-right));
   }
 
-  /* 3 — Dashboard inner cards: 2-col → 1-col */
+  /* 3 — ALL dashboard grids forced to single column */
+  .dashboard-layout {
+    grid-template-columns: 1fr !important;
+  }
   .dash-cards-grid {
     grid-template-columns: 1fr !important;
   }
-  /* the span-2 button collapses correctly in 1-col grid */
+  /* span-2 button collapses correctly in 1-col grid */
 
   /* 4 — SOS main grid: 2-col → 1-col */
   .sos-main-grid {
