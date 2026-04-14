@@ -29,6 +29,20 @@
   scrollbar-color: var(--aura-gold) transparent;
 }
 
+/* ── Cross-browser touch & interaction ── */
+button, [role="button"], a, label[for], label[style*="cursor"] {
+  -webkit-tap-highlight-color: transparent;  /* removes blue flash on Android tap */
+  touch-action: manipulation;                /* eliminates 300ms tap delay */
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+input, textarea, select {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  font-size: 16px; /* prevents iOS Safari auto-zoom on focus */
+}
+
 html {
   height: 100%;
   overflow-x: hidden;
@@ -179,6 +193,7 @@ h1, h2, h3, .luxury-title {
 
 /* ── Nav ── */
 .aura-nav {
+  position: -webkit-sticky; /* Safari < 13 */
   position: sticky;
   top: 0;
   z-index: 100;
@@ -575,10 +590,29 @@ h1, h2, h3, .luxury-title {
 .fade-in { animation: auraFade 0.7s forwards; }
 .aura-pulse-logo { animation: auraPulse 2.5s infinite; }
 
+/* ── Mobile ── */
 @media (max-width: 900px) {
   .app-container { padding: 0 1rem 130px; }
   .aura-nav { padding: 1rem 1rem; }
 }
+
+/* ── Very small screens: iPhone SE, Galaxy A series (≤375px) ── */
+@media (max-width: 375px) {
+  .app-container { padding: 0 0.75rem 130px; }
+  .aura-card { padding: 1.5rem; }
+  .tab-btn { font-size: 0.48rem; letter-spacing: 0.3px; }
+  .tab-sos-cta { width: 46px; height: 46px; flex: 0 0 46px; margin-top: -14px; }
+  .luxury-title { font-size: clamp(1.4rem, 7vw, 2.4rem) !important; }
+}
+
+/* ── Tablet (768px – 1024px): single-column stacking ── */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .passport-layout { grid-template-columns: 1fr; }
+  .vault-layout    { grid-template-columns: 1fr; gap: 2rem; }
+  .dashboard-layout { grid-template-columns: 1fr; }
+}
+
+/* ── Desktop: hide bottom bar ── */
 @media (min-width: 901px) {
   .bottom-tab-bar { display: none; }
 }
