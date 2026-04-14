@@ -198,13 +198,14 @@ h1, h2, h3, .luxury-title {
   bottom: 0;
   left: 0;
   right: 0;
-  background: rgba(5,5,8,0.96);
-  backdrop-filter: blur(20px);
+  background: rgba(5,5,8,0.97);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
   border-top: 1px solid var(--aura-border);
   display: flex;
   justify-content: space-around;
   align-items: center;
-  padding: 0.6rem 0 calc(0.6rem + env(safe-area-inset-bottom));
+  padding: 0.5rem 0.5rem calc(0.5rem + env(safe-area-inset-bottom));
   z-index: 200;
 }
 .tab-btn {
@@ -215,27 +216,46 @@ h1, h2, h3, .luxury-title {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  justify-content: center;
+  gap: 3px;
   font-family: var(--font-sans);
-  font-size: 0.6rem;
-  letter-spacing: 1.5px;
+  font-size: 0.54rem;
+  letter-spacing: 0.8px;
   text-transform: uppercase;
-  padding: 0.4rem 1rem;
-  transition: color 0.3s;
+  padding: 0.4rem 0;
+  flex: 1;
+  transition: color 0.25s;
 }
 .tab-btn.active { color: var(--aura-gold); }
-.tab-btn.sos-tab { color: var(--aura-neon-pink); }
-.tab-btn.confirm-tab {
-  background: var(--aura-neon-cyan);
-  color: var(--aura-black);
+
+/* SOS — elevated center CTA */
+.tab-sos-cta {
+  color: var(--aura-neon-pink) !important;
+  background: rgba(255,0,122,0.1);
+  border: 1px solid rgba(255,0,122,0.35);
   border-radius: 50%;
-  width: 56px;
-  height: 56px;
-  justify-content: center;
-  margin-top: -20px;
-  box-shadow: 0 0 20px rgba(0,245,255,0.4);
-  font-size: 0.55rem;
+  width: 52px;
+  height: 52px;
+  flex: 0 0 52px;
+  margin-top: -18px;
+  box-shadow: 0 0 20px rgba(255,0,122,0.35);
   padding: 0;
+  font-size: 0.5rem;
+  letter-spacing: 0.5px;
+  gap: 2px;
+}
+.tab-sos-cta:hover, .tab-sos-cta:active {
+  background: rgba(255,0,122,0.2);
+  box-shadow: 0 0 28px rgba(255,0,122,0.55);
+}
+
+/* Legacy — unused but keep for safety */
+.tab-btn.sos-tab   { color: var(--aura-neon-pink); }
+.tab-btn.confirm-tab {
+  background: var(--aura-neon-cyan); color: var(--aura-black);
+  border-radius: 50%; width: 56px; height: 56px;
+  justify-content: center; margin-top: -20px;
+  box-shadow: 0 0 20px rgba(0,245,255,0.4); font-size: 0.55rem; padding: 0;
 }
 
 /* ── Forms & Inputs ── */

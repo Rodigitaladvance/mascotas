@@ -18,13 +18,22 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-/* ── Tab definitions ── */
+/* ── Desktop tab definitions ── */
 const NAV_TABS = [
   { id: 'dashboard', path: '/dashboard', iconD: LayoutDashboard, label: 'Dashboard' },
   { id: 'passport',  path: '/passport',  iconD: Globe,           label: 'Passport'  },
   { id: 'add',       path: '/registro',  iconD: PlusCircle,      label: 'Registro', isCTA: true },
   { id: 'privacy',   path: '/privacy',   iconD: ShieldCheck,     label: 'Privacidad' },
   { id: 'settings',  path: '/settings',  iconD: Settings,        label: 'Ajustes'   },
+];
+
+/* ── Mobile-only tab definitions (5 max, SOS as center CTA) ── */
+const MOBILE_TABS = [
+  { id: 'dashboard', path: '/dashboard', icon: LayoutDashboard, labelEs: 'Inicio',    labelEn: 'Home'     },
+  { id: 'passport',  path: '/passport',  icon: Globe,           labelEs: 'Pasaporte', labelEn: 'Passport' },
+  { id: 'sos',       path: null,         icon: ShieldAlert,     labelEs: 'SOS',       labelEn: 'SOS',     isSOS: true },
+  { id: 'privacy',   path: '/privacy',   icon: ShieldCheck,     labelEs: 'Seguridad', labelEn: 'Security' },
+  { id: 'settings',  path: '/settings',  icon: Settings,        labelEs: 'Ajustes',   labelEn: 'Settings' },
 ];
 
 const TAB_VARIANTS = {
@@ -299,35 +308,18 @@ const AppContent = () => {
         </AnimatePresence>
       </div>
 
-      {/* ── Mobile bottom tab bar ── */}
+      {/* ── Mobile bottom tab bar — 5 tabs only, SOS as center CTA ── */}
       <nav className="bottom-tab-bar">
-        {NAV_TABS.map(({ id, path, iconD: Icon, label, isCTA }) => (
-          <button key={id}
-            className={`tab-btn${activeId === id ? ' active' : ''}${isCTA ? ' confirm-tab' : ''}`}
-            onClick={() => navigate(path)}>
-            <Icon size={isCTA ? 22 : 20} />
-            {!isCTA && <span>{label}</span>}
+        {MOBILE_TABS.map(({ id, path, icon: Icon, labelEs, labelEn, isSOS: isSosTab }) => (
+          <button
+            key={id}
+            className={`tab-btn${activeId === id && !isSosTab ? ' active' : ''}${isSosTab ? ' tab-sos-cta' : ''}`}
+            onClick={() => isSosTab ? setIsSOS(true) : navigate(path)}
+          >
+            <Icon size={isSosTab ? 22 : 18} />
+            <span>{locale === 'es' ? labelEs : labelEn}</span>
           </button>
         ))}
-        <button className="tab-btn sos-tab" onClick={() => setIsSOS(true)}>
-          <ShieldAlert size={20} />
-          <span>SOS</span>
-        </button>
-        {/* Mobile lang toggle */}
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, padding: '0.4rem 0.6rem' }}>
-          {['es','en'].map(l => (
-            <button key={l} onClick={() => setManualConfig(l)}
-              style={{
-                background: locale === l ? 'var(--aura-gold)' : 'transparent',
-                color:      locale === l ? 'var(--aura-black)' : 'var(--aura-text-muted)',
-                border: 'none', cursor: 'pointer', padding: '1px 5px',
-                fontSize: '0.55rem', fontWeight: 700, letterSpacing: '1px',
-                borderRadius: 2, fontFamily: 'var(--font-sans)',
-              }}>
-              {l.toUpperCase()}
-            </button>
-          ))}
-        </div>
       </nav>
     </>
   );
