@@ -23,6 +23,10 @@ dist-ssr
 *.sln
 *.sw?
 
+# Build output (deploy to HuggingFace separately)
+dist/
+backup/
+
 # Claude Code internals
 .claude/
 
