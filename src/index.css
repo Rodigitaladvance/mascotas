@@ -239,23 +239,24 @@ h1, h2, h3, .luxury-title {
 
 .form-group { margin-bottom: 1.6rem; }
 
-/* ── Species Selector ── */
+/* ── Species Selector — Horizontal Carousel ── */
 .species-selector {
-  display: grid;
-  grid-template-columns: repeat(3, 120px);
-  gap: 1rem;
-  padding-bottom: 0.5rem;
+  display: flex;
+  flex-direction: row;
+  gap: 0.75rem;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory;
+  padding: 0.5rem 2rem 0.5rem;  /* side padding so first/last card isn't flush-hidden by fade */
+  scrollbar-width: none;
 }
-@media (min-width: 460px) {
-  .species-selector {
-    grid-template-columns: repeat(auto-fill, 120px);
-  }
-}
+.species-selector::-webkit-scrollbar { display: none; }
 
 .species-card {
   flex-shrink: 0;
-  width: 120px;
-  height: 120px;
+  scroll-snap-align: center;
+  width: 90px;
+  height: 90px;
   border: 2px solid var(--aura-border);
   border-radius: 50%;
   overflow: hidden;
@@ -267,7 +268,7 @@ h1, h2, h3, .luxury-title {
 .species-card:hover {
   border-color: rgba(212,175,55,0.6);
   transform: scale(1.04);
-  box-shadow: 0 0 16px rgba(212,175,55,0.25), 0 8px 24px rgba(0,0,0,0.4);
+  box-shadow: 0 0 14px rgba(212,175,55,0.25), 0 6px 18px rgba(0,0,0,0.4);
 }
 .species-card img {
   width: 100%;
@@ -281,7 +282,7 @@ h1, h2, h3, .luxury-title {
   border-color: #d4af37;
   border-width: 2px;
   transform: scale(1.08);
-  box-shadow: 0 0 0 3px rgba(212,175,55,0.35), 0 0 20px rgba(212, 175, 55, 0.8), 0 10px 30px rgba(0,0,0,0.55);
+  box-shadow: 0 0 0 3px rgba(212,175,55,0.35), 0 0 18px rgba(212,175,55,0.8), 0 8px 24px rgba(0,0,0,0.55);
 }
 .species-card.selected img { opacity: 1; transform: scale(1.0); }
 .species-check {
@@ -290,7 +291,7 @@ h1, h2, h3, .luxury-title {
   left: 0;
   right: 0;
   text-align: center;
-  font-size: 0.52rem;
+  font-size: 0.48rem;
   letter-spacing: 1.5px;
   color: #d4af37;
   text-shadow: 0 1px 4px rgba(0,0,0,0.9);

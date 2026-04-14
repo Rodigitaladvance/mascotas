@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Shield, CheckCircle2, Upload, PlusCircle } from 'lucide-react';
 import { useTranslation } from '../../context/LocalizationContext';
@@ -217,6 +217,29 @@ const PetRegistration = ({ onSave, onCancel }) => {
   const [selectedSpecies, setSelectedSpecies] = useState(null);
   const [basicData, setBasicData] = useState({ name: '', age: '', weight: '', microchip: '', customPhoto: null });
   const [specificData, setSpecificData] = useState({});
+  const carouselRef = useRef(null);
+  const [canScrollLeft, setCanScrollLeft]   = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  const checkScroll = useCallback(() => {
+    const el = carouselRef.current;
+    if (!el) return;
+    setCanScrollLeft(el.scrollLeft > 2);
+    setCanScrollRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 2);
+  }, []);
+
+  useEffect(() => {
+    checkScroll();
+    const el = carouselRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(checkScroll);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [checkScroll]);
+
+  const scrollCarousel = (dir) => {
+    carouselRef.current?.scrollBy({ left: dir * 110, behavior: 'smooth' });
+  };
 
   const handleBasicPhoto = (e) =>
     readImageAsDataURL(e.target.files?.[0], (src) => setBasicData(prev => ({ ...prev, customPhoto: src })));
@@ -270,53 +293,103 @@ const PetRegistration = ({ onSave, onCancel }) => {
 
       {/* ── Species selector ── */}
       <div className="aura-card" style={{ marginBottom:'1.5rem' }}>
-        <label className="input-label" style={{ marginBottom:'1.2rem' }}>
+        <label className="input-label" style={{ textAlign:'center', display:'block', marginBottom:'1.2rem' }}>
           {locale==='es'?'Seleccionar Especie':'Select Species'}
         </label>
-        <div className="species-selector">
-          {SPECIES.map(sp => {
-            const isSelected = selectedSpecies?.id === sp.id;
-            return sp.isOther ? (
-              /* ── Special "Other" card with gold + icon ── */
-              <div key={sp.id}
-                onClick={() => { setSelectedSpecies(sp); setSpecificData({}); setSubTab('specific'); }}
-                style={{
-                  flexShrink: 0, width: 120, height: 120,
-                  border: isSelected ? '2px solid #d4af37' : '2px dashed rgba(212,175,55,0.45)',
-                  borderRadius: '50%', cursor: 'pointer', position: 'relative',
-                  display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                  gap: 6, background: isSelected ? 'rgba(212,175,55,0.1)' : 'rgba(10,10,15,0.9)',
-                  transform: isSelected ? 'scale(1.08)' : 'scale(1)',
-                  boxShadow: isSelected ? '0 0 0 3px rgba(212,175,55,0.35), 0 0 20px rgba(212,175,55,0.8)' : 'none',
-                  transition: 'all 0.3s',
-                }}
-              >
-                <PlusCircle size={30} color="var(--aura-gold)" strokeWidth={1.5} />
-                <span style={{ fontSize: '0.52rem', letterSpacing: '1px', color: 'var(--aura-gold)', textTransform: 'uppercase', textAlign: 'center', lineHeight: 1.2, padding: '0 8px', fontWeight: 700 }}>
-                  {locale === 'es' ? 'OTRA' : 'OTHER'}
-                </span>
-              </div>
-            ) : (
-              <div key={sp.id}
-                className={`species-card${isSelected ? ' selected' : ''}`}
-                onClick={() => {
-                  setSelectedSpecies(sp);
-                  setSpecificData({});
-                  /* Auto-switch to specific tab for species with dedicated fields */
-                  const hasSpecific = ['horse','exotic','bird'].includes(sp.id);
-                  setSubTab(hasSpecific ? 'specific' : 'info');
-                }}
-              >
-                <img src={sp.img} alt={sp.label} />
-                {isSelected && (
-                  <div className="species-check">✓ {locale==='es'?'Seleccionado':'Selected'}</div>
-                )}
-              </div>
-            );
-          })}
+
+        {/* Carousel wrapper — relative so arrows can be positioned over it */}
+        <div style={{ position:'relative' }}>
+
+          {/* Left fade + arrow */}
+          {canScrollLeft && (
+            <>
+              <div style={{
+                position:'absolute', left:0, top:0, bottom:'1rem', width:48,
+                background:'linear-gradient(to right, var(--aura-card) 40%, transparent)',
+                pointerEvents:'none', zIndex:2,
+              }} />
+              <button onClick={() => scrollCarousel(-1)} style={{
+                position:'absolute', left:0, top:'50%', transform:'translateY(-60%)',
+                zIndex:3, background:'transparent', border:'none', cursor:'pointer',
+                color:'#d4af37', fontSize:'1.6rem', lineHeight:1, padding:'0 4px',
+                textShadow:'0 0 8px rgba(212,175,55,0.7)',
+              }}>‹</button>
+            </>
+          )}
+
+          {/* Right fade + arrow */}
+          {canScrollRight && (
+            <>
+              <div style={{
+                position:'absolute', right:0, top:0, bottom:'1rem', width:48,
+                background:'linear-gradient(to left, var(--aura-card) 40%, transparent)',
+                pointerEvents:'none', zIndex:2,
+              }} />
+              <button onClick={() => scrollCarousel(1)} style={{
+                position:'absolute', right:0, top:'50%', transform:'translateY(-60%)',
+                zIndex:3, background:'transparent', border:'none', cursor:'pointer',
+                color:'#d4af37', fontSize:'1.6rem', lineHeight:1, padding:'0 4px',
+                textShadow:'0 0 8px rgba(212,175,55,0.7)',
+              }}>›</button>
+            </>
+          )}
+
+          {/* Scrollable row */}
+          <div className="species-selector" ref={carouselRef} onScroll={checkScroll}>
+            {SPECIES.map(sp => {
+              const isSelected = selectedSpecies?.id === sp.id;
+              return sp.isOther ? (
+                <div key={sp.id}
+                  onClick={() => { setSelectedSpecies(sp); setSpecificData({}); setSubTab('specific'); }}
+                  style={{
+                    flexShrink: 0, width: 90, height: 90,
+                    border: isSelected ? '2px solid #d4af37' : '2px dashed rgba(212,175,55,0.45)',
+                    borderRadius: '50%', cursor: 'pointer',
+                    display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                    gap: 5, background: isSelected ? 'rgba(212,175,55,0.1)' : 'rgba(10,10,15,0.9)',
+                    transform: isSelected ? 'scale(1.08)' : 'scale(1)',
+                    boxShadow: isSelected ? '0 0 0 3px rgba(212,175,55,0.35), 0 0 16px rgba(212,175,55,0.7)' : 'none',
+                    transition: 'all 0.3s',
+                  }}
+                >
+                  <PlusCircle size={24} color="var(--aura-gold)" strokeWidth={1.5} />
+                  <span style={{ fontSize:'0.48rem', letterSpacing:'1px', color:'var(--aura-gold)', textTransform:'uppercase', textAlign:'center', lineHeight:1.2, padding:'0 6px', fontWeight:700 }}>
+                    {locale === 'es' ? 'OTRA' : 'OTHER'}
+                  </span>
+                </div>
+              ) : (
+                <div key={sp.id}
+                  className={`species-card${isSelected ? ' selected' : ''}`}
+                  onClick={() => {
+                    setSelectedSpecies(sp);
+                    setSpecificData({});
+                    const hasSpecific = ['horse','exotic','bird'].includes(sp.id);
+                    setSubTab(hasSpecific ? 'specific' : 'info');
+                  }}
+                >
+                  <img src={sp.img} alt={sp.label} />
+                  {isSelected && (
+                    <div className="species-check">✓ {locale==='es'?'Seleccionado':'Selected'}</div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Dot indicators */}
+          <div style={{ display:'flex', justifyContent:'center', gap:'6px', marginTop:'0.8rem' }}>
+            {SPECIES.map((_, i) => (
+              <div key={i} style={{
+                width: 5, height: 5, borderRadius: '50%',
+                background: 'rgba(212,175,55,0.35)',
+                transition: 'background 0.2s',
+              }} />
+            ))}
+          </div>
         </div>
+
         {selectedSpecies && (
-          <p style={{ margin:'1rem 0 0', fontSize:'0.72rem', letterSpacing:'2px', color:'var(--aura-gold)', textTransform:'uppercase' }}>
+          <p style={{ margin:'0.8rem 0 0', fontSize:'0.72rem', letterSpacing:'2px', color:'var(--aura-gold)', textTransform:'uppercase', textAlign:'center' }}>
             {speciesLabel(selectedSpecies)} {locale==='es'?'seleccionado':'selected'}
           </p>
         )}
