@@ -17,7 +17,7 @@ app_file: index.html
     <img src="https://img.shields.io/badge/License-Private-gold?style=flat" />
   </p>
   <p>
-    <a href="https://huggingface.co/spaces/rociogf/aura-pets-final"><strong>🚀 Live Demo</strong></a>
+    <a href="https://rociogf-aura-pets-final.static.hf.space"><strong>🚀 Live Demo</strong></a>
     &nbsp;·&nbsp;
     <a href="./FICHA_TECNICA.md"><strong>📋 Ficha Técnica / Technical Spec</strong></a>
   </p>

@@ -156,7 +156,7 @@ El design system **AURA** está definido en `src/index.css` mediante variables C
 
 | Entorno | Plataforma | URL |
 |---------|-----------|-----|
-| Producción | HuggingFace Spaces (static) | https://rociogf-aura-pets-final.hf.space |
+| Producción | HuggingFace Spaces (static) | https://rociogf-aura-pets-final.static.hf.space |
 | Código fuente | GitHub | https://github.com/Rodigitaladvance/mascotas |
 
 ---
@@ -322,7 +322,7 @@ The **AURA** design system is defined in `src/index.css` via CSS variables:
 
 | Environment | Platform | URL |
 |-------------|---------|-----|
-| Production | HuggingFace Spaces (static) | https://rociogf-aura-pets-final.hf.space |
+| Production | HuggingFace Spaces (static) | https://rociogf-aura-pets-final.static.hf.space |
 | Source code | GitHub | https://github.com/Rodigitaladvance/mascotas |
 
 ---
