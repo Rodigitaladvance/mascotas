@@ -8,6 +8,21 @@ import PetEditModal from './PetEditModal';
 
 const EMPTY_VITALS = { heartRate: '', activity: 50, weight: '', status: 'good', notes: '' };
 
+/* Reusable circular action card — icon circle + title + subtitle */
+const ActionCard = ({ icon: Icon, color, bgColor, borderColor, title, subtitle, onClick }) => (
+  <div
+    className="aura-card"
+    style={{ flex: 1, padding: '1.4rem 1rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.7rem', textAlign: 'center', cursor: 'pointer', borderRadius: 12 }}
+    onClick={onClick}
+  >
+    <div style={{ width: 52, height: 52, borderRadius: '50%', background: bgColor, border: `1px solid ${borderColor}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+      <Icon color={color} size={22} />
+    </div>
+    <h4 style={{ margin: '0 0 0.25rem', fontSize: '0.78rem', color: 'var(--aura-text)' }}>{title}</h4>
+    <p style={{ margin: 0, fontSize: '0.62rem', color: 'var(--aura-text-muted)' }}>{subtitle}</p>
+  </div>
+);
+
 const Dashboard = ({ pets, activePetId, onActivePetChange, onAddPet, onSelectPet, onUpdatePet, onDeletePet }) => {
   const { t, locale } = useTranslation();
   const [showPerformanceDetail, setShowPerformanceDetail] = useState(false);
@@ -276,43 +291,29 @@ const Dashboard = ({ pets, activePetId, onActivePetChange, onAddPet, onSelectPet
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
           {renderSpeciesPanel()}
 
-          {/* Action cards — always equal, side by side */}
           <div style={{ display: 'flex', gap: '1rem' }}>
-            <div
-              className="aura-card"
-              style={{ flex: 1, padding: '1.4rem 1rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.7rem', textAlign: 'center', cursor: 'pointer', borderRadius: 12 }}
+            <ActionCard
+              icon={Wind}
+              color="var(--aura-neon-cyan)"
+              bgColor="rgba(0,245,255,0.06)"
+              borderColor="rgba(0,245,255,0.22)"
+              title={t('dashboard.globalImmunity')}
+              subtitle={locale === 'es' ? 'Ver por país' : 'By country'}
               onClick={() => onSelectPet && onSelectPet(pet.id)}
-            >
-              <div style={{ width: 52, height: 52, borderRadius: '50%', background: 'rgba(0,245,255,0.06)', border: '1px solid rgba(0,245,255,0.22)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <Wind color="var(--aura-neon-cyan)" size={22} />
-              </div>
-              <div>
-                <h4 style={{ margin: '0 0 0.25rem', fontSize: '0.78rem', color: 'var(--aura-text)', fontFamily: 'var(--font-sans)' }}>{t('dashboard.globalImmunity')}</h4>
-                <p style={{ margin: 0, fontSize: '0.62rem', color: 'var(--aura-text-muted)' }}>
-                  {locale === 'es' ? 'Ver por país' : 'By country'}
-                </p>
-              </div>
-            </div>
-
-            <div
-              className="aura-card"
-              style={{ flex: 1, padding: '1.4rem 1rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.7rem', textAlign: 'center', cursor: 'pointer', borderRadius: 12 }}
+            />
+            <ActionCard
+              icon={Zap}
+              color="var(--aura-neon-pink)"
+              bgColor="rgba(255,0,122,0.06)"
+              borderColor="rgba(255,0,122,0.22)"
+              title={t('dashboard.cardio')}
+              subtitle={locale === 'es' ? 'Sin datos aún' : 'No data yet'}
               onClick={openPerformance}
-            >
-              <div style={{ width: 52, height: 52, borderRadius: '50%', background: 'rgba(255,0,122,0.06)', border: '1px solid rgba(255,0,122,0.22)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <Zap color="var(--aura-neon-pink)" size={22} />
-              </div>
-              <div>
-                <h4 style={{ margin: '0 0 0.25rem', fontSize: '0.78rem', color: 'var(--aura-text)', fontFamily: 'var(--font-sans)' }}>{t('dashboard.cardio')}</h4>
-                <p style={{ margin: 0, fontSize: '0.62rem', color: 'var(--aura-text-muted)' }}>
-                  {locale === 'es' ? 'Sin datos aún' : 'No data yet'}
-                </p>
-              </div>
-            </div>
+            />
           </div>
 
           <button className="btn-aura" style={{ width: '100%', padding: '1.4rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
-            onClick={() => onSelectPet && onSelectPet(pet?.id)}>
+            onClick={() => onSelectPet && onSelectPet(pet.id)}>
             {t('dashboard.reportBtn')} <ChevronRight size={14} />
           </button>
         </div>

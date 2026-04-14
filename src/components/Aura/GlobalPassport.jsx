@@ -214,10 +214,9 @@ const exportPDF = (country, reqs, pet, readiness, locale) => {
       href: url, download: `AURA_Passport_${country.code}.html`,
     });
     document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+    try { a.click(); } finally { document.body.removeChild(a); }
   }
-  setTimeout(() => URL.revokeObjectURL(url), 15000);
+  setTimeout(() => URL.revokeObjectURL(url), 5000);
 };
 
 /* ── Country modal ── */
