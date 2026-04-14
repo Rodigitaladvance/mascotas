@@ -44,9 +44,15 @@
         button:hover { background: var(--aura-gold); color: black; }
         h1 { color: var(--aura-gold); border-bottom: 1px solid var(--aura-gold); padding-bottom: 15px; font-size: 28px; text-align: center; }
         h2 { color: var(--aura-gold); font-size: 20px; margin-top: 35px; text-transform: uppercase; }
-        p, li { color: var(--aura-text-muted); text-align: justify; }
+        p, li { color: var(--aura-text-muted); text-align: justify; overflow-wrap: break-word; word-break: break-word; }
         .highlight { color: var(--aura-gold); font-weight: bold; }
         .section-box { border-left: 3px solid var(--aura-gold); padding-left: 20px; margin: 20px 0; background: rgba(212, 175, 55, 0.05); padding-top: 10px; padding-bottom: 10px; }
+        @media (max-width: 600px) {
+            body { padding: 16px 12px; }
+            .container { padding: 24px 16px; border-radius: 8px; }
+            h1 { font-size: 20px; }
+            h2 { font-size: 16px; }
+        }
     </style>
 </head>
 <body>

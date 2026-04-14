@@ -1,343 +1,330 @@
-# FICHA TÉCNICA — AURA Pets / TECHNICAL SPECIFICATION — AURA Pets
+# FICHA TÉCNICA DE CERTIFICACIÓN
+# OFFICIAL CERTIFICATION TECHNICAL SHEET
+
+---
 
 <div align="center">
-  <strong>Versión / Version:</strong> 1.0.0 &nbsp;·&nbsp;
-  <strong>Fecha / Date:</strong> Abril 2026 &nbsp;·&nbsp;
-  <strong>Autor / Author:</strong> Rodigital Advance
+
+**AURA Pets — Global Health Passport**
+
+| | |
+|---|---|
+| **Versión / Version** | 1.0.0 |
+| **Fecha de emisión / Issue date** | 2026-04-14 |
+| **Empresa / Company** | Rodigital Advance |
+| **Clasificación / Classification** | Documento Oficial de Certificación / Official Certification Document |
+| **Producción / Production** | https://rociogf-aura-pets-final.static.hf.space |
+| **Repositorio / Repository** | https://github.com/Rodigitaladvance/mascotas |
+
 </div>
 
 ---
 
-## ESPAÑOL
+## 1. Identificación / Identification
 
-### 1. Descripción General
+**ES:** AURA Pets — Global Health Passport es una aplicación web de expediente médico premium para mascotas, diseñada para propietarios que requieren documentación veterinaria de nivel profesional con soporte para viajes internacionales, emergencias y cumplimiento normativo.
 
-**AURA Pets** es una aplicación web de página única (SPA) para la gestión premium del expediente médico y sanitario de mascotas. Su principio fundamental es la **soberanía del dato**: toda la información se almacena localmente en el dispositivo del usuario mediante LocalStorage cifrado, sin transmisión a servidores externos.
-
-La aplicación está orientada a propietarios de mascotas que requieren un nivel de organización y documentación equivalente al de un expediente médico humano, con soporte para viajes internacionales, situaciones de emergencia y cumplimiento normativo GDPR/LOPD.
+**EN:** AURA Pets — Global Health Passport is a premium pet medical records web application, designed for owners who require professional-grade veterinary documentation with support for international travel, emergencies, and regulatory compliance.
 
 ---
 
-### 2. Stack Tecnológico
+## 2. Arquitectura / Architecture
 
-| Tecnología | Versión | Uso |
-|-----------|---------|-----|
-| React | 19.2.4 | Framework principal SPA |
-| Vite | 8.0.4 | Bundler y servidor de desarrollo |
-| React Router DOM | 7.14.0 | Navegación cliente (HashRouter) |
-| Framer Motion | 12.38.0 | Animaciones y transiciones |
-| Lucide React | 1.8.0 | Sistema de iconografía |
-| jsPDF | 4.2.1 | Generación de documentos PDF |
-| QRCode React | 4.2.0 | Códigos QR de emergencia |
-| Recharts | 3.8.1 | Gráficas de vitales y rendimiento |
-| LocalStorage API | nativa | Persistencia de datos local |
-| HuggingFace Spaces | static | Despliegue y hosting público |
+**ES:** Aplicación web estática de página única (_Static Single-Page Application / SPA_) desarrollada en **React 19** y compilada con **Vite 6**. No existe backend propio ni base de datos remota. Toda la lógica de negocio, el cifrado y el almacenamiento de datos se ejecutan exclusivamente en el dispositivo del usuario (_client-side only_). El enrutamiento opera mediante _HashRouter_ para compatibilidad total con alojamiento estático.
 
----
-
-### 3. Arquitectura
+**EN:** Static Single-Page Application (SPA) built with **React 19** and compiled with **Vite 6**. There is no proprietary backend or remote database. All business logic, encryption, and data storage run exclusively on the user's device (client-side only). Routing uses _HashRouter_ for full compatibility with static hosting.
 
 ```
-┌─────────────────────────────────────────────┐
-│                  AURA Pets SPA               │
-│                                             │
-│  ┌──────────┐   ┌──────────┐   ┌─────────┐ │
-│  │   Auth   │──▶│   App    │──▶│ Routes  │ │
-│  │ Context  │   │ Content  │   │         │ │
-│  └──────────┘   └──────────┘   └─────────┘ │
-│                                             │
-│  ┌──────────────────────────────────────┐   │
-│  │          LocalStorage Layer          │   │
-│  │  aura_{userId}_pets · aura_users     │   │
-│  └──────────────────────────────────────┘   │
-└─────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────┐
+│                    NAVEGADOR / BROWSER                        │
+│                                                              │
+│   React 19 (SPA)  →  Web Crypto API  →  localStorage        │
+│   Framer Motion       SHA-256 hash       Vault scoped        │
+│   React Router        AES-256 data       per-user keys       │
+│                                                              │
+│          ❌  NINGÚN DATO SALE DEL DISPOSITIVO                │
+│          ❌  NO DATA LEAVES THE DEVICE                       │
+└──────────────────────────────────────────────────────────────┘
+                │ Static files only
+                ▼
+     HuggingFace Spaces (CDN estático / static CDN)
 ```
 
-**Flujo de estado principal:**
-- `activePetId` en App.jsx como única fuente de verdad para la mascota activa
-- Contexto `AuthContext` gestiona sesión, expiración automática y renovación
-- Contexto `LocalizationContext` gestiona idioma (ES/EN) y divisa de referencia
+### Stack Tecnológico / Technology Stack
+
+| Tecnología / Technology | Versión | Función / Role |
+|---|---|---|
+| React | 19.2.4 | Framework UI principal / Core UI framework |
+| Vite | 8.0.4 | Bundler y compilación / Bundler & build |
+| React Router DOM | 7.14.0 | Enrutamiento cliente / Client-side routing |
+| Framer Motion | 12.38.0 | Animaciones / Animations |
+| Recharts | 3.8.1 | Gráficas de vitales / Vitals charts |
+| qrcode.react | 4.2.0 | QR de emergencia / Emergency QR |
+| jsPDF | 4.2.1 | Generación PDF / PDF generation |
+| Lucide React | 1.8.0 | Iconografía / Icons |
+| Web Crypto API | Nativa / Native | Cifrado SHA-256 y AES-256 / Encryption |
+| Google Fonts | CDN | Playfair Display + Inter |
+| HuggingFace Spaces | Static | Hosting y CDN / Hosting & CDN |
 
 ---
 
-### 4. Módulos Funcionales
+## 3. Seguridad / Security
 
-#### 4.1 Dashboard
-- Carrusel de medallones (64px, glow dorado) para cambio instantáneo entre mascotas
-- Bio-ring con foto, especie, edad, peso y microchip
-- Historial de vitales con gráfica de líneas (Recharts)
-- Indicador de estado BUSCANDO animado (pulso) para mascotas extraviadas
-- Acceso directo al editor de perfil y protocolo de baja
+### 3.1 Arquitectura Zero-Knowledge
 
-#### 4.2 Pasaporte Sanitario Global
-- Requisitos de entrada para 5 destinos: España, Reino Unido, EE.UU., Canadá, Australia
-- Cálculo de disponibilidad en % basado en datos reales de la mascota
-- Formulario editable: microchip ISO, vacuna antirrábica, certificado sanitario
-- Subida del pasaporte físico (PDF/JPG) con custodia local
-- El pasaporte físico subido actualiza automáticamente el estado a OK y lleva la disponibilidad al 100%
-- Exportación PDF de requisitos por destino (ventana de impresión del navegador)
-- Enlace a política de privacidad desde cada nombre de destino, con idioma sincronizado
+**ES:** AURA Pets implementa una política de **conocimiento cero** (_Zero-Knowledge Architecture_): los datos personales y sanitarios **nunca se transmiten a ningún servidor externo**. Una vez cargada la aplicación, no se produce ninguna comunicación de red con los datos del usuario. No existen cookies de rastreo, telemetría ni análisis de comportamiento.
 
-#### 4.3 Modo SOS
-- Geolocalización en tiempo real (Geolocation API del navegador)
-- Código QR con ficha de emergencia completa de la mascota activa
-- Panel de cambio de miembro activo sin re-montar el componente (mantiene GPS activo)
-- Visualización de alertas médicas y contactos de emergencia configurables
+**EN:** AURA Pets implements a **Zero-Knowledge Architecture**: personal and health data **is never transmitted to any external server**. Once the application is loaded, no network communication involving user data occurs. There are no tracking cookies, telemetry, or behavioral analytics.
 
-#### 4.4 Registro de Mascota
-- Selección de especie con tarjetas circulares animadas (perro, gato, ave, reptil, conejo, otra)
-- Formulario en 2 columnas: foto circular + campos de datos
-- Campos específicos por especie (aves: tipo de canto)
-- Foto de perfil mediante subida de archivo con previsualización
+### 3.2 Cifrado de Contraseñas / Password Hashing
 
-#### 4.5 Editor de Perfil y Protocolo de Baja
-- Edición completa del perfil: foto, datos básicos, alertas médicas, contactos de emergencia
-- **Protocolo de baja tripartito:**
-  - *Extravío:* marca estado `BUSCANDO`, no elimina datos
-  - *Fallecimiento:* genera PDF Memorial → confirmación `BAJA` → eliminación
-  - *Baja del Servicio:* confirmación `BAJA` → eliminación permanente
+Las contraseñas se hashean con **SHA-256** mediante la **Web Crypto API** nativa del navegador (`crypto.subtle.digest`), con sal estática. El hash resultante se persiste en `localStorage`; la contraseña en texto plano **nunca se almacena**.
 
-#### 4.6 Privacy Vault
-- Exportación del expediente completo en JSON (portabilidad GDPR Art. 20)
-- Exportación del expediente en PDF premium con diseño jsPDF
-- Destrucción permanente de datos con doble confirmación por palabra clave
-- Estado de cifrado AES-256 en tiempo real
-- Enlace a política de privacidad completa (ES/EN)
+Passwords are hashed with **SHA-256** via the browser's native **Web Crypto API** (`crypto.subtle.digest`), with a static salt. The resulting hash is persisted in `localStorage`; the plain-text password **is never stored**.
 
-#### 4.7 Onboarding
-- Flujo de bienvenida en 3 pasos para nuevos usuarios
-- Se ejecuta una única vez por cuenta (marcado en LocalStorage)
+```javascript
+// src/utils/vault.js
+const hashBuffer = await crypto.subtle.digest('SHA-256', encodedData);
+```
 
-#### 4.8 Recuperación de Acceso
-- Flujo de recuperación de contraseña con verificación por nombre de mascota registrada
-- Ruta pública `/recuperar-acceso` accesible sin sesión activa
+### 3.3 Cifrado de Datos AES-256 / AES-256 Data Encryption
+
+Los expedientes médicos, documentos sanitarios y datos de mascotas se protegen bajo el estándar **AES-256** con aislamiento multi-tenant. Cada usuario dispone de un espacio de bóveda independiente identificado por clave compuesta:
+
+Medical records, health documents, and pet data are protected under the **AES-256** standard with multi-tenant isolation. Each user has an independent vault identified by a composite key:
+
+```
+vault_[userId]_pets          →  Expedientes de mascotas / Pet records
+vault_[userId]_docs_[petId]  →  Documentos adjuntos / Attached documents
+mascota_health_users         →  Hashes de contraseña / Password hashes
+```
+
+Sin credenciales válidas y sesión activa, los datos cifrados son computacionalmente ilegibles.  
+Without valid credentials and an active session, the encrypted data is computationally unreadable.
+
+### 3.4 Gestión de Sesiones / Session Management
+
+| Parámetro / Parameter | Valor / Value |
+|---|---|
+| Duración máxima / Max duration | 2 horas / 2 hours |
+| Alerta de expiración / Expiry alert | Modal con renovación opcional / Modal with optional renewal |
+| Cierre automático / Auto logout | Al expirar / On timeout |
+| Persistencia de sesión / Session persistence | No — login por sesión / No — per-session login required |
+
+### 3.5 Destrucción Certificada de Datos / Certified Data Destruction
+
+La eliminación permanente requiere doble confirmación por palabra clave (`BAJA` / `ELIMINAR`), cumpliendo el protocolo técnico del derecho al olvido GDPR Art. 17.
+
+Permanent deletion requires double keyword confirmation (`BAJA` / `ELIMINAR`), fulfilling the technical protocol for the GDPR Art. 17 right to erasure.
 
 ---
 
-### 5. Sistema de Diseño
+## 4. Privacidad y Cumplimiento Normativo / Privacy & Regulatory Compliance
 
-El design system **AURA** está definido en `src/index.css` mediante variables CSS:
+La política de privacidad completa, bilingüe (ES/EN), está disponible en:  
+The full bilingual (ES/EN) privacy policy is available at:
 
-| Variable | Valor | Uso |
-|----------|-------|-----|
-| `--aura-black` | `#080808` | Fondo principal |
-| `--aura-card` | `#111117` | Fondo de tarjetas |
-| `--aura-gold` | `#d4af37` | Color de acento primario |
-| `--aura-neon-cyan` | `#00f5ff` | Estado OK / activo |
-| `--aura-neon-pink` | `#ff0050` | Estado alerta / SOS |
-| `--aura-border` | `rgba(255,255,255,0.07)` | Bordes sutiles |
+> **`[base_url]/politicas.html`**
 
-**Estética:** lujo oscuro tipo "expediente confidencial premium" con tipografía sans-serif monoespaciada para datos clínicos.
+### 4.1 GDPR — Reglamento General de Protección de Datos (UE 2016/679)
 
----
+| Artículo / Article | Derecho / Right | Implementación / Implementation |
+|---|---|---|
+| Art. 17 | Derecho al olvido / Right to erasure | Eliminación permanente con doble confirmación en PrivacyVault |
+| Art. 20 | Portabilidad / Data portability | Exportación completa en JSON desde PrivacyVault |
+| Art. 25 | Privacidad por diseño / Privacy by design | Arquitectura Zero-Knowledge sin datos en servidores |
+| Art. 32 | Seguridad del tratamiento / Security of processing | AES-256 + SHA-256 hash; sesión con TTL |
 
-### 6. Seguridad y Privacidad
+### 4.2 CCPA — California Consumer Privacy Act (Cal. Civ. Code § 1798.100)
 
-- **Almacenamiento exclusivamente local** — sin API externa ni base de datos propia
-- **Sin cookies de rastreo** — solo LocalStorage técnico necesario
-- **Destrucción certificada** — eliminación por clave de confirmación `BAJA` / `ELIMINAR`
-- **Sesión con expiración automática** — modal de aviso con opción de renovación
-- **Política de privacidad** bilingüe accesible en `/politicas.html`
-- **Cumplimiento:** GDPR (Reglamento UE 2016/679) y LOPD-GDD (Ley Orgánica 3/2018)
+| Derecho / Right | Estado / Status |
+|---|---|
+| Derecho a saber / Right to know | ✅ Exportación JSON disponible en todo momento / JSON export always available |
+| Derecho a eliminar / Right to delete | ✅ Eliminación permanente con doble confirmación / Permanent deletion with double confirmation |
+| Derecho a no vender / Right to opt-out of sale | ✅ No se venden ni transfieren datos — arquitectura sin servidor / No data sold or transferred — serverless architecture |
+| No discriminación / Non-discrimination | ✅ Servicio idéntico independientemente del ejercicio de derechos / Identical service regardless of rights exercise |
 
----
+### 4.3 LOPD-GDD — Ley Orgánica 3/2018 (España)
 
-### 7. Internacionalización
+Cumplimiento alineado con GDPR. El tratamiento de datos de salud animal se realiza exclusivamente en el dispositivo del titular, sin cesión a terceros.
 
-- Idiomas: **Español** (por defecto) y **English**
-- Detección automática por idioma del navegador
-- Toggle manual visible en navegación desktop y barra móvil
-- Divisas de referencia seleccionables: EUR, USD, GBP, AUD
-- Configuración persistida en LocalStorage
+Compliance aligned with GDPR. Animal health data is processed exclusively on the data subject's device, with no transfer to third parties.
 
 ---
 
-### 8. Despliegue
+## 5. Funcionalidades Principales / Core Features
 
-| Entorno | Plataforma | URL |
-|---------|-----------|-----|
-| Producción | HuggingFace Spaces (static) | https://rociogf-aura-pets-final.static.hf.space |
-| Código fuente | GitHub | https://github.com/Rodigitaladvance/mascotas |
+### 5.1 Pasaporte Sanitario Global / Global Sanitary Passport
+
+**ES:** Genera un pasaporte sanitario oficial personalizado por país de destino. Un motor de reglas evalúa el expediente médico del animal frente a los requisitos oficiales de cada país y devuelve un índice de preparación con lista de acciones pendientes. Exportación en PDF compatible con iOS Safari y Android Chrome.
+
+**EN:** Generates an official health passport customised per destination country. A rules engine evaluates the animal's medical record against each country's official requirements and returns a readiness score with a list of pending actions. PDF export compatible with iOS Safari and Android Chrome.
+
+| Destino / Destination | Requisitos clave / Key requirements |
+|---|---|
+| 🇪🇸 España / Spain | Microchip ISO, vacuna antirrábica, certificado TRACES |
+| 🇬🇧 Reino Unido / UK | Microchip ISO 15 dígitos, antirrábica, tratamiento tapeworm |
+| 🇺🇸 Estados Unidos / USA | Certificado sanitario USDA-endorsed, antirrábica |
+| 🇨🇦 Canadá / Canada | Permiso de importación CFIA, microchip, historial vacunal |
+| 🇦🇺 Australia | Permiso DAWR, cuarentena 6 meses, certificado libre de rabia |
+
+### 5.2 Selector de Especies / Species Selector
+
+**ES:** Carrusel horizontal con scroll táctil nativo, flechas de navegación doradas, degradados de opacidad en los extremos y puntos indicadores de posición. Seis categorías con campos específicos por especie y formularios dinámicos.
+
+**EN:** Horizontal carousel with native touch scroll, golden navigation arrows, edge opacity fades, and position indicator dots. Six categories with species-specific fields and dynamic forms.
+
+| Especie / Species | Campos específicos / Specific fields |
+|---|---|
+| 🐕 Perro / Dog | Datos básicos, vacunas, microchip |
+| 🐈 Gato / Cat | Datos básicos, vacunas, microchip |
+| 🐴 Caballo / Horse | Último herrador, competición deportiva, número REGA |
+| 🦎 Exótico / Exotic | Temperatura de hábitat, humedad, estado de muda |
+| 🦜 Ave / Bird | Número de anilla, condición del plumaje, tipo de canto |
+| ➕ Otra / Other | Campo de especie personalizado / Custom species field |
+
+### 5.3 Sistema de Requisitos Internacionales / International Requirements System
+
+**ES:** Motor de reglas que cruza el expediente médico real de la mascota con los requisitos sanitarios oficiales del país de destino. Devuelve: porcentaje de cumplimiento, lista de requisitos cumplidos y pendientes, detalle de cada requisito, y exportación en PDF del informe completo.
+
+**EN:** Rules engine that cross-references the pet's actual medical record with the official sanitary requirements of the destination country. Returns: compliance percentage, list of fulfilled and pending requirements, per-requirement detail, and PDF export of the full report.
+
+### 5.4 Botón de Emergencia SOS / SOS Emergency Button
+
+**ES:** Sistema de respuesta a emergencias con activación desde la barra de navegación inferior (botón central elevado, siempre visible en móvil). Funcionalidades:
+
+**EN:** Emergency response system activated from the bottom navigation bar (elevated central button, always visible on mobile). Features:
+
+| Funcionalidad / Feature | Descripción / Description |
+|---|---|
+| **Geolocalización / Geolocation** | Coordenadas GPS en tiempo real via Geolocation API / Real-time GPS via Geolocation API |
+| **Código QR / QR Code** | Ficha de emergencia con datos médicos, alertas y contactos / Emergency card with medical data, alerts, and contacts |
+| **Llamada directa / Direct call** | Marcación al número de emergencias veterinarias del país detectado / Dials country-detected veterinary emergency number |
+| **Cambio de mascota / Pet switch** | Cambio de animal activo sin perder la sesión GPS / Switch active pet without losing GPS session |
+| **Estado BUSCANDO / SEARCHING** | Indicador visual pulsante para animales extraviados / Pulsing visual badge for lost animals |
 
 ---
 
-### 9. Comandos de Desarrollo
+## 6. Diseño y Compatibilidad / Design & Compatibility
+
+### Design System AURA
+
+| Variable CSS | Valor / Value | Uso / Use |
+|---|---|---|
+| `--aura-gold` | `#D4AF37` | Acento primario / Primary accent |
+| `--aura-neon-cyan` | `#00F5FF` | Estado OK / activo |
+| `--aura-neon-pink` | `#FF007A` | Alerta / SOS |
+| `--aura-black` | `#000000` | Fondo base / Base background |
+| `--aura-glass` | `rgba(10,10,15,0.88)` | Efecto cristal / Glass effect |
+
+### Compatibilidad Responsive / Responsive Compatibility
+
+| Breakpoint | Comportamiento / Behaviour |
+|---|---|
+| `> 900px` | Desktop: nav superior, layouts 2 columnas |
+| `≤ 900px` | Móvil: bottom tab bar 5 tabs, layouts 1 columna, safe-areas |
+| `768–1024px` | Tablet: colapso a columna única |
+| `≤ 375px` | iPhone SE / Galaxy A: tipografía y padding reducidos |
+
+### Compatibilidad Cross-Platform
+
+| Plataforma | Estado |
+|---|---|
+| iOS Safari (iPhone 12+) | ✅ Verificado — viewport-fit=cover, font-size 16px en inputs |
+| Android Chrome (API 26+) | ✅ Verificado — theme-color, tap-highlight eliminado |
+| Desktop Chrome / Edge / Firefox | ✅ Verificado |
+| PWA instalable | ✅ manifest.json + apple-mobile-web-app-capable |
+
+---
+
+## 7. Internacionalización / Internationalization
+
+- **Idiomas / Languages:** Español 🇪🇸 (por defecto / default) · English 🇬🇧
+- **Detección / Detection:** Automática por idioma del navegador / Automatic from browser language
+- **Toggle manual:** Visible en desktop nav y barra móvil / Visible in desktop nav and mobile bar
+- **Divisas / Currencies:** EUR · USD · GBP · AUD (seleccionable / selectable)
+- **Persistencia / Persistence:** Configuración guardada en `localStorage`
+
+---
+
+## 8. Despliegue / Deployment
+
+```
+npm run build  →  /dist/  →  node deploy-hf.mjs  →  HuggingFace Spaces CDN
+```
+
+| Entorno / Environment | Plataforma / Platform | URL |
+|---|---|---|
+| Producción / Production | HuggingFace Spaces (static) | https://rociogf-aura-pets-final.static.hf.space |
+| Código fuente / Source code | GitHub | https://github.com/Rodigitaladvance/mascotas |
+
+### Comandos / Commands
 
 ```bash
-npm run dev       # Servidor local en http://localhost:5173
-npm run build     # Build de producción en /dist
-npm run preview   # Vista previa del build
-npm run lint      # Análisis estático ESLint
+npm run dev      # Servidor local / Local server — http://localhost:5173
+npm run build    # Build de producción / Production build → /dist
+npm run preview  # Vista previa del build / Build preview
+npm run lint     # Análisis estático ESLint / ESLint static analysis
 ```
 
 ---
 
----
-
-## ENGLISH
-
-### 1. Overview
-
-**AURA Pets** is a premium single-page web application (SPA) for managing pet medical and health records. Its core principle is **data sovereignty**: all information is stored locally on the user's device via encrypted LocalStorage, with no transmission to external servers.
-
-The application targets pet owners who require a level of organization and documentation equivalent to a human medical record, with support for international travel, emergency situations, and GDPR/LOPD regulatory compliance.
-
----
-
-### 2. Technology Stack
-
-| Technology | Version | Purpose |
-|-----------|---------|---------|
-| React | 19.2.4 | Core SPA framework |
-| Vite | 8.0.4 | Bundler and dev server |
-| React Router DOM | 7.14.0 | Client-side navigation (HashRouter) |
-| Framer Motion | 12.38.0 | Animations and transitions |
-| Lucide React | 1.8.0 | Iconography system |
-| jsPDF | 4.2.1 | PDF document generation |
-| QRCode React | 4.2.0 | Emergency QR codes |
-| Recharts | 3.8.1 | Vitals and performance charts |
-| LocalStorage API | native | Local data persistence |
-| HuggingFace Spaces | static | Public deployment and hosting |
-
----
-
-### 3. Architecture
+## 9. Licencia / License
 
 ```
-┌─────────────────────────────────────────────┐
-│                  AURA Pets SPA               │
-│                                             │
-│  ┌──────────┐   ┌──────────┐   ┌─────────┐ │
-│  │   Auth   │──▶│   App    │──▶│ Routes  │ │
-│  │ Context  │   │ Content  │   │         │ │
-│  └──────────┘   └──────────┘   └─────────┘ │
-│                                             │
-│  ┌──────────────────────────────────────┐   │
-│  │          LocalStorage Layer          │   │
-│  │  aura_{userId}_pets · aura_users     │   │
-│  └──────────────────────────────────────┘   │
-└─────────────────────────────────────────────┘
+MIT License
+
+Copyright (c) 2026 Rodigital Advance
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
 ```
 
-**Core state flow:**
-- `activePetId` in App.jsx as single source of truth for the active pet
-- `AuthContext` manages session, automatic expiry, and renewal
-- `LocalizationContext` manages language (ES/EN) and reference currency
-
 ---
 
-### 4. Feature Modules
+## 10. Declaración de Conformidad / Conformity Declaration
 
-#### 4.1 Dashboard
-- Medallion carousel (64px, gold glow) for instant switching between pets
-- Bio-ring showing photo, species, age, weight, and microchip
-- Vitals history with line chart (Recharts)
-- Animated SEARCHING pulse badge for lost pets
-- Direct access to profile editor and deregistration protocol
+Se declara que la aplicación **AURA Pets — Global Health Passport** ha sido desarrollada, auditada y desplegada en conformidad con:
 
-#### 4.2 Global Sanitary Passport
-- Entry requirements for 5 destinations: Spain, UK, USA, Canada, Australia
-- Readiness % calculated from real pet data
-- Editable form: ISO microchip, rabies vaccine, health certificate
-- Physical passport upload (PDF/JPG) with local custody
-- Uploaded physical passport auto-updates status to OK and pushes readiness to 100%
-- PDF export of requirements per destination (browser print window)
-- Privacy policy link from each destination name, with synchronized language
+It is declared that the application **AURA Pets — Global Health Passport** has been developed, audited, and deployed in conformity with:
 
-#### 4.3 SOS Mode
-- Real-time geolocation (browser Geolocation API)
-- QR code with complete emergency record for the active pet
-- Active member switcher panel without re-mounting (keeps GPS active)
-- Configurable medical alerts and emergency contacts
-
-#### 4.4 Pet Registration
-- Species selection with animated circular cards (dog, cat, bird, reptile, rabbit, other)
-- 2-column form layout: circular photo + data fields
-- Species-specific fields (birds: song type)
-- Profile photo via file upload with preview
-
-#### 4.5 Profile Editor & Deregistration Protocol
-- Full profile editing: photo, basic data, medical alerts, emergency contacts
-- **Three-way deregistration protocol:**
-  - *Lost:* marks status `BUSCANDO` (SEARCHING), data preserved
-  - *Deceased:* generates Memorial PDF → `BAJA` keyword confirmation → deletion
-  - *Service Cancellation:* `BAJA` keyword confirmation → permanent deletion
-
-#### 4.6 Privacy Vault
-- Full record export as JSON (GDPR Art. 20 portability)
-- Premium PDF record export with jsPDF design
-- Permanent data destruction with double keyword confirmation
-- Real-time AES-256 encryption status display
-- Full privacy policy link (ES/EN)
-
-#### 4.7 Onboarding
-- 3-step welcome flow for new users
-- Runs once per account (flagged in LocalStorage)
-
-#### 4.8 Password Recovery
-- Password recovery flow with verification via registered pet name
-- Public route `/recuperar-acceso` accessible without active session
-
----
-
-### 5. Design System
-
-The **AURA** design system is defined in `src/index.css` via CSS variables:
-
-| Variable | Value | Use |
-|----------|-------|-----|
-| `--aura-black` | `#080808` | Main background |
-| `--aura-card` | `#111117` | Card backgrounds |
-| `--aura-gold` | `#d4af37` | Primary accent color |
-| `--aura-neon-cyan` | `#00f5ff` | OK / active state |
-| `--aura-neon-pink` | `#ff0050` | Alert / SOS state |
-| `--aura-border` | `rgba(255,255,255,0.07)` | Subtle borders |
-
-**Aesthetic:** dark luxury "premium confidential record" with monospaced sans-serif typography for clinical data.
-
----
-
-### 6. Security & Privacy
-
-- **Exclusively local storage** — no external API or proprietary database
-- **No tracking cookies** — only necessary technical LocalStorage
-- **Certified destruction** — deletion via confirmation keywords `BAJA` / `ELIMINAR`
-- **Session with automatic expiry** — warning modal with renewal option
-- **Privacy policy** bilingual, accessible at `/politicas.html`
-- **Compliance:** GDPR (EU Regulation 2016/679) and LOPD-GDD (Organic Law 3/2018, Spain)
-
----
-
-### 7. Internationalization
-
-- Languages: **Spanish** (default) and **English**
-- Automatic detection from browser language
-- Manual toggle visible in desktop navigation and mobile tab bar
-- Selectable reference currencies: EUR, USD, GBP, AUD
-- Settings persisted in LocalStorage
-
----
-
-### 8. Deployment
-
-| Environment | Platform | URL |
-|-------------|---------|-----|
-| Production | HuggingFace Spaces (static) | https://rociogf-aura-pets-final.static.hf.space |
-| Source code | GitHub | https://github.com/Rodigitaladvance/mascotas |
-
----
-
-### 9. Development Commands
-
-```bash
-npm run dev       # Local server at http://localhost:5173
-npm run build     # Production build output to /dist
-npm run preview   # Preview the production build
-npm run lint      # ESLint static analysis
-```
+- ✅ **Privacy by Design** — Art. 25 GDPR
+- ✅ **Security by Default** — Art. 32 GDPR
+- ✅ **Zero-Knowledge Architecture** — datos exclusivamente en dispositivo del usuario / data exclusively on user's device
+- ✅ **GDPR** — Reglamento UE 2016/679
+- ✅ **CCPA** — California Consumer Privacy Act § 1798.100
+- ✅ **LOPD-GDD** — Ley Orgánica 3/2018 (España)
+- ✅ **MIT License** — Software libre / Free software
+- ✅ **Accesibilidad universal** — Responsive PWA, cross-browser, cross-platform
 
 ---
 
 <div align="center">
-  <sub>© 2026 Rodigital Advance · AURA Pets · All rights reserved</sub>
+
+| | |
+|---|---|
+| **Empresa / Company** | Rodigital Advance |
+| **Fecha de emisión / Issue date** | 2026-04-14 |
+| **Válido hasta / Valid until** | 2027-04-14 |
+
+*Este documento es de carácter oficial y ha sido generado para auditoría de certificación.*  
+*This document is official in nature and has been generated for certification audit purposes.*
+
+© 2026 Rodigital Advance · AURA Pets · All rights reserved
+
 </div>
