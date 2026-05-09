@@ -62,14 +62,53 @@ export const IntroVideoModal = ({ isOpen, onContinue }) => {
           position: 'fixed',
           inset: 0,
           zIndex: 9999,
-          background: '#000',
+          background: '#04000a',
         }}
       >
         <style>{`
           @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Inter:wght@300;400&display=swap');
+          @keyframes aura-nebula {
+            0%   { opacity: 0.55; transform: scale(1)    rotate(0deg);   }
+            50%  { opacity: 0.80; transform: scale(1.08) rotate(2deg);   }
+            100% { opacity: 0.55; transform: scale(1)    rotate(0deg);   }
+          }
+          @keyframes aura-nebula2 {
+            0%   { opacity: 0.40; transform: scale(1.05) rotate(0deg);   }
+            50%  { opacity: 0.65; transform: scale(1)    rotate(-3deg);  }
+            100% { opacity: 0.40; transform: scale(1.05) rotate(0deg);   }
+          }
         `}</style>
 
-        {/* ── Videos cycling — todos montados, solo el activo visible ── */}
+        {/* ── Fondo premium animado — siempre visible aunque fallen los videos ── */}
+        <div style={{
+          position: 'absolute', inset: 0, zIndex: 0, overflow: 'hidden',
+        }}>
+          {/* Nebulosa púrpura top-left */}
+          <div style={{
+            position: 'absolute',
+            width: '80vw', height: '80vw',
+            top: '-20vw', left: '-20vw',
+            background: 'radial-gradient(ellipse, rgba(100,20,200,0.55) 0%, rgba(60,10,140,0.25) 45%, transparent 70%)',
+            borderRadius: '50%',
+            animation: 'aura-nebula 9s ease-in-out infinite',
+          }} />
+          {/* Aurora cyan bottom-right */}
+          <div style={{
+            position: 'absolute',
+            width: '70vw', height: '70vw',
+            bottom: '-20vw', right: '-15vw',
+            background: 'radial-gradient(ellipse, rgba(0,180,220,0.30) 0%, rgba(0,100,180,0.12) 50%, transparent 72%)',
+            borderRadius: '50%',
+            animation: 'aura-nebula2 12s ease-in-out infinite',
+          }} />
+          {/* Centro oscuro */}
+          <div style={{
+            position: 'absolute', inset: 0,
+            background: 'radial-gradient(ellipse 70% 60% at 50% 50%, #0e0020 0%, #060010 60%, transparent 100%)',
+          }} />
+        </div>
+
+        {/* ── Videos de Pexels — se superponen si cargan ── */}
         {videos.map((url, i) => (
           <video
             key={url}
@@ -83,11 +122,10 @@ export const IntroVideoModal = ({ isOpen, onContinue }) => {
               inset: 0,
               width: '100%',
               height: '100%',
-              objectFit: 'contain',
-              background: '#000',
-              zIndex: 0,
-              opacity: i === idx ? 1 : 0,
-              transition: 'opacity 0.8s ease',
+              objectFit: 'cover',
+              zIndex: 1,
+              opacity: i === idx ? 0.72 : 0,
+              transition: 'opacity 1.2s ease',
             }}
           />
         ))}
@@ -97,19 +135,19 @@ export const IntroVideoModal = ({ isOpen, onContinue }) => {
           style={{
             position: 'absolute',
             inset: 0,
-            background: 'rgba(0,0,0,0.3)',
-            zIndex: 1,
+            background: 'rgba(0,0,0,0.30)',
+            zIndex: 2,
             pointerEvents: 'none',
           }}
         />
 
-        {/* ── Tinte azul para unificar con la webapp ── */}
+        {/* ── Tinte púrpura para unificar con la webapp ── */}
         <div
           style={{
             position: 'absolute',
             inset: 0,
-            background: 'rgba(10,15,30,0.25)',
-            zIndex: 1,
+            background: 'rgba(8,0,20,0.22)',
+            zIndex: 2,
             pointerEvents: 'none',
           }}
         />
@@ -119,8 +157,8 @@ export const IntroVideoModal = ({ isOpen, onContinue }) => {
           style={{
             position: 'absolute',
             inset: 0,
-            background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 50%)',
-            zIndex: 2,
+            background: 'linear-gradient(to top, rgba(4,0,10,0.85) 0%, rgba(4,0,10,0.20) 40%, transparent 65%)',
+            zIndex: 3,
             pointerEvents: 'none',
           }}
         />
@@ -130,7 +168,7 @@ export const IntroVideoModal = ({ isOpen, onContinue }) => {
           style={{
             position: 'absolute',
             inset: 0,
-            zIndex: 3,
+            zIndex: 4,
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between',

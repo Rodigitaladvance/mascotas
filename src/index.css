@@ -1,44 +1,72 @@
+/* ═══════════════════════════════════════════════════════════════════
+   AURA Pets Global — Premium Design System v4.0
+   Cybersecurity Command Center · Deep Black-Purple · Cyan Orb · Gold
+   Reference: Gemini concept image — dark, dramatic, high contrast
+   ═══════════════════════════════════════════════════════════════════ */
 
+/* ─────────────────────────────────────────────
+   1. DESIGN TOKENS
+───────────────────────────────────────────── */
 :root {
-  --aura-gold: #C9A84C;
-  --aura-gold-light: #E8C876;
-  --aura-gold-muted: rgba(201, 168, 76, 0.25);
-  --aura-gold-dim: rgba(201, 168, 76, 0.08);
-  --aura-black: #2A0A3A;
-  --aura-obsidian: #0A0514;
-  --aura-surface: #1E0830;
-  --aura-card: #280D3D;
-  --aura-purple: #3D1048;
-  --aura-purple-mid: #B57BFF;
-  --aura-silver: #D4B8FF;
-  --aura-text: #FFFFFF;
-  --aura-text-muted: #D4B8FF;
-  --aura-text-silver: #D4B8FF;
-  --aura-success: #5DCAA5;
-  --aura-warning: #EF9F27;
-  --aura-danger: #F09595;
-  --aura-neon-cyan: #00D4FF;
-  --aura-neon-pink: #E24B4A;
-  --aura-glass: rgba(40, 13, 61, 0.94);
-  --aura-border: rgba(201, 168, 76, 0.25);
-  --aura-border-strong: rgba(201, 168, 76, 0.5);
-  --font-serif: 'Playfair Display', serif;
-  --font-sans: 'Inter', sans-serif;
-  --shadow-gold: 0 12px 48px rgba(0,0,0,0.8), 0 0 24px rgba(201,168,76,0.18);
-  --shadow-neon: 0 0 20px rgba(0,212,255,0.25);
-  --radius: 4px;
+  /* ── Legacy tokens — kept intact for all JSX inline styles ── */
+  --aura-gold:           #D4AF37;
+  --aura-gold-light:     #F9E1A4;
+  --aura-gold-muted:     rgba(212, 175, 55, 0.22);
+  --aura-gold-dim:       rgba(212, 175, 55, 0.07);
+  --aura-black:          #080010;
+  --aura-obsidian:       #04000a;
+  --aura-surface:        rgba(14, 4, 28, 0.92);
+  --aura-card:           rgba(255, 255, 255, 0.04);
+  --aura-purple:         #100020;
+  --aura-purple-mid:     #7B4FBB;
+  --aura-silver:         #C8B8F0;
+  --aura-text:           #FFFFFF;
+  --aura-text-muted:     #9E8CC0;
+  --aura-text-silver:    #C8B8F0;
+  --aura-success:        #5DCAA5;
+  --aura-warning:        #EF9F27;
+  --aura-danger:         #F09595;
+  --aura-neon-cyan:      #00E8FF;
+  --aura-neon-pink:      #E24B4A;
+  --aura-glass:          rgba(14, 4, 28, 0.88);
+  --aura-border:         rgba(120, 80, 200, 0.25);
+  --aura-border-strong:  rgba(212, 175, 55, 0.55);
+  --font-serif:          'Playfair Display', Georgia, serif;
+  --font-sans:           'Inter', system-ui, -apple-system, sans-serif;
+  --shadow-gold:         0 12px 48px rgba(0,0,0,0.9), 0 0 24px rgba(212,175,55,0.20);
+  --shadow-neon:         0 0 24px rgba(0,232,255,0.50), 0 0 48px rgba(0,232,255,0.18);
+  --radius:              8px;
+
+  /* ── Premium system ── */
+  --bg-void:          #04000a;
+  --bg-deep:          #080010;
+  --bg-surface:       rgba(16, 4, 32, 0.90);
+  --bg-card:          rgba(20, 6, 40, 0.88);
+  --gold-primary:     #d4af37;
+  --gold-bright:      #f0d878;
+  --gold-gradient:    linear-gradient(140deg, #f9e1a4 0%, #d4af37 60%, #a07820 100%);
+  --neon-cyan:        #00e8ff;
+  --neon-lavender:    #7b4fbb;
+  --cyan-glow:        0 0 20px rgba(0,232,255,0.70), 0 0 40px rgba(0,232,255,0.30);
+  --cyan-glow-soft:   0 0 12px rgba(0,232,255,0.40);
+  --glass-bg:         rgba(20, 6, 40, 0.85);
+  --glass-border:     1px solid rgba(100, 60, 180, 0.28);
+  --purple-border:    rgba(100, 60, 180, 0.28);
+  --gold-border:      rgba(212, 175, 55, 0.32);
 }
 
+/* ─────────────────────────────────────────────
+   2. RESET & GLOBAL
+───────────────────────────────────────────── */
 *, *::before, *::after {
   box-sizing: border-box;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   scrollbar-width: thin;
-  scrollbar-color: rgba(201,168,76,0.4) transparent;
+  scrollbar-color: rgba(100,60,180,0.4) transparent;
 }
 
-/* ── Cross-browser touch & interaction ── */
-button, [role="button"], a, label[for], label[style*="cursor"] {
+button, [role="button"], a, label[for] {
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
   -webkit-user-select: none;
@@ -57,13 +85,31 @@ html {
   overflow-y: scroll;
 }
 
-::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(201,168,76,0.3); border-radius: 2px; }
+::-webkit-scrollbar-thumb {
+  background: rgba(100,60,180,0.40);
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0,232,255,0.40);
+}
 
+/* ─────────────────────────────────────────────
+   3. BODY — DEEP BLACK-PURPLE VOID
+───────────────────────────────────────────── */
 body {
-  margin: 0; padding: 0;
-  background: radial-gradient(ellipse at top, #3D1048 0%, #1A0528 50%, #0A0514 100%);
+  margin: 0;
+  padding: 0;
+  /*
+    Base: near-black #04000a
+    Subtle purple nebula top-left
+    Subtle cyan aurora bottom-right
+  */
+  background:
+    radial-gradient(ellipse 65% 55% at 15% 8%,  rgba(80, 20, 160, 0.28) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 45% at 88% 92%,  rgba(0, 180, 220, 0.09) 0%, transparent 55%),
+    radial-gradient(ellipse 80% 70% at 50% 50%,  #0e0020 0%, #060010 55%, #04000a 100%);
   background-attachment: fixed;
   color: var(--aura-text);
   font-family: var(--font-sans);
@@ -73,22 +119,301 @@ body {
   min-height: 100%;
 }
 
+/* ── Noise grain overlay — fixed, above everything, non-interactive ── */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  pointer-events: none;
+  opacity: 0.042;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='250' height='250'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='250' height='250' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 250px 250px;
+}
+
 #root {
   min-height: 100vh;
   overflow-x: hidden;
   overflow-y: auto;
 }
 
-h1, h2, h3, .luxury-title {
+/* ─────────────────────────────────────────────
+   4. TYPOGRAPHY
+───────────────────────────────────────────── */
+h1 {
   font-family: var(--font-serif);
-  font-weight: 400;
-  color: var(--aura-gold-light);
-  text-shadow: 0 0 18px rgba(232,200,118,0.45), 0 0 40px rgba(201,168,76,0.2);
-  letter-spacing: -0.01em;
+  font-weight: 700;
+  color: #FFFFFF;
+  letter-spacing: -0.03em;
+  margin: 0;
+  line-height: 1.08;
+  /* Subtle white glow — makes large titles feel luminous */
+  text-shadow: 0 0 40px rgba(255,255,255,0.12), 0 2px 0 rgba(0,0,0,0.5);
+}
+
+h2 {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  color: #FFFFFF;
+  letter-spacing: -0.025em;
+  margin: 0;
+  line-height: 1.15;
+  text-shadow: 0 0 30px rgba(255,255,255,0.10), 0 2px 0 rgba(0,0,0,0.4);
+}
+
+h3 {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  color: rgba(255,255,255,0.92);
+  letter-spacing: -0.018em;
+  margin: 0;
+  line-height: 1.25;
+}
+
+h4, h5, h6 {
+  font-family: var(--font-serif);
+  color: var(--gold-bright);
   margin: 0;
 }
 
-/* ── Layout ── */
+/* Eyebrow labels — small uppercase text above titles */
+.aura-eyebrow {
+  font-family: var(--font-sans);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.35);
+}
+
+/* Gold gradient clip — only .luxury-title, safe for inline-styled elements */
+.luxury-title {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  background: var(--gold-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.03em;
+  filter: drop-shadow(0 2px 20px rgba(212,175,55,0.50));
+  margin: 0;
+}
+
+/* ─────────────────────────────────────────────
+   5. AUTH PAGE
+───────────────────────────────────────────── */
+.auth-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 1.5rem;
+  background:
+    radial-gradient(ellipse 60% 50% at 25% 15%, rgba(80,20,160,0.30) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 45% at 85% 85%, rgba(0,180,220,0.08) 0%, transparent 50%),
+    linear-gradient(180deg, #0a0018 0%, #04000a 100%);
+}
+
+/* ── The auth card — feels like a secure terminal panel ── */
+.auth-container .aura-card {
+  padding: 2.4rem 2.8rem;
+  border-color: rgba(100,60,180,0.42);
+  /* Safety net: never taller than the viewport */
+  max-height: 96vh;
+  overflow-y: auto;
+  box-shadow:
+    0 0 90px  rgba(60,20,140,0.28),
+    0 0 180px rgba(0,232,255,0.05),
+    0 32px 80px rgba(0,0,0,0.92),
+    inset 0 1px 0 rgba(255,255,255,0.09);
+}
+
+/* ── Header block ── */
+.auth-container header {
+  position: relative;
+  margin-bottom: 2rem !important;
+}
+
+/* Logo — amplified glow, height capped for small viewports */
+.auth-container header img {
+  height: clamp(52px, 8vh, 70px) !important;
+  margin-bottom: 1.2rem !important;
+  filter:
+    drop-shadow(0 0 16px rgba(212,175,55,0.40))
+    drop-shadow(0 0 40px rgba(212,175,55,0.15)) !important;
+}
+
+/*
+  h1 "AURA Pets Global"
+  Inline style sets: font-size 2.4rem, margin, letter-spacing -1px.
+  We add: font-family, font-weight, a warm gold text-shadow that
+  complements the gold <span> inside.
+*/
+.auth-container h1 {
+  font-family: var(--font-serif) !important;
+  font-weight: 700 !important;
+  text-shadow:
+    0 0 28px rgba(212,175,55,0.38),
+    0 0 56px rgba(212,175,55,0.14);
+}
+
+/*
+  Subtitle "Portal de Acceso AURA" / "Crear Registro Biométrico"
+  Inline sets: color, font-size, letter-spacing, text-transform.
+  We add: a cool glow so it reads against the dark card.
+*/
+.auth-container header p {
+  margin-top: 0.75rem !important;
+  text-shadow: 0 0 18px rgba(160,140,240,0.28);
+  opacity: 0.85;
+}
+
+/* Gold + cyan separator line under the header block */
+.auth-container header::after {
+  content: '';
+  display: block;
+  width: 72px;
+  height: 1px;
+  margin: 1.2rem auto 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(212,175,55,0.85) 35%,
+    rgba(0,232,255,0.55) 70%,
+    transparent
+  );
+  box-shadow: 0 0 10px rgba(212,175,55,0.40), 0 0 6px rgba(0,232,255,0.25);
+}
+
+/* ── Input groups ── */
+.input-group { position: relative; }
+
+/* Non-auth inputs (PetRegistration, etc.) */
+.input-group input,
+.input-group textarea {
+  width: 100%;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(100,60,180,0.35);
+  border-radius: var(--radius);
+  color: #FFFFFF;
+  font-family: var(--font-sans);
+  font-size: 0.98rem;
+  padding: 1.1rem 1.2rem;
+  outline: none;
+  transition: border-color 0.3s, box-shadow 0.3s, background 0.3s;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+.input-group input:focus,
+.input-group textarea:focus {
+  border-color: var(--neon-cyan);
+  background: rgba(0,232,255,0.035);
+  box-shadow: 0 0 0 3px rgba(0,232,255,0.10), var(--cyan-glow-soft);
+}
+.input-group input::placeholder,
+.input-group textarea::placeholder {
+  color: rgba(180,160,220,0.38);
+}
+
+/*
+  Auth inputs — inline styles set border + background so we need
+  !important to override. We make the border clearly visible at rest
+  and dramatic on focus.
+*/
+.auth-container .input-group input {
+  border-radius: var(--radius) !important;
+  font-family: var(--font-sans) !important;
+  border: 1px solid rgba(130, 80, 220, 0.65) !important;
+  background: rgba(255,255,255,0.055) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.05) !important;
+  transition: border-color 0.3s, box-shadow 0.3s, background 0.3s !important;
+}
+.auth-container .input-group input:focus {
+  border-color: var(--neon-cyan) !important;
+  background: rgba(0,232,255,0.05) !important;
+  box-shadow:
+    0 0 0 3px rgba(0,232,255,0.12),
+    0 0 18px rgba(0,232,255,0.35),
+    inset 0 1px 0 rgba(255,255,255,0.06) !important;
+  outline: none !important;
+}
+.auth-container .input-group input::placeholder {
+  color: rgba(180,160,220,0.45) !important;
+}
+
+/* Labels in auth — gold glow */
+.auth-container .input-group label {
+  font-family: var(--font-sans);
+  text-shadow: 0 0 14px rgba(212,175,55,0.32);
+}
+
+/* ── Submit button — the hero CTA of the login page ── */
+.auth-container form .btn-aura {
+  background: linear-gradient(
+    160deg,
+    rgba(249,225,164,0.22) 0%,
+    rgba(212,175,55,0.16) 100%
+  ) !important;
+  border: 1px solid rgba(212,175,55,0.85) !important;
+  color: var(--gold-bright) !important;
+  letter-spacing: 4px;
+  font-size: 0.75rem !important;
+  font-weight: 700 !important;
+  /* Persistent glow so the button always draws the eye */
+  box-shadow:
+    0 0 28px rgba(212,175,55,0.28),
+    0 0 60px rgba(212,175,55,0.10),
+    inset 0 1px 0 rgba(255,255,255,0.12) !important;
+  text-shadow: 0 0 16px rgba(249,225,164,0.55) !important;
+  transition: all 0.30s cubic-bezier(0.16,1,0.3,1) !important;
+}
+.auth-container form .btn-aura:hover {
+  background: var(--gold-gradient) !important;
+  color: #08001a !important;
+  letter-spacing: 5px;
+  text-shadow: none !important;
+  box-shadow:
+    0 0 50px rgba(212,175,55,0.65),
+    0 0 100px rgba(212,175,55,0.22),
+    0 8px 32px rgba(0,0,0,0.80) !important;
+  transform: translateY(-2px);
+}
+
+/* ── Footer links ── */
+.auth-container footer {
+  margin-top: 2.5rem;
+}
+
+/* "¿Nuevo en el ecosistema?" — replace underline with bottom border */
+.auth-container footer button {
+  font-family: var(--font-sans) !important;
+  font-size: 0.70rem !important;
+  letter-spacing: 1.8px !important;
+  text-decoration: none !important;
+  border-bottom: 1px solid rgba(160,140,220,0.22) !important;
+  padding-bottom: 2px;
+  transition: color 0.25s, border-color 0.25s, text-shadow 0.25s !important;
+}
+.auth-container footer button:hover {
+  color: rgba(220,210,255,0.95) !important;
+  border-color: rgba(220,210,255,0.40) !important;
+  text-shadow: 0 0 16px rgba(180,160,255,0.35);
+}
+
+/* "¿Olvidó su clave?" — gold link */
+.auth-container footer a {
+  letter-spacing: 2px !important;
+  text-shadow: 0 0 12px rgba(212,175,55,0.30);
+  transition: opacity 0.25s, text-shadow 0.25s !important;
+}
+.auth-container footer a:hover {
+  text-shadow: 0 0 22px rgba(212,175,55,0.65) !important;
+}
+
+/* ─────────────────────────────────────────────
+   6. LAYOUT
+───────────────────────────────────────────── */
 .app-container {
   max-width: 1400px;
   width: 100%;
@@ -99,15 +424,11 @@ h1, h2, h3, .luxury-title {
   box-sizing: border-box;
 }
 
-/* ── Responsive grids ── */
 .passport-layout {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 2.5rem;
   align-items: start;
-}
-@media (max-width: 780px) {
-  .passport-layout { grid-template-columns: 1fr; }
 }
 
 .vault-layout {
@@ -115,17 +436,11 @@ h1, h2, h3, .luxury-title {
   grid-template-columns: minmax(0, 1fr) 280px;
   gap: 3rem;
 }
-@media (max-width: 780px) {
-  .vault-layout { grid-template-columns: 1fr; gap: 2rem; }
-}
 
 .compliance-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1.5rem;
-}
-@media (max-width: 500px) {
-  .compliance-grid { grid-template-columns: 1fr; }
 }
 
 .dashboard-layout {
@@ -133,67 +448,185 @@ h1, h2, h3, .luxury-title {
   grid-template-columns: minmax(0, 1fr) 1.6fr;
   gap: 2.5rem;
 }
-@media (max-width: 780px) {
-  .dashboard-layout { grid-template-columns: 1fr; }
+
+.sos-main-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
 }
 
-/* ── Cards ── */
+/* ─────────────────────────────────────────────
+   7. CARDS — DARK COMMAND CENTER STYLE
+   Matching the reference image: defined dark bg,
+   not pure glass, subtle purple border glow.
+───────────────────────────────────────────── */
 .aura-card {
-  background: linear-gradient(135deg, #1E0830 0%, #280D3D 100%);
-  backdrop-filter: blur(40px);
-  -webkit-backdrop-filter: blur(40px);
-  border: 1px solid var(--aura-border);
-  border-radius: var(--radius);
+  background: rgba(20, 6, 42, 0.90);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(100, 60, 180, 0.28);
+  border-radius: 14px;
   padding: 2.5rem;
-  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
   position: relative;
   overflow: hidden;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.55), 0 0 28px rgba(201,168,76,0.07), inset 0 1px 0 rgba(232,200,118,0.08);
+  transition:
+    transform     0.42s cubic-bezier(0.16,1,0.3,1),
+    border-color  0.42s ease,
+    box-shadow    0.42s ease;
+  box-shadow:
+    0 4px 32px rgba(0,0,0,0.75),
+    inset 0 1px 0 rgba(255,255,255,0.06),
+    inset 1px 0 0 rgba(255,255,255,0.02);
 }
+
+/* Top shimmer edge */
+.aura-card::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 8%; right: 8%;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(150, 100, 255, 0.45) 35%,
+    rgba(0, 232, 255, 0.25) 65%,
+    transparent
+  );
+  pointer-events: none;
+}
+
+/*
+  Internal lighting simulation:
+  Light source at top-left corner — bright edge fading diagonally.
+  Mimics light refracting through dark glass.
+*/
 .aura-card::before {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(201,168,76,0.10) 0%, transparent 45%);
+  border-radius: 14px;
   pointer-events: none;
-}
-.aura-card:hover {
-  border-color: var(--aura-border-strong);
-  box-shadow: var(--shadow-gold), 0 0 48px rgba(201,168,76,0.12);
+  background:
+    /* Corner hotspot — top-left bright */
+    radial-gradient(
+      ellipse 55% 40% at 0% 0%,
+      rgba(160,120,255,0.09) 0%,
+      transparent 70%
+    ),
+    /* Diagonal fade — top edge shimmer */
+    linear-gradient(
+      135deg,
+      rgba(255,255,255,0.055) 0%,
+      rgba(255,255,255,0.010) 30%,
+      transparent 55%
+    );
 }
 
-/* ── Buttons ── */
+.aura-card:hover {
+  border-color: rgba(100,60,180,0.55);
+  box-shadow:
+    0 12px 48px rgba(0,0,0,0.82),
+    0 0 28px rgba(0,232,255,0.06),
+    inset 0 1px 0 rgba(255,255,255,0.09);
+  transform: translateY(-2px);
+}
+
+/* Glass card alias */
+.glass-card {
+  background: rgba(20, 6, 42, 0.88);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(100,60,180,0.25);
+  border-radius: 14px;
+  padding: 1.5rem;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.4s cubic-bezier(0.16,1,0.3,1), border-color 0.4s;
+  box-shadow: 0 4px 28px rgba(0,0,0,0.70), inset 0 1px 0 rgba(255,255,255,0.05);
+}
+.glass-card:hover {
+  border-color: rgba(100,60,180,0.48);
+  transform: translateY(-1px);
+}
+
+/* ─────────────────────────────────────────────
+   8. BUTTONS
+───────────────────────────────────────────── */
 .btn-aura {
-  background: none;
-  border: 1px solid var(--aura-border-strong);
-  color: var(--aura-gold-light);
+  background: rgba(212,175,55,0.08);
+  border: 1px solid rgba(212,175,55,0.48);
+  color: var(--gold-bright);
   padding: 0.9rem 2.2rem;
   font-family: var(--font-sans);
   text-transform: uppercase;
   letter-spacing: 3px;
   font-size: 0.72rem;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.30s cubic-bezier(0.16,1,0.3,1);
   position: relative;
   border-radius: var(--radius);
+  text-shadow: 0 0 14px rgba(212,175,55,0.30);
+  overflow: hidden;
 }
+
+.btn-aura::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent,
+    rgba(212,175,55,0.65) 50%,
+    transparent
+  );
+  pointer-events: none;
+}
+
 .btn-aura:hover {
-  background: var(--aura-gold-light);
-  color: #1A0528;
-  box-shadow: 0 0 30px rgba(232,200,118,0.5);
+  background: var(--gold-gradient);
+  color: #08001a;
+  border-color: var(--gold-bright);
+  box-shadow: 0 0 32px rgba(212,175,55,0.50), 0 4px 20px rgba(0,0,0,0.60);
+  text-shadow: none;
+  transform: translateY(-1px);
 }
-.btn-aura:active { transform: scale(0.97); }
+
+.btn-aura:active {
+  transform: scale(0.97) translateY(0);
+}
+
+.btn-primary {
+  background: var(--gold-gradient);
+  border: 1px solid rgba(212,175,55,0.80);
+  color: #08001a;
+  padding: 0.9rem 2.2rem;
+  font-family: var(--font-sans);
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+  border-radius: var(--radius);
+  box-shadow: 0 4px 20px rgba(212,175,55,0.32);
+  transition: all 0.3s ease;
+}
+.btn-primary:hover {
+  box-shadow: 0 0 34px rgba(212,175,55,0.60), 0 6px 22px rgba(0,0,0,0.60);
+  transform: translateY(-1px);
+}
 
 .btn-neon {
-  border-color: var(--aura-neon-cyan);
-  color: var(--aura-neon-cyan);
-  box-shadow: 0 0 12px rgba(0,212,255,0.15);
+  border-color: var(--neon-cyan) !important;
+  color: var(--neon-cyan) !important;
+  background: rgba(0,232,255,0.06) !important;
+  box-shadow: 0 0 12px rgba(0,232,255,0.14), inset 0 0 10px rgba(0,232,255,0.04);
+  text-shadow: 0 0 12px rgba(0,232,255,0.55) !important;
 }
 .btn-neon:hover {
-  background: var(--aura-neon-cyan);
-  color: var(--aura-black);
-  box-shadow: var(--shadow-neon);
+  background: rgba(0,232,255,0.12) !important;
+  color: #ffffff !important;
+  box-shadow: var(--cyan-glow), 0 4px 20px rgba(0,0,0,0.55) !important;
 }
 
 .btn-full {
@@ -202,42 +635,62 @@ h1, h2, h3, .luxury-title {
   padding: 1.2rem;
 }
 
-/* ── Nav ── */
+/* ─────────────────────────────────────────────
+   9. NAVIGATION
+───────────────────────────────────────────── */
 .aura-nav {
   position: -webkit-sticky;
   position: sticky;
   top: 0;
   z-index: 100;
-  background: rgba(10,5,20,0.97);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-bottom: 1px solid var(--aura-border);
-  padding: 1.2rem 3rem;
+  background: rgba(4, 0, 10, 0.97);
+  backdrop-filter: blur(32px);
+  -webkit-backdrop-filter: blur(32px);
+  border-bottom: 1px solid rgba(80,40,160,0.20);
+  padding: 1.1rem 3rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  box-shadow: 0 4px 40px rgba(0,0,0,0.85);
 }
 
-/* ── Bottom Tab Bar (Mobile-first) ── */
+.aura-nav::after {
+  content: '';
+  position: absolute;
+  bottom: -1px; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(100,60,180,0.50) 30%,
+    rgba(0,232,255,0.45) 70%,
+    transparent 100%
+  );
+  pointer-events: none;
+}
+
+/* ─────────────────────────────────────────────
+   10. BOTTOM TAB BAR
+───────────────────────────────────────────── */
 .bottom-tab-bar {
   position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: rgba(10,5,20,0.97);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border-top: 1px solid var(--aura-border);
+  bottom: 0; left: 0; right: 0;
+  background: rgba(4, 0, 10, 0.98);
+  backdrop-filter: blur(32px);
+  -webkit-backdrop-filter: blur(32px);
+  border-top: 1px solid rgba(80,40,160,0.18);
   display: flex;
   justify-content: space-around;
   align-items: center;
   padding: 0.5rem 0.5rem calc(0.5rem + env(safe-area-inset-bottom));
   z-index: 200;
+  box-shadow: 0 -6px 32px rgba(0,0,0,0.80);
 }
+
 .tab-btn {
   background: none;
   border: none;
-  color: var(--aura-text-muted);
+  color: rgba(160,140,210,0.42);
   cursor: pointer;
   display: flex;
   flex-direction: column;
@@ -250,89 +703,95 @@ h1, h2, h3, .luxury-title {
   text-transform: uppercase;
   padding: 0.4rem 0;
   flex: 1;
-  transition: color 0.25s;
+  transition: color 0.25s, text-shadow 0.25s;
 }
 .tab-btn.active {
-  color: var(--aura-gold-light);
-  text-shadow: 0 0 8px rgba(232,200,118,0.5);
+  color: var(--neon-cyan);
+  text-shadow: 0 0 14px rgba(0,232,255,0.65);
 }
 
-/* SOS — elevated center CTA */
 .tab-sos-cta {
   color: var(--aura-neon-pink) !important;
-  background: rgba(226,75,74,0.1);
-  border: 1px solid rgba(226,75,74,0.35);
+  background: rgba(226,75,74,0.10);
+  border: 1px solid rgba(226,75,74,0.38) !important;
   border-radius: 50%;
-  width: 52px;
-  height: 52px;
+  width: 52px; height: 52px;
   flex: 0 0 52px;
   margin-top: -18px;
-  box-shadow: 0 0 20px rgba(226,75,74,0.35);
+  box-shadow: 0 0 24px rgba(226,75,74,0.38);
   padding: 0;
   font-size: 0.5rem;
   letter-spacing: 0.5px;
   gap: 2px;
 }
-.tab-sos-cta:hover, .tab-sos-cta:active {
-  background: rgba(226,75,74,0.2);
-  box-shadow: 0 0 28px rgba(226,75,74,0.55);
+.tab-sos-cta:hover,
+.tab-sos-cta:active {
+  background: rgba(226,75,74,0.20) !important;
+  box-shadow: 0 0 36px rgba(226,75,74,0.62);
 }
 
-/* Legacy — unused but keep for safety */
 .tab-btn.sos-tab   { color: var(--aura-neon-pink); }
 .tab-btn.confirm-tab {
-  background: var(--aura-neon-cyan); color: var(--aura-black);
+  background: var(--neon-cyan); color: #04000a;
   border-radius: 50%; width: 56px; height: 56px;
   justify-content: center; margin-top: -20px;
-  box-shadow: 0 0 20px rgba(0,212,255,0.4); font-size: 0.55rem; padding: 0;
+  box-shadow: var(--cyan-glow); font-size: 0.55rem; padding: 0;
 }
 
-/* ── Forms & Inputs ── */
+/* ─────────────────────────────────────────────
+   11. FORMS & INPUTS
+───────────────────────────────────────────── */
 .aura-input {
   width: 100%;
-  background: var(--aura-card);
-  border: 1.5px solid rgba(201, 168, 76, 0.35);
+  background: rgba(255,255,255,0.04);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1.5px solid rgba(100,60,180,0.32);
   border-radius: var(--radius);
   color: #FFFFFF;
   font-family: var(--font-sans);
   font-size: 0.95rem;
   padding: 0.9rem 1.2rem;
   outline: none;
-  transition: border-color 0.3s, box-shadow 0.3s;
+  transition: border-color 0.3s, box-shadow 0.3s, background 0.3s;
 }
 .aura-input:focus {
-  border-color: #E8C876;
-  box-shadow: 0 0 0 3px rgba(232,200,118,0.15), 0 0 12px rgba(232,200,118,0.2);
+  border-color: var(--neon-cyan);
+  background: rgba(0,232,255,0.035);
+  box-shadow: 0 0 0 3px rgba(0,232,255,0.10), var(--cyan-glow-soft);
 }
-.aura-input::placeholder { color: var(--aura-text-muted); }
+.aura-input::placeholder { color: rgba(160,140,210,0.40); }
+.aura-input:disabled { opacity: 0.45; cursor: not-allowed; }
 
 .aura-select {
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23C9A84C' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23D4AF37' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 1rem center;
-  cursor: pointer;
 }
 .aura-select option {
-  background: #1E0830;
+  background: #10001e;
   color: #FFFFFF;
-  padding: 0.6rem;
 }
 
 .input-label {
   display: block;
-  font-size: 0.68rem;
+  font-size: 0.67rem;
   letter-spacing: 2.5px;
   text-transform: uppercase;
-  color: var(--aura-gold-light);
+  color: var(--gold-bright);
   font-weight: 700;
   margin-bottom: 0.6rem;
-  text-shadow: 0 0 10px rgba(232,200,118,0.35);
+  text-shadow: 0 0 12px rgba(212,175,55,0.28);
 }
 
 .form-group { margin-bottom: 1.6rem; }
+.form-wrap  { display: grid; gap: 1.4rem; }
 
-/* ── Species Selector — Horizontal Carousel ── */
+/* ─────────────────────────────────────────────
+   12. SPECIES SELECTOR
+───────────────────────────────────────────── */
 .species-selector {
   display: flex;
   flex-direction: row;
@@ -340,7 +799,7 @@ h1, h2, h3, .luxury-title {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   scroll-snap-type: x mandatory;
-  padding: 0.5rem 2rem 0.5rem;
+  padding: 0.5rem 2rem;
   scrollbar-width: none;
 }
 .species-selector::-webkit-scrollbar { display: none; }
@@ -348,68 +807,75 @@ h1, h2, h3, .luxury-title {
 .species-card {
   flex-shrink: 0;
   scroll-snap-align: center;
-  width: 100px;
-  height: 100px;
-  border: 1px solid rgba(201,168,76,0.25);
+  width: 100px; height: 100px;
+  border: 1px solid rgba(100,60,180,0.28);
   border-radius: 12px;
   overflow: hidden;
   cursor: pointer;
   position: relative;
+  background: rgba(20,6,42,0.80);
+  backdrop-filter: blur(8px);
   transition: border-color 0.25s, transform 0.25s, box-shadow 0.25s;
-  background: var(--aura-surface);
 }
 .species-card:hover {
-  border-color: rgba(201,168,76,0.5);
+  border-color: rgba(212,175,55,0.55);
   transform: scale(1.04);
-  box-shadow: 0 0 10px rgba(201,168,76,0.2), 0 6px 18px rgba(0,0,0,0.5);
+  box-shadow: 0 0 20px rgba(212,175,55,0.25), 0 6px 20px rgba(0,0,0,0.60);
 }
 .species-card img {
-  width: 100%;
-  height: 100%;
+  width: 100%; height: 100%;
   object-fit: cover;
   opacity: 0.65;
   transition: opacity 0.25s, transform 0.25s;
 }
 .species-card:hover img { opacity: 0.85; transform: scale(1.06); }
 .species-card.selected {
-  border-color: #C9A84C;
+  border-color: var(--gold-primary);
   border-width: 2px;
   transform: scale(1.08);
-  box-shadow: 0 0 12px rgba(201,168,76,0.4), 0 8px 24px rgba(0,0,0,0.55);
+  box-shadow: 0 0 22px rgba(212,175,55,0.50), 0 8px 26px rgba(0,0,0,0.65);
 }
-.species-card.selected img { opacity: 1; transform: scale(1.0); }
+.species-card.selected img { opacity: 1; }
 .species-check {
   position: absolute;
-  bottom: 10%;
-  left: 0;
-  right: 0;
+  bottom: 10%; left: 0; right: 0;
   text-align: center;
   font-size: 0.48rem;
   letter-spacing: 1.5px;
-  color: #E8C876;
-  text-shadow: 0 0 8px rgba(232,200,118,0.9), 0 1px 4px rgba(0,0,0,0.9);
+  color: var(--gold-bright);
+  text-shadow: 0 0 8px rgba(240,216,120,0.95), 0 1px 4px rgba(0,0,0,0.95);
   padding: 4px 0;
 }
 
-/* ── Separador decorativo dorado ── */
+/* ─────────────────────────────────────────────
+   13. DECORATIVE SEPARATOR
+───────────────────────────────────────────── */
 .aura-separator {
   width: 100%;
   height: 1px;
-  background: linear-gradient(to right, transparent, rgba(232,200,118,0.6) 30%, rgba(232,200,118,0.6) 70%, transparent);
   flex-shrink: 0;
-  box-shadow: 0 0 8px rgba(232,200,118,0.25);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(100,60,180,0.55) 25%,
+    rgba(0,232,255,0.45) 75%,
+    transparent 100%
+  );
+  box-shadow: 0 0 10px rgba(0,232,255,0.12);
 }
 
-/* ── Tab Headers ── */
+/* ─────────────────────────────────────────────
+   14. TAB HEADERS
+───────────────────────────────────────────── */
 .aura-tabs {
   display: flex;
-  border-bottom: 1px solid var(--aura-border);
+  border-bottom: 1px solid rgba(80,40,160,0.22);
   margin-bottom: 2rem;
 }
 .aura-tab {
   background: none;
   border: none;
-  color: var(--aura-text-muted);
+  color: rgba(160,140,210,0.42);
   font-family: var(--font-sans);
   font-size: 0.75rem;
   letter-spacing: 2px;
@@ -417,120 +883,170 @@ h1, h2, h3, .luxury-title {
   padding: 0.8rem 1.5rem;
   cursor: pointer;
   border-bottom: 2px solid transparent;
-  transition: all 0.3s;
+  transition: color 0.3s, border-color 0.3s, text-shadow 0.3s;
   margin-bottom: -1px;
 }
 .aura-tab.active {
-  color: var(--aura-gold-light);
-  border-bottom-color: var(--aura-gold-light);
-  text-shadow: 0 0 10px rgba(232,200,118,0.4);
+  color: var(--neon-cyan);
+  border-bottom-color: var(--neon-cyan);
+  text-shadow: 0 0 14px rgba(0,232,255,0.55);
+}
+.aura-tab:hover:not(.active) {
+  color: rgba(200,180,240,0.65);
 }
 
-/* ── Range Slider ── */
+/* ─────────────────────────────────────────────
+   15. RANGE SLIDER
+───────────────────────────────────────────── */
 .aura-range {
   -webkit-appearance: none;
   width: 100%;
   height: 2px;
-  background: var(--aura-border);
+  background: rgba(100,60,180,0.25);
   outline: none;
   border-radius: 1px;
 }
 .aura-range::-webkit-slider-thumb {
   -webkit-appearance: none;
-  width: 18px;
-  height: 18px;
-  background: var(--aura-gold);
+  width: 18px; height: 18px;
+  background: var(--gold-gradient);
   border-radius: 50%;
   cursor: pointer;
-  box-shadow: 0 0 8px rgba(201,168,76,0.5);
+  box-shadow: 0 0 12px rgba(212,175,55,0.70);
   transition: transform 0.2s;
 }
-.aura-range::-webkit-slider-thumb:hover { transform: scale(1.3); }
+.aura-range::-webkit-slider-thumb:hover { transform: scale(1.35); }
 .aura-range::-moz-range-thumb {
-  width: 18px;
-  height: 18px;
-  background: var(--aura-gold);
-  border: none;
-  border-radius: 50%;
-  cursor: pointer;
+  width: 18px; height: 18px;
+  background: var(--gold-gradient);
+  border: none; border-radius: 50%; cursor: pointer;
 }
 
-/* ── Toggle ── */
+/* ─────────────────────────────────────────────
+   16. TOGGLE SWITCH
+───────────────────────────────────────────── */
 .aura-toggle {
   position: relative;
-  width: 44px;
-  height: 24px;
+  width: 44px; height: 24px;
   flex-shrink: 0;
 }
 .aura-toggle input { opacity: 0; width: 0; height: 0; }
 .aura-toggle-slider {
   position: absolute;
   inset: 0;
-  background: rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(100,60,180,0.30);
   border-radius: 24px;
   cursor: pointer;
-  transition: 0.3s;
+  transition: all 0.3s;
 }
 .aura-toggle-slider::before {
   content: '';
   position: absolute;
-  height: 18px;
-  width: 18px;
-  left: 3px;
-  bottom: 3px;
-  background: white;
+  height: 18px; width: 18px;
+  left: 3px; bottom: 2px;
+  background: rgba(180,160,220,0.72);
   border-radius: 50%;
   transition: 0.3s;
 }
 .aura-toggle input:checked + .aura-toggle-slider {
-  background: var(--aura-gold);
-  box-shadow: 0 0 10px rgba(201,168,76,0.4);
+  background: rgba(0,232,255,0.15);
+  border-color: rgba(0,232,255,0.55);
+  box-shadow: 0 0 14px rgba(0,232,255,0.30);
 }
 .aura-toggle input:checked + .aura-toggle-slider::before {
   transform: translateX(20px);
+  background: var(--neon-cyan);
+  box-shadow: 0 0 8px rgba(0,232,255,0.60);
 }
 
-/* ── AURA Shield Banner ── */
+/* ─────────────────────────────────────────────
+   17. SHIELD BANNER — ORBITAL RINGS + DRAMATIC GLOW
+   Matching the reference image orb
+───────────────────────────────────────────── */
 .shield-banner {
   display: flex;
   align-items: center;
   gap: 1.2rem;
-  background: rgba(201,168,76,0.06);
-  border: 1px solid rgba(232,200,118,0.3);
-  border-radius: var(--radius);
+  background: rgba(0,232,255,0.04);
+  border: 1px solid rgba(0,232,255,0.18);
+  border-radius: 12px;
   padding: 1.2rem 1.5rem;
-  box-shadow: 0 0 18px rgba(201,168,76,0.08);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 0 32px rgba(0,232,255,0.06), inset 0 1px 0 rgba(255,255,255,0.04);
 }
+.shield-banner::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(0,232,255,0.60), transparent);
+}
+
+/* The shield orb — mimics the dramatic glowing sphere in the reference */
 .shield-icon {
-  width: 48px;
-  height: 48px;
-  border: 2px solid var(--aura-gold-light);
+  width: 56px; height: 56px;
+  border: 2px solid rgba(0,232,255,0.60);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  color: var(--aura-gold-light);
-  box-shadow: 0 0 12px rgba(232,200,118,0.3);
+  color: var(--neon-cyan);
+  position: relative;
+  background: radial-gradient(circle at 35% 35%, rgba(0,232,255,0.18) 0%, rgba(0,100,180,0.08) 50%, transparent 70%);
+  box-shadow:
+    0 0 24px rgba(0,232,255,0.55),
+    0 0 48px rgba(0,232,255,0.22),
+    inset 0 0 20px rgba(0,232,255,0.10);
+  animation: shield-pulse 3s ease-in-out infinite;
 }
+
+/* Orbital ring 1 — cyan, fast */
+.shield-icon::before {
+  content: '';
+  position: absolute;
+  inset: -12px;
+  border: 1px solid transparent;
+  border-top-color: rgba(0,232,255,0.65);
+  border-right-color: rgba(0,232,255,0.20);
+  border-radius: 50%;
+  animation: orbital-spin 3.5s linear infinite;
+}
+/* Orbital ring 2 — gold, slow, reverse */
+.shield-icon::after {
+  content: '';
+  position: absolute;
+  inset: -22px;
+  border: 1px solid transparent;
+  border-bottom-color: rgba(212,175,55,0.50);
+  border-left-color: rgba(212,175,55,0.18);
+  border-radius: 50%;
+  animation: orbital-spin 6s linear infinite reverse;
+}
+
 .shield-text h4 {
   font-family: var(--font-sans);
-  font-size: 0.8rem;
+  font-size: 0.80rem;
   font-weight: 700;
-  color: var(--aura-gold-light);
-  letter-spacing: 1px;
+  color: var(--neon-cyan);
+  letter-spacing: 1.5px;
   margin: 0 0 3px;
+  text-shadow: 0 0 14px rgba(0,232,255,0.50);
+  text-transform: uppercase;
 }
 .shield-text p {
-  font-size: 0.7rem;
+  font-size: 0.70rem;
   color: var(--aura-text-muted);
   margin: 0;
 }
 
-/* ── Status dot ── */
+/* ─────────────────────────────────────────────
+   18. STATUS
+───────────────────────────────────────────── */
 .status-indicator {
-  width: 7px;
-  height: 7px;
+  width: 7px; height: 7px;
   border-radius: 50%;
   display: inline-block;
 }
@@ -540,95 +1056,250 @@ h1, h2, h3, .luxury-title {
   animation: pulse-dot 2s infinite;
 }
 
-/* ── Locale chip ── */
+.status-badge {
+  padding: 0.2rem 0.65rem;
+  border-radius: 20px;
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+.status-ok {
+  background: rgba(93,202,165,0.12);
+  border: 1px solid rgba(93,202,165,0.35);
+  color: #5DCAA5;
+  box-shadow: 0 0 10px rgba(93,202,165,0.20);
+}
+
+/* ─────────────────────────────────────────────
+   19. LOCALE CHIP
+───────────────────────────────────────────── */
 .locale-chip {
   padding: 0.25rem 0.7rem;
-  border: 1px solid rgba(232,200,118,0.45);
+  border: 1px solid rgba(212,175,55,0.40);
   font-size: 0.65rem;
   letter-spacing: 2px;
   font-weight: 600;
-  color: var(--aura-gold-light);
+  color: var(--gold-bright);
   border-radius: var(--radius);
   display: inline-block;
+  background: rgba(212,175,55,0.07);
 }
 
-/* ── Chronograph Gauge ── */
+/* ─────────────────────────────────────────────
+   20. GAUGE
+───────────────────────────────────────────── */
 .gauge-container {
-  width: 140px;
-  height: 140px;
+  width: 140px; height: 140px;
   position: relative;
-  border: 1px solid var(--aura-border);
+  border: 1px solid rgba(100,60,180,0.32);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: radial-gradient(circle at center, #1E0830 0%, #0A0514 100%);
-  box-shadow: inset 0 0 30px rgba(0,0,0,0.8);
+  background: radial-gradient(circle, rgba(20,6,42,0.88) 0%, rgba(4,0,10,0.98) 100%);
+  box-shadow:
+    inset 0 0 36px rgba(0,0,0,0.92),
+    0 0 20px rgba(0,232,255,0.08);
 }
 .gauge-needle {
   position: absolute;
-  width: 2px;
-  height: 50px;
-  background: linear-gradient(to top, transparent, var(--aura-gold));
-  bottom: 50%;
-  left: calc(50% - 1px);
+  width: 2px; height: 50px;
+  background: linear-gradient(to top, transparent, var(--gold-primary));
+  bottom: 50%; left: calc(50% - 1px);
   transform-origin: bottom center;
-  transition: transform 1.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-  box-shadow: 0 0 8px var(--aura-gold);
+  transition: transform 1.5s cubic-bezier(0.34,1.56,0.64,1);
+  box-shadow: 0 0 10px var(--gold-primary);
   z-index: 5;
   border-radius: 2px 2px 0 0;
 }
 .gauge-cap {
-  width: 10px;
-  height: 10px;
-  background: var(--aura-black);
-  border: 2px solid var(--aura-gold);
+  width: 10px; height: 10px;
+  background: #04000a;
+  border: 2px solid var(--gold-primary);
   border-radius: 50%;
   z-index: 6;
+  box-shadow: 0 0 8px rgba(212,175,55,0.62);
 }
 
-/* ── SOS ── */
+/* ─────────────────────────────────────────────
+   21. SOS
+───────────────────────────────────────────── */
 .sos-active {
   background: #700;
   animation: bgPulse 2s infinite;
 }
 
-/* ── Animations ── */
+/* ─────────────────────────────────────────────
+   22. UTILITIES
+───────────────────────────────────────────── */
+
+/*
+  .bio-ring — enhanced orb to match the reference image sphere.
+  The JSX renders two child divs (static ring + spinning arc) and
+  a ShieldCheck icon. We layer ::before / ::after OUTSIDE those to
+  add depth without touching JSX.
+*/
+.bio-ring {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  /* 3-D sphere illusion: radial glow centered on the orb */
+  background:
+    radial-gradient(circle at 38% 38%,
+      rgba(0,232,255,0.22) 0%,
+      rgba(0,100,200,0.10) 40%,
+      transparent 70%
+    );
+  border-radius: 50%;
+
+  /* Ambient halo — the "breathing" glow around the whole orb */
+  filter:
+    drop-shadow(0 0 18px rgba(0,232,255,0.55))
+    drop-shadow(0 0 40px rgba(0,232,255,0.25))
+    drop-shadow(0 0 70px rgba(0,150,220,0.15));
+
+  animation: orb-breathe 3.5s ease-in-out infinite;
+}
+
+/* Outer fast cyan arc — visible quarter-ring spinning */
+.bio-ring::before {
+  content: '';
+  position: absolute;
+  /* 28 px beyond the 120px orb = inset of -28px relative to .bio-ring */
+  inset: -28px;
+  border: 1.5px solid transparent;
+  border-top-color:   rgba(0,232,255,0.80);
+  border-right-color: rgba(0,232,255,0.25);
+  border-radius: 50%;
+  animation: orbital-spin 3s linear infinite;
+  pointer-events: none;
+}
+
+/* Outer slow gold arc — tilted opposite direction */
+.bio-ring::after {
+  content: '';
+  position: absolute;
+  inset: -42px;
+  border: 1px solid transparent;
+  border-bottom-color: rgba(212,175,55,0.70);
+  border-left-color:   rgba(212,175,55,0.22);
+  border-radius: 50%;
+  animation: orbital-spin 6.5s linear infinite reverse;
+  pointer-events: none;
+}
+
+.fade-in {
+  animation: auraFade 0.55s cubic-bezier(0.16,1,0.3,1) forwards;
+  /* will-change reduces GPU repaint during blur animation */
+  will-change: opacity, transform, filter;
+}
+
+.aura-pulse-logo {
+  animation: logoPulse 3s ease-in-out infinite;
+  filter:
+    drop-shadow(0 0 10px rgba(0,232,255,0.55))
+    drop-shadow(0 0 22px rgba(212,175,55,0.30));
+}
+
+/* ─────────────────────────────────────────────
+   23. KEYFRAMES
+───────────────────────────────────────────── */
+/*
+  Blur-fade: simultaneous opacity + vertical slide + blur collapse.
+  The blur going from 8px→0 gives a premium "focus pull" feel on
+  route transitions, used by Linear, Vercel, and Stripe dashboards.
+*/
 @keyframes auraFade {
-  from { opacity: 0; transform: translateY(16px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+    filter: blur(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0px);
+  }
 }
+
 @keyframes auraPulse {
-  0% { box-shadow: 0 0 0 0 rgba(201,168,76,0.3); }
-  70% { box-shadow: 0 0 0 20px rgba(201,168,76,0); }
-  100% { box-shadow: 0 0 0 0 rgba(201,168,76,0); }
+  0%, 100% { box-shadow: 0 0 0 0   rgba(0,232,255,0.40); }
+  50%       { box-shadow: 0 0 0 20px rgba(0,232,255,0.00); }
 }
+
+@keyframes logoPulse {
+  0%, 100% {
+    filter: drop-shadow(0 0 8px rgba(0,232,255,0.45)) drop-shadow(0 0 18px rgba(212,175,55,0.28));
+    transform: scale(1);
+  }
+  50% {
+    filter: drop-shadow(0 0 14px rgba(0,232,255,0.70)) drop-shadow(0 0 28px rgba(212,175,55,0.40));
+    transform: scale(1.03);
+  }
+}
+
 @keyframes pulse-dot {
-  0% { box-shadow: 0 0 0 0 rgba(93,202,165,0.4); }
-  70% { box-shadow: 0 0 0 6px rgba(93,202,165,0); }
-  100% { box-shadow: 0 0 0 0 rgba(93,202,165,0); }
+  0%   { box-shadow: 0 0 0 0   rgba(93,202,165,0.58); }
+  70%  { box-shadow: 0 0 0 7px rgba(93,202,165,0.00); }
+  100% { box-shadow: 0 0 0 0   rgba(93,202,165,0.00); }
 }
+
 @keyframes bgPulse {
-  0% { background: #500; }
-  50% { background: #900; }
+  0%   { background: #500; }
+  50%  { background: #900; }
   100% { background: #500; }
 }
 
-.fade-in { animation: auraFade 0.7s forwards; }
-.aura-pulse-logo {
-  animation: auraPulse 2.5s infinite;
-  filter: drop-shadow(0 0 10px rgba(127,119,221,0.7)) drop-shadow(0 0 4px rgba(201,168,76,0.4));
+/* Dramatic shield pulse — intensity swells */
+@keyframes shield-pulse {
+  0%, 100% {
+    box-shadow:
+      0 0 22px rgba(0,232,255,0.50),
+      0 0 44px rgba(0,232,255,0.20),
+      inset 0 0 18px rgba(0,232,255,0.09);
+  }
+  50% {
+    box-shadow:
+      0 0 40px rgba(0,232,255,0.80),
+      0 0 80px rgba(0,232,255,0.35),
+      inset 0 0 28px rgba(0,232,255,0.16);
+  }
 }
 
-/* ══════════════════════════════════════
-   MOBILE-ONLY (≤900px) — desktop untouched
-   ══════════════════════════════════════ */
-@media (max-width: 900px) {
+/* Orbital rings — variable speed arcs */
+@keyframes orbital-spin {
+  0%   { transform: rotate(0deg);   }
+  100% { transform: rotate(360deg); }
+}
 
-  /* 1 — Hide top nav */
+/* Orb breathing — intensity of the ambient glow swells */
+@keyframes orb-breathe {
+  0%, 100% {
+    filter:
+      drop-shadow(0 0 16px rgba(0,232,255,0.50))
+      drop-shadow(0 0 36px rgba(0,232,255,0.22))
+      drop-shadow(0 0 60px rgba(0,150,220,0.12));
+  }
+  50% {
+    filter:
+      drop-shadow(0 0 28px rgba(0,232,255,0.80))
+      drop-shadow(0 0 60px rgba(0,232,255,0.40))
+      drop-shadow(0 0 100px rgba(0,150,220,0.25));
+  }
+}
+
+/* ─────────────────────────────────────────────
+   24. RESPONSIVE
+───────────────────────────────────────────── */
+@media (max-width: 900px) {
   .aura-nav { display: none; }
 
-  /* 2 — App container: safe-area insets */
   .app-container {
     padding-top: 1.2rem;
     padding-bottom: max(130px, calc(80px + env(safe-area-inset-bottom)));
@@ -636,45 +1307,212 @@ h1, h2, h3, .luxury-title {
     padding-right: max(1rem, env(safe-area-inset-right));
   }
 
-  /* 3 — Dashboard hero header */
-  .fade-in > header {
-    padding-top: 1.2rem !important;
-    padding-bottom: 0.8rem !important;
-  }
+  .fade-in > header { padding-top: 1.2rem !important; padding-bottom: 0.8rem !important; }
   .fade-in > header h1 {
     font-size: clamp(1.6rem, 8vw, 2.2rem) !important;
     line-height: 1.15 !important;
   }
 
-  .dashboard-layout {
-    grid-template-columns: 1fr !important;
-  }
-  .sos-main-grid {
-    grid-template-columns: 1fr !important;
-  }
+  .dashboard-layout { grid-template-columns: 1fr !important; }
+  .sos-main-grid    { grid-template-columns: 1fr !important; }
 
   .bottom-tab-bar {
     padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
   }
 }
 
-/* ── Very small screens ── */
-@media (max-width: 375px) {
-  .app-container { padding: 0 0.75rem 130px; }
-  .aura-card { padding: 1.5rem; }
-  .tab-btn { font-size: 0.48rem; letter-spacing: 0.3px; }
-  .tab-sos-cta { width: 46px; height: 46px; flex: 0 0 46px; margin-top: -14px; }
-  .luxury-title { font-size: clamp(1.4rem, 7vw, 2.4rem) !important; }
-}
-
-/* ── Tablet (768px – 1024px) ── */
-@media (min-width: 768px) and (max-width: 1024px) {
+@media (max-width: 780px) {
   .passport-layout { grid-template-columns: 1fr; }
   .vault-layout    { grid-template-columns: 1fr; gap: 2rem; }
+}
+
+@media (max-width: 500px) {
+  .compliance-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 375px) {
+  .app-container { padding: 0 0.75rem 130px; }
+  .aura-card     { padding: 1.5rem; }
+  .tab-btn       { font-size: 0.48rem; letter-spacing: 0.3px; }
+  .tab-sos-cta   { width: 46px; height: 46px; flex: 0 0 46px; margin-top: -14px; }
+  .luxury-title  { font-size: clamp(1.4rem, 7vw, 2.4rem) !important; }
+}
+
+@media (min-width: 768px) and (max-width: 1024px) {
+  .passport-layout  { grid-template-columns: 1fr; }
+  .vault-layout     { grid-template-columns: 1fr; gap: 2rem; }
   .dashboard-layout { grid-template-columns: 1fr; }
 }
 
-/* ── Desktop: hide bottom bar ── */
 @media (min-width: 901px) {
   .bottom-tab-bar { display: none; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   25. PER-SECTION ENHANCEMENTS — CSS-only (zero JSX changes)
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── 25-a  Date / time / month — dark native picker + gold icon ── */
+input[type="date"],
+input[type="datetime-local"],
+input[type="time"],
+input[type="month"] {
+  color-scheme: dark;
+}
+
+/*
+  Calendar / clock icon: invert→sepia→saturate pipeline shifts the
+  browser's default grey icon into a warm gold that matches the palette.
+*/
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="datetime-local"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.80) sepia(0.85) saturate(4) hue-rotate(5deg);
+  opacity: 0.70;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+input[type="date"]::-webkit-calendar-picker-indicator:hover,
+input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover,
+input[type="time"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
+/* ── 25-b  Number inputs — remove spinners ─────────────────────── */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/* ── 25-c  Text selection — gold luxury ────────────────────────── */
+::selection      { background: rgba(212,175,55,0.30); color: #FFFFFF; }
+::-moz-selection { background: rgba(212,175,55,0.30); color: #FFFFFF; }
+
+/* ── 25-d  Focus-visible — keyboard navigation ring ───────────── */
+.btn-aura:focus-visible,
+.btn-primary:focus-visible,
+.btn-neon:focus-visible,
+.aura-tab:focus-visible,
+.tab-btn:focus-visible,
+.species-card:focus-visible {
+  outline: 2px solid rgba(0,232,255,0.65);
+  outline-offset: 3px;
+}
+.aura-input:focus-visible { outline: none; }
+
+/* ── 25-e  <pre> — QR emergency preview + code blocks ─────────── */
+pre {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.68rem;
+  color: var(--aura-text-muted);
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--aura-border);
+  border-radius: var(--radius);
+  padding: 0.8rem;
+  white-space: pre-wrap;
+  line-height: 1.6;
+  overflow-x: auto;
+  margin: 0;
+}
+
+/* ── 25-f  Textarea resize handle (webkit) ─────────────────────── */
+::-webkit-resizer {
+  background-color: rgba(100,60,180,0.22);
+  border: none;
+}
+
+/* ── 25-g  .aura-separator — animated shimmer sweep ───────────── */
+@keyframes shimmer-sweep {
+  from { background-position:  220% center; }
+  to   { background-position: -220% center; }
+}
+
+/*
+  Overrides the static gradient in section 13.
+  background-size: 220% makes the gradient wider than the element,
+  then animation slides it left — creating the panning light effect.
+*/
+.aura-separator {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(100,60,180,0.30) 12%,
+    rgba(150,100,255,0.65) 32%,
+    rgba(0,232,255,0.62)  50%,
+    rgba(150,100,255,0.65) 68%,
+    rgba(100,60,180,0.30) 88%,
+    transparent 100%
+  );
+  background-size: 220% 100%;
+  animation: shimmer-sweep 6s linear infinite;
+  box-shadow: 0 0 12px rgba(0,232,255,0.14);
+}
+
+/* ── 25-h  .locale-chip — hover glow ──────────────────────────── */
+.locale-chip {
+  transition: box-shadow 0.3s, border-color 0.3s, background 0.3s;
+}
+.locale-chip:hover {
+  background: rgba(212,175,55,0.14);
+  border-color: rgba(212,175,55,0.72);
+  box-shadow: 0 0 16px rgba(212,175,55,0.38);
+}
+
+/* ── 25-i  SOS cards — emergency red ambient glow ──────────────── */
+.sos-main-grid .aura-card {
+  box-shadow:
+    0 0 32px rgba(226,75,74,0.12),
+    0 4px 24px rgba(0,0,0,0.78),
+    inset 0 1px 0 rgba(255,255,255,0.07);
+}
+.sos-main-grid .aura-card:hover {
+  box-shadow:
+    0 0 50px rgba(226,75,74,0.24),
+    0 12px 40px rgba(0,0,0,0.85),
+    inset 0 1px 0 rgba(255,255,255,0.09);
+}
+
+/* ── 25-j  .tab-sos-cta — persistent emergency pulse animation ── */
+@keyframes sos-btn-pulse {
+  0%, 100% {
+    box-shadow:
+      0 0 24px rgba(226,75,74,0.38),
+      0 0 0   0 rgba(226,75,74,0.20);
+  }
+  50% {
+    box-shadow:
+      0 0 44px rgba(226,75,74,0.75),
+      0 0 0   8px rgba(226,75,74,0.00);
+  }
+}
+.tab-sos-cta {
+  animation: sos-btn-pulse 2.2s ease-in-out infinite;
+}
+
+/* ── 25-k  Status dot — larger, more visible pulse ring ────────── */
+/* Overrides the @keyframes pulse-dot defined in section 23 */
+@keyframes pulse-dot {
+  0%   { box-shadow: 0 0 0 0   rgba(93,202,165,0.72); }
+  60%  { box-shadow: 0 0 0 9px rgba(93,202,165,0.00); }
+  100% { box-shadow: 0 0 0 0   rgba(93,202,165,0.00); }
+}
+
+/* ── 25-l  .sos-active background — intensified ────────────────── */
+.sos-active {
+  background: linear-gradient(135deg, #5a0000 0%, #8a0000 100%) !important;
+}
+
+/* ── 25-m  Reduced motion — safety net ────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration:        0.01ms !important;
+    animation-iteration-count: 1      !important;
+    transition-duration:       0.01ms !important;
+  }
 }

@@ -9,8 +9,8 @@
 
 | | |
 |---|---|
-| **Versión / Version** | 1.0.0 |
-| **Fecha de emisión / Issue date** | 2026-04-14 |
+| **Versión / Version** | 1.1.0 |
+| **Fecha de emisión / Issue date** | 2026-05-10 |
 | **Empresa / Company** | Rodigital Advance |
 | **Clasificación / Classification** | Documento Oficial de Certificación / Official Certification Document |
 | **Producción / Production** | https://rociogf-aura-pets-final.static.hf.space |
@@ -189,7 +189,26 @@ Compliance aligned with GDPR. Animal health data is processed exclusively on the
 
 **EN:** Rules engine that cross-references the pet's actual medical record with the official sanitary requirements of the destination country. Returns: compliance percentage, list of fulfilled and pending requirements, per-requirement detail, and PDF export of the full report.
 
-### 5.4 Botón de Emergencia SOS / SOS Emergency Button
+### 5.4 Historial Médico Completo / Full Medical History
+
+**ES:** Módulo de expediente clínico digital organizado en cuatro categorías con persistencia local cifrada. Accesible desde el Dashboard principal del animal.
+
+**EN:** Digital clinical record module organised in four categories with encrypted local persistence. Accessible from the pet's main Dashboard.
+
+| Categoría / Category | Campos / Fields |
+|---|---|
+| **Visitas** | Fecha, clínica, veterinario, motivo, diagnóstico, tratamiento, coste |
+| **Vacunas** | Nombre, fecha administración, próxima dosis, estado (al día / próxima / vencida) |
+| **Medicación** | Medicamento, dosis, frecuencia, fecha inicio/fin, indicador activo/finalizado |
+| **Análisis** | Tipo, fecha, resultado, observaciones, documento adjunto (JPG / PNG / PDF ≤ 3 MB) |
+
+Funcionalidades adicionales / Additional features:
+- Adjunto de documentos con vista previa in-app y visor PDF fullscreen
+- Captura directa desde cámara del dispositivo / Direct device camera capture
+- Exportación del historial completo en **PDF** (jsPDF) con todos los apartados
+- Línea de tiempo visual con puntos dorados para visitas / Visual timeline with gold dots
+
+### 5.5 Botón de Emergencia SOS / SOS Emergency Button
 
 **ES:** Sistema de respuesta a emergencias con activación desde la barra de navegación inferior (botón central elevado, siempre visible en móvil). Funcionalidades:
 
@@ -207,15 +226,32 @@ Compliance aligned with GDPR. Animal health data is processed exclusively on the
 
 ## 6. Diseño y Compatibilidad / Design & Compatibility
 
-### Design System AURA
+### Design System AURA — v4.0 "Cybersecurity Command Center"
+
+Sistema de diseño premium implementado íntegramente en `src/index.css` (~1 500 líneas, 25 secciones). Estética de banca de lujo: void negro-púrpura, glassmorfismo, oro metálico y brillo cyan neón.
+
+Premium design system fully implemented in `src/index.css` (~1,500 lines, 25 sections). Luxury banking aesthetic: black-purple void, glassmorphism, metallic gold, and neon cyan glow.
 
 | Variable CSS | Valor / Value | Uso / Use |
 |---|---|---|
 | `--aura-gold` | `#D4AF37` | Acento primario / Primary accent |
-| `--aura-neon-cyan` | `#00F5FF` | Estado OK / activo |
-| `--aura-neon-pink` | `#FF007A` | Alerta / SOS |
-| `--aura-black` | `#000000` | Fondo base / Base background |
-| `--aura-glass` | `rgba(10,10,15,0.88)` | Efecto cristal / Glass effect |
+| `--aura-gold-light` | `#F9E1A4` | Variante clara / Light variant |
+| `--aura-neon-cyan` | `#00E8FF` | Estado activo / Active state |
+| `--aura-neon-pink` | `#E24B4A` | Alerta / SOS / Error |
+| `--aura-black` | `#080010` | Fondo negro profundo / Deep black background |
+| `--bg-card` | `rgba(20,6,40,0.88)` | Tarjetas glassmorfismo / Glassmorphism cards |
+| `--gold-gradient` | `linear-gradient(140deg, #f9e1a4, #d4af37, #a07820)` | Degradado dorado premium |
+| `--font-serif` | `'Playfair Display', Georgia, serif` | Tipografía editorial / Editorial type |
+| `--font-sans` | `'Inter', system-ui, sans-serif` | UI y formularios / UI & forms |
+
+**Técnicas visuales / Visual techniques:**
+- Glassmorfismo: `backdrop-filter: blur(24px)` + fondos semitransparentes
+- Anillos orbitales animados: `::before` / `::after` en `.shield-icon` y `.bio-ring`
+- Grano de película: `body::after` con SVG `feTurbulence` en data-URI
+- Transición blur-fade: `filter: blur(6px) → 0` en `@keyframes auraFade`
+- Separador shimmer: gradiente animado deslizante en `.aura-separator`
+- Inputs de fecha oscuros: `color-scheme: dark` + icono dorado vía `filter`
+- Protección de movimiento: `@media (prefers-reduced-motion: reduce)`
 
 ### Compatibilidad Responsive / Responsive Compatibility
 
@@ -234,6 +270,12 @@ Compliance aligned with GDPR. Animal health data is processed exclusively on the
 | Android Chrome (API 26+) | ✅ Verificado — theme-color, tap-highlight eliminado |
 | Desktop Chrome / Edge / Firefox | ✅ Verificado |
 | PWA instalable | ✅ manifest.json + apple-mobile-web-app-capable |
+
+### 6.3 Modal de Bienvenida / Welcome Intro Modal
+
+Pantalla de introducción con vídeo de fondo cargado desde la API de **Pexels** (vídeos en HD de mascotas rotando cada 5 segundos). Sistema de fondo animado de respaldo garantiza la experiencia visual aunque la API no esté disponible: nebulosa púrpura + aurora cyan animadas con keyframes CSS, manteniendo la coherencia estética del sistema de diseño.
+
+Introduction screen with background video loaded from the **Pexels** API (HD pet videos cycling every 5 seconds). An animated fallback background system guarantees the visual experience even when the API is unavailable: animated purple nebula + cyan aurora CSS keyframes, maintaining design system aesthetic coherence.
 
 ---
 
@@ -319,8 +361,9 @@ It is declared that the application **AURA Pets — Global Health Passport** has
 | | |
 |---|---|
 | **Empresa / Company** | Rodigital Advance |
-| **Fecha de emisión / Issue date** | 2026-04-14 |
-| **Válido hasta / Valid until** | 2027-04-14 |
+| **Versión / Version** | 1.1.0 |
+| **Fecha de emisión / Issue date** | 2026-05-10 |
+| **Válido hasta / Valid until** | 2027-05-10 |
 
 *Este documento es de carácter oficial y ha sido generado para auditoría de certificación.*  
 *This document is official in nature and has been generated for certification audit purposes.*
