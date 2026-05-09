@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { KeyRound, Mail, ArrowLeft, CheckCircle2 } from 'lucide-react';
-import logo from '../../assets/logo.png';
+import logo from '../../assets/logo-aura-pets.png';
 import { vault } from '../../utils/vault';
 
 /* ── Client-side token: stored in localStorage ── */
@@ -91,7 +91,7 @@ const RecuperarAcceso = () => {
       <div className="aura-card" style={{ width: '100%', maxWidth: 440, textAlign: 'center' }}>
         {/* Logo */}
         <header style={{ marginBottom: '2.5rem' }}>
-          <img src={logo} alt="AURA" style={{ height: 58, marginBottom: '1.5rem', filter: 'drop-shadow(0 0 10px rgba(212,175,55,0.3))' }} />
+          <img src={logo} alt="AURA" style={{ height: 58, marginBottom: '1.5rem', filter: 'drop-shadow(0 0 10px rgba(212,175,55,0.35))' }} />
           <h1 style={{ fontSize: '1.8rem', margin: '0 0 0.4rem' }}>
             Recuperar <span style={{ color: 'var(--aura-gold)' }}>Acceso</span>
           </h1>

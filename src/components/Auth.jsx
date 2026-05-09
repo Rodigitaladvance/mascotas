@@ -3,11 +3,13 @@ import { useAuth } from '../context/AuthContext';
 import { vault } from '../utils/vault';
 import { KeyRound, Mail, ShieldCheck, UserPlus, Lock } from 'lucide-react';
 import { motion } from 'framer-motion';
-import logo from '../assets/logo.png';
+import logo from '../assets/logo-aura-pets.png';
+import { IntroVideoModal } from './IntroVideoPlayer';
 
 const Auth = () => {
   const { login } = useAuth();
   const [isRegister, setIsRegister] = useState(false);
+  const [showIntroModal, setShowIntroModal] = useState(false);
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -49,7 +51,12 @@ const Auth = () => {
   };
 
   return (
-    <div className="auth-container fade-in" style={{ 
+    <>
+    <IntroVideoModal
+      isOpen={showIntroModal}
+      onContinue={() => { setShowIntroModal(false); setIsRegister(true); }}
+    />
+    <div className="auth-container fade-in" style={{
       display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh',
       background: 'var(--aura-black)',
       padding: '1.5rem'
@@ -61,7 +68,7 @@ const Auth = () => {
             alt="AURA Logo" 
             style={{ height: '70px', marginBottom: '2rem', filter: 'drop-shadow(0 0 10px var(--aura-gold-muted))' }} 
           />
-          <h1 style={{ fontSize: '2.4rem', margin: '0 0 0.5rem', letterSpacing: '-1px' }}>AURA <span style={{ color: 'var(--aura-gold)' }}>Pets</span></h1>
+          <h1 style={{ fontSize: '2.4rem', margin: '0 0 0.5rem', letterSpacing: '-1px' }}>AURA <span style={{ color: 'var(--aura-gold)' }}>Pets Global</span></h1>
           <p style={{ color: 'var(--aura-text-muted)', fontSize: '0.85rem', letterSpacing: '2px', textTransform: 'uppercase' }}>
             {isRegister ? 'Crear Registro Biométrico' : 'Portal de Acceso AURA'}
           </p>
@@ -121,7 +128,13 @@ const Auth = () => {
               background: 'none', border: 'none', color: 'var(--aura-text-muted)',
               fontSize: '0.8rem', cursor: 'pointer', textDecoration: 'underline', letterSpacing: '1px'
             }}
-            onClick={() => setIsRegister(!isRegister)}
+            onClick={() => {
+              if (!isRegister) {
+                setShowIntroModal(true);
+              } else {
+                setIsRegister(false);
+              }
+            }}
           >
             {isRegister ? '¿YA TIENES UN REGISTRO? ENTRA AQUÍ' : '¿NUEVO EN EL ECOSISTEMA? CREAR CUENTA'}
           </button>
@@ -141,6 +154,7 @@ const Auth = () => {
         </footer>
       </div>
     </div>
+    </>
   );
 };
 

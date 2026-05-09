@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Shield, Activity, ChevronRight, Zap, Wind, Calendar, Award, PlusCircle, Pencil } from 'lucide-react';
+import { Shield, Activity, ChevronRight, Zap, Wind, Calendar, Award, PlusCircle, Pencil, Heart } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import { useTranslation } from '../../context/LocalizationContext';
 import ChronographGauge from './ChronographGauge';
 import PetEditModal from './PetEditModal';
+import MedicalHistory from './MedicalHistory';
 
 const EMPTY_VITALS = { heartRate: '', activity: 50, weight: '', status: 'good', notes: '' };
 
@@ -26,6 +27,7 @@ const ActionCard = ({ icon: Icon, color, bgColor, borderColor, title, subtitle, 
 const Dashboard = ({ pets, activePetId, onActivePetChange, onAddPet, onSelectPet, onUpdatePet, onDeletePet }) => {
   const { t, locale } = useTranslation();
   const [showPerformanceDetail, setShowPerformanceDetail] = useState(false);
+  const [showMedicalHistory, setShowMedicalHistory] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingVitals, setEditingVitals] = useState(false);
   const [vitalsForm, setVitalsForm] = useState(EMPTY_VITALS);
@@ -138,7 +140,12 @@ const Dashboard = ({ pets, activePetId, onActivePetChange, onAddPet, onSelectPet
       <p style={{ color: 'var(--aura-text-muted)', marginBottom: '3rem' }}>
         {locale === 'es' ? 'Registra tu primer miembro premium.' : 'Register your first premium member.'}
       </p>
-      <button className="btn-aura" onClick={onAddPet} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.8rem' }}>
+      <button className="btn-aura" onClick={onAddPet} style={{
+        display: 'inline-flex', alignItems: 'center', gap: '0.8rem',
+        padding: '1rem 2.4rem', fontSize: '0.78rem', letterSpacing: '3px',
+        borderColor: '#F0D060', color: '#F0D060',
+        boxShadow: '0 0 20px rgba(240,208,96,0.2)',
+      }}>
         <PlusCircle size={16} />
         {locale === 'es' ? 'ADMITIR PRIMER MIEMBRO' : 'ADMIT FIRST MEMBER'}
       </button>
@@ -179,11 +186,11 @@ const Dashboard = ({ pets, activePetId, onActivePetChange, onAddPet, onSelectPet
               >
                 <div style={{
                   width: 64, height: 64, borderRadius: '50%', overflow: 'hidden',
-                  border: isActive ? '2px solid #d4af37' : '2px solid rgba(212,175,55,0.25)',
+                  border: isActive ? '2px solid #D4AF37' : '1px solid rgba(212,175,55,0.25)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   fontSize: '1.6rem', background: 'var(--aura-surface)',
                   boxShadow: isActive
-                    ? '0 0 0 3px rgba(212,175,55,0.3), 0 0 18px rgba(212,175,55,0.75)'
+                    ? '0 0 12px rgba(212,175,55,0.4)'
                     : 'none',
                   transition: 'box-shadow 0.3s, border-color 0.3s',
                 }}>
@@ -193,8 +200,9 @@ const Dashboard = ({ pets, activePetId, onActivePetChange, onAddPet, onSelectPet
                 </div>
                 <span style={{
                   fontSize: '0.6rem', letterSpacing: '1.5px', textTransform: 'uppercase',
-                  color: isActive ? 'var(--aura-gold)' : 'var(--aura-text-muted)',
+                  color: isActive ? '#F0D060' : 'var(--aura-text-muted)',
                   fontWeight: isActive ? 700 : 400, whiteSpace: 'nowrap',
+                  textShadow: isActive ? '0 0 8px rgba(240,208,96,0.5)' : 'none',
                   maxWidth: 72, overflow: 'hidden', textOverflow: 'ellipsis',
                 }}>
                   {p.name}
@@ -212,11 +220,11 @@ const Dashboard = ({ pets, activePetId, onActivePetChange, onAddPet, onSelectPet
           {/* ── Add new member button ── */}
           <button onClick={onAddPet} style={{
             flexShrink: 0, width: 64, height: 64, borderRadius: '50%',
-            border: '2px dashed rgba(212,175,55,0.35)', background: 'none',
+            border: '1px dashed rgba(212,175,55,0.35)', background: 'none',
             cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
             color: 'var(--aura-gold)', transition: 'border-color 0.2s',
           }}
-            onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(212,175,55,0.75)'}
+            onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(212,175,55,0.7)'}
             onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(212,175,55,0.35)'}
           >
             <PlusCircle size={22} />
@@ -241,7 +249,7 @@ const Dashboard = ({ pets, activePetId, onActivePetChange, onAddPet, onSelectPet
               </PieChart>
             </ResponsiveContainer>
             <div style={{ position:'absolute', top:'50%', left:'50%', transform:'translate(-50%,-50%)', textAlign:'center' }}>
-              <h2 style={{ fontSize: '3.8rem', fontWeight: 300, color: 'var(--aura-gold)', margin: 0 }}>{healthScore}</h2>
+              <h2 style={{ fontSize: '3.8rem', fontWeight: 300, color: '#F0D060', margin: 0, textShadow: '0 0 20px rgba(240,208,96,0.5)' }}>{healthScore}</h2>
               <p style={{ margin: 0, fontSize: '0.58rem', letterSpacing: '4px', opacity: 0.5 }}>{t('dashboard.scoreTitle')}</p>
             </div>
           </div>
@@ -277,10 +285,19 @@ const Dashboard = ({ pets, activePetId, onActivePetChange, onAddPet, onSelectPet
                 </span>
               </motion.div>
             )}
-            <p style={{ color: 'var(--aura-text-muted)', fontSize: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', margin: '0.4rem 0 0' }}>
-              <span className="status-indicator status-active" />
-              {t('dashboard.systemCertified')}
-            </p>
+            {/* Status line premium */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', margin: '0.6rem 0 0', flexWrap: 'wrap' }}>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.64rem', color: '#1D9E75', letterSpacing: '0.5px' }}>
+                <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#1D9E75', display: 'inline-block', boxShadow: '0 0 6px #1D9E75' }} />
+                {es ? 'Activo' : 'Active'}
+              </span>
+              <span style={{ color: 'var(--aura-border)', fontSize: '0.6rem' }}>·</span>
+              <span style={{ fontSize: '0.64rem', color: '#F0D060', letterSpacing: '0.5px', textShadow: '0 0 8px rgba(240,208,96,0.4)' }}>✓ {es ? 'Verificado' : 'Verified'}</span>
+              <span style={{ color: 'var(--aura-border)', fontSize: '0.6rem' }}>·</span>
+              <span style={{ fontSize: '0.64rem', color: 'var(--aura-text-muted)', letterSpacing: '0.5px' }}>
+                📅 {es ? 'Última visita' : 'Last visit'}: {pet.vitals?.lastUpdated ? new Date(pet.vitals.lastUpdated).toLocaleDateString(es ? 'es-ES' : 'en-GB') : '—'}
+              </span>
+            </div>
             <div style={{ marginTop: '1.2rem' }}>
               <span className="locale-chip">{pet.speciesLabel?.toUpperCase() || pet.species?.toUpperCase()}</span>
             </div>
@@ -302,13 +319,13 @@ const Dashboard = ({ pets, activePetId, onActivePetChange, onAddPet, onSelectPet
               onClick={() => onSelectPet && onSelectPet(pet.id)}
             />
             <ActionCard
-              icon={Zap}
-              color="var(--aura-neon-pink)"
-              bgColor="rgba(255,0,122,0.06)"
-              borderColor="rgba(255,0,122,0.22)"
-              title={t('dashboard.cardio')}
-              subtitle={locale === 'es' ? 'Sin datos aún' : 'No data yet'}
-              onClick={openPerformance}
+              icon={Heart}
+              color="var(--aura-gold)"
+              bgColor="rgba(212,175,55,0.06)"
+              borderColor="rgba(212,175,55,0.25)"
+              title={es ? 'Historial Médico' : 'Medical History'}
+              subtitle="Vacunas · Visitas · Medicación"
+              onClick={() => setShowMedicalHistory(true)}
             />
           </div>
 
@@ -451,6 +468,13 @@ const Dashboard = ({ pets, activePetId, onActivePetChange, onAddPet, onSelectPet
       </AnimatePresence>
 
       <div style={{ height: '6rem' }} />
+
+      {/* ── Medical History ── */}
+      <AnimatePresence>
+        {showMedicalHistory && pet && (
+          <MedicalHistory pet={pet} onClose={() => setShowMedicalHistory(false)} />
+        )}
+      </AnimatePresence>
 
       {/* ── Pet Edit Modal ── */}
       <AnimatePresence>

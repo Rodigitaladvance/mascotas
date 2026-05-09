@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Shield, ChevronRight } from 'lucide-react';
 import { useTranslation } from '../../context/LocalizationContext';
-import logo from '../../assets/logo.png';
+import logo from '../../assets/logo-aura-pets.png';
 
 const steps = (t) => [
   {

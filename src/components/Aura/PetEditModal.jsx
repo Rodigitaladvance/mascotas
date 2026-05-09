@@ -220,7 +220,7 @@ const DeregistrationModal = ({ pet, onConfirm, onCancel }) => {
                   {es ? 'CANCELAR' : 'CANCEL'}
                 </button>
                 <button className="btn-aura"
-                  style={{ flex: 2, borderColor: 'var(--aura-gold)', color: 'var(--aura-gold)', background: 'rgba(212,175,55,0.06)' }}
+                  style={{ flex: 2, borderColor: 'var(--aura-gold)', color: 'var(--aura-gold)', background: 'rgba(212,175,55,0.07)' }}
                   onClick={proceed}>
                   {es ? 'CONTINUAR' : 'CONTINUE'}
                 </button>

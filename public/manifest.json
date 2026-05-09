@@ -1,12 +1,12 @@
 {
-  "name": "AURA Pets — Expediente Médico",
-  "short_name": "AURA Pets",
+  "name": "AURA Pets Global — Expediente Médico",
+  "short_name": "AURA Pets Global",
   "description": "Gestión premium del expediente médico y sanitario de mascotas. Pasaporte sanitario global, modo SOS, cifrado AES-256.",
   "start_url": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#000000",
-  "theme_color": "#000000",
+  "background_color": "#0A0F1E",
+  "theme_color": "#0A0F1E",
   "lang": "es",
   "icons": [
     {

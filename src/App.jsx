@@ -3,7 +3,7 @@ import { Routes, Route, useNavigate, useLocation, Navigate } from 'react-router-
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { useTranslation } from './context/LocalizationContext';
 import Auth from './components/Auth';
-import logo from './assets/logo.png';
+import logo from './assets/logo-aura-pets.png';
 import Dashboard from './components/Aura/Dashboard';
 import GlobalPassport from './components/Aura/GlobalPassport';
 import SOSMode from './components/Aura/SOSMode';
@@ -20,11 +20,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 /* ── Desktop tab definitions ── */
 const NAV_TABS = [
-  { id: 'dashboard', path: '/dashboard', iconD: LayoutDashboard, label: 'Dashboard' },
-  { id: 'passport',  path: '/passport',  iconD: Globe,           label: 'Passport'  },
-  { id: 'add',       path: '/registro',  iconD: PlusCircle,      label: 'Registro', isCTA: true },
-  { id: 'privacy',   path: '/privacy',   iconD: ShieldCheck,     label: 'Privacidad' },
-  { id: 'settings',  path: '/settings',  iconD: Settings,        label: 'Ajustes'   },
+  { id: 'dashboard', path: '/dashboard', iconD: LayoutDashboard, label: 'INICIO'     },
+  { id: 'passport',  path: '/passport',  iconD: Globe,           label: 'PASAPORTE'  },
+  { id: 'add',       path: '/registro',  iconD: PlusCircle,      label: 'AÑADIR', isCTA: true },
+  { id: 'privacy',   path: '/privacy',   iconD: ShieldCheck,     label: 'SEGURIDAD'  },
+  { id: 'settings',  path: '/settings',  iconD: Settings,        label: 'AJUSTES'    },
 ];
 
 /* ── Mobile-only tab definitions (5 max, SOS as center CTA) ── */
@@ -89,7 +89,7 @@ const SessionModal = ({ locale, onRenew, onLogout }) => {
           width: 64, height: 64, borderRadius: '50%',
           border: '2px solid var(--aura-gold)', margin: '0 auto 2rem',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          boxShadow: '0 0 24px rgba(212,175,55,0.25)',
+          boxShadow: '0 0 24px rgba(212,175,55,0.3)',
         }}>
           <ShieldAlert size={28} color="var(--aura-gold)" />
         </div>
@@ -110,7 +110,7 @@ const SessionModal = ({ locale, onRenew, onLogout }) => {
           </button>
           <button
             className="btn-aura"
-            style={{ flex: 2, borderColor: 'var(--aura-gold)', background: 'rgba(212,175,55,0.08)', color: 'var(--aura-gold)' }}
+            style={{ flex: 2, borderColor: 'var(--aura-gold)', background: 'rgba(212,175,55,0.1)', color: 'var(--aura-gold)' }}
             onClick={onRenew}>
             {es ? '✓ CONTINUAR SESIÓN' : '✓ CONTINUE SESSION'}
           </button>
@@ -204,7 +204,8 @@ const AppContent = () => {
           <img src={logo} alt="AURA Pets" className="aura-pulse-logo"
                style={{ height: 42, borderRadius: '50%', objectFit: 'contain',
                         border: '1px solid var(--aura-gold-muted)',
-                        filter: 'drop-shadow(0 0 10px rgba(212,175,55,0.3))' }} />
+                        filter: 'drop-shadow(0 0 10px rgba(212,175,55,0.35))' }}
+               alt="AURA Pets Global" />
           <div style={{ width: 1, height: 24, background: 'var(--aura-border)' }} />
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             <span style={{ fontSize: '0.62rem', letterSpacing: '4px', color: 'var(--aura-gold)', fontWeight: 700 }}>EXCELENCIA</span>
@@ -212,40 +213,81 @@ const AppContent = () => {
           </div>
         </div>
 
-        <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
-          {NAV_TABS.map(({ id, path, iconD: Icon, isCTA }) => (
-            <button key={id} onClick={() => navigate(path)}
-              className="btn-aura"
-              style={{
-                padding: '0.5rem 1rem',
-                border: isCTA
-                  ? '1px solid var(--aura-neon-cyan)'
-                  : activeId === id ? '1px solid var(--aura-gold)' : '1px solid transparent',
-                color: isCTA ? 'var(--aura-neon-cyan)' : activeId === id ? 'var(--aura-gold)' : 'var(--aura-text-muted)',
-                opacity: 1,
-                display: 'flex', alignItems: 'center', gap: '0.4rem',
-              }}>
-              <Icon size={16} />
-            </button>
-          ))}
+        <div style={{ display: 'flex', gap: '0.25rem', alignItems: 'center' }}>
+          {NAV_TABS.map(({ id, path, iconD: Icon, label, isCTA }) => {
+            const isActive = activeId === id;
+            return (
+              <button key={id} onClick={() => navigate(path)}
+                style={{
+                  background: isActive ? '#3D1A6B' : 'transparent',
+                  border: isActive ? '1px solid #F0D060' : '1px solid transparent',
+                  borderRadius: 6,
+                  color: isActive ? '#F0D060' : '#C8B8F8',
+                  textShadow: isActive ? '0 0 8px rgba(240,208,96,0.5)' : 'none',
+                  boxShadow: isActive ? '0 0 12px rgba(61,26,107,0.8), inset 0 0 8px rgba(212,175,55,0.06)' : 'none',
+                  padding: '0.45rem 0.75rem',
+                  cursor: 'pointer',
+                  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3px',
+                  transition: 'all 0.22s',
+                  fontFamily: 'var(--font-sans)',
+                }}
+                onMouseEnter={e => { if (!isActive) e.currentTarget.style.color = '#EDE8FF'; }}
+                onMouseLeave={e => { if (!isActive) e.currentTarget.style.color = '#C8B8F8'; }}
+              >
+                <Icon size={20} />
+                <span style={{ fontSize: '9px', letterSpacing: '0.8px', fontWeight: 600, lineHeight: 1 }}>
+                  {label}
+                </span>
+              </button>
+            );
+          })}
 
-          <button onClick={() => setIsSOS(true)} className="btn-aura"
-            style={{ padding: '0.5rem 1rem', borderColor: 'var(--aura-neon-pink)', color: 'var(--aura-neon-pink)' }}>
-            <ShieldAlert size={16} />
+          {/* SOS */}
+          <button onClick={() => setIsSOS(true)}
+            style={{
+              background: 'rgba(226,75,74,0.1)',
+              border: '1px solid rgba(226,75,74,0.5)',
+              borderRadius: 6,
+              color: 'var(--aura-neon-pink)',
+              padding: '0.45rem 0.75rem',
+              cursor: 'pointer',
+              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3px',
+              transition: 'all 0.22s',
+              fontFamily: 'var(--font-sans)',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(226,75,74,0.2)'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(226,75,74,0.1)'; }}
+          >
+            <ShieldAlert size={20} />
+            <span style={{ fontSize: '9px', letterSpacing: '0.8px', fontWeight: 600, lineHeight: 1 }}>SOS</span>
           </button>
 
-          <div style={{ width: 1, height: 20, background: 'var(--aura-border)' }} />
+          <div style={{ width: 1, height: 32, background: 'var(--aura-border)', margin: '0 0.15rem' }} />
 
           {/* Language toggle */}
           <LangToggle />
 
-          <div style={{ width: 1, height: 20, background: 'var(--aura-border)' }} />
-          <button onClick={logout} className="btn-aura"
-            style={{ padding: '0.5rem', borderColor: 'transparent', opacity: 0.5 }}>
-            <LogOut size={16} />
+          <div style={{ width: 1, height: 32, background: 'var(--aura-border)', margin: '0 0.15rem' }} />
+
+          {/* Logout */}
+          <button onClick={logout}
+            style={{
+              background: 'transparent', border: '1px solid transparent', borderRadius: 6,
+              color: '#9F77DD', padding: '0.45rem 0.6rem', cursor: 'pointer',
+              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3px',
+              transition: 'all 0.22s', opacity: 0.7, fontFamily: 'var(--font-sans)',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.opacity = '1'; e.currentTarget.style.color = '#C8C8E8'; }}
+            onMouseLeave={e => { e.currentTarget.style.opacity = '0.7'; e.currentTarget.style.color = '#9F77DD'; }}
+          >
+            <LogOut size={20} />
+            <span style={{ fontSize: '9px', letterSpacing: '0.8px', fontWeight: 600, lineHeight: 1 }}>SALIR</span>
           </button>
         </div>
       </nav>
+
+      {/* ── Separador decorativo ── */}
+      <div className="aura-separator" />
 
       {/* ── Content ── */}
       <div className="app-container">

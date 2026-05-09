@@ -6,17 +6,17 @@ import { readImageAsDataURL } from '../../utils/imageUpload';
 
 /* ── Species config ── */
 const SPECIES = [
-  { id: 'dog',   label: 'Perro',    labelEn: 'Dog',    emoji: '🐕',
-    img: 'https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=200&q=80&fit=crop' },
-  { id: 'cat',   label: 'Gato',     labelEn: 'Cat',    emoji: '🐈',
-    img: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=200&q=80&fit=crop' },
-  { id: 'horse', label: 'Caballo',  labelEn: 'Horse',  emoji: '🐴',
-    img: 'https://images.unsplash.com/photo-1553284966-19b8815c7817?w=200&q=80&fit=crop' },
-  { id: 'exotic', label: 'Exótico', labelEn: 'Exotic', emoji: '🦎',
-    img: 'https://images.unsplash.com/photo-1474511320723-9a56873867b5?w=200&q=80&fit=crop' },
-  { id: 'bird',  label: 'Ave',      labelEn: 'Bird',   emoji: '🦜',
-    img: 'https://images.unsplash.com/photo-1591198936750-16d8e15edb9e?w=200&q=80&fit=crop' },
-  { id: 'other', label: 'OTRA MASCOTA', labelEn: 'Other Pet', emoji: '+', img: null, isOther: true },
+  { id: 'dog',    label: 'Perro',        labelEn: 'Dog',       emoji: '🐕',
+    img: 'https://images.pexels.com/photos/1805164/pexels-photo-1805164.jpeg?auto=compress&cs=tinysrgb&w=200' },
+  { id: 'cat',    label: 'Gato',         labelEn: 'Cat',       emoji: '🐈',
+    img: 'https://images.pexels.com/photos/1543793/pexels-photo-1543793.jpeg?auto=compress&cs=tinysrgb&w=200' },
+  { id: 'horse',  label: 'Caballo',      labelEn: 'Horse',     emoji: '🐴',
+    img: 'https://images.pexels.com/photos/635499/pexels-photo-635499.jpeg?auto=compress&cs=tinysrgb&w=200' },
+  { id: 'bird',   label: 'Ave',          labelEn: 'Bird',      emoji: '🦜',
+    img: 'https://images.pexels.com/photos/56733/pexels-photo-56733.jpeg?auto=compress&cs=tinysrgb&w=200' },
+  { id: 'rabbit', label: 'Conejo',       labelEn: 'Rabbit',    emoji: '🐇',
+    img: 'https://images.pexels.com/photos/326012/pexels-photo-326012.jpeg?auto=compress&cs=tinysrgb&w=200' },
+  { id: 'other',  label: 'OTRA MASCOTA', labelEn: 'Other Pet', emoji: '+', img: null, isOther: true },
 ];
 
 const COMPETITION_ES = ['Doma Clásica','Salto de Obstáculos','Endurance','Polo','Reining'];
@@ -210,6 +210,20 @@ const OtherFields = ({ data, onChange, locale }) => {
   );
 };
 
+/* ── Campo con ✓ cuando está relleno ── */
+const FieldWrap = ({ filled, children }) => (
+  <div style={{ position: 'relative' }}>
+    {children}
+    {filled && (
+      <span style={{
+        position: 'absolute', right: '0.75rem', top: '50%', transform: 'translateY(-50%)',
+        color: '#1D9E75', fontSize: '0.85rem', fontWeight: 700, pointerEvents: 'none',
+        lineHeight: 1,
+      }}>✓</span>
+    )}
+  </div>
+);
+
 /* ════════ Main Component ════════ */
 const PetRegistration = ({ onSave, onCancel }) => {
   const { t, locale } = useTranslation();
@@ -305,14 +319,14 @@ const PetRegistration = ({ onSave, onCancel }) => {
             <>
               <div style={{
                 position:'absolute', left:0, top:0, bottom:'1rem', width:48,
-                background:'linear-gradient(to right, var(--aura-card) 40%, transparent)',
+                background:'linear-gradient(to right, var(--aura-glass) 40%, transparent)',
                 pointerEvents:'none', zIndex:2,
               }} />
               <button onClick={() => scrollCarousel(-1)} style={{
                 position:'absolute', left:0, top:'50%', transform:'translateY(-60%)',
                 zIndex:3, background:'transparent', border:'none', cursor:'pointer',
-                color:'#d4af37', fontSize:'1.6rem', lineHeight:1, padding:'0 4px',
-                textShadow:'0 0 8px rgba(212,175,55,0.7)',
+                color:'#F0D060', fontSize:'1.6rem', lineHeight:1, padding:'0 4px',
+                textShadow:'0 0 10px rgba(240,208,96,0.9)',
               }}>‹</button>
             </>
           )}
@@ -322,14 +336,14 @@ const PetRegistration = ({ onSave, onCancel }) => {
             <>
               <div style={{
                 position:'absolute', right:0, top:0, bottom:'1rem', width:48,
-                background:'linear-gradient(to left, var(--aura-card) 40%, transparent)',
+                background:'linear-gradient(to left, var(--aura-glass) 40%, transparent)',
                 pointerEvents:'none', zIndex:2,
               }} />
               <button onClick={() => scrollCarousel(1)} style={{
                 position:'absolute', right:0, top:'50%', transform:'translateY(-60%)',
                 zIndex:3, background:'transparent', border:'none', cursor:'pointer',
-                color:'#d4af37', fontSize:'1.6rem', lineHeight:1, padding:'0 4px',
-                textShadow:'0 0 8px rgba(212,175,55,0.7)',
+                color:'#F0D060', fontSize:'1.6rem', lineHeight:1, padding:'0 4px',
+                textShadow:'0 0 10px rgba(240,208,96,0.9)',
               }}>›</button>
             </>
           )}
@@ -342,18 +356,18 @@ const PetRegistration = ({ onSave, onCancel }) => {
                 <div key={sp.id}
                   onClick={() => { setSelectedSpecies(sp); setSpecificData({}); setSubTab('specific'); }}
                   style={{
-                    flexShrink: 0, width: 90, height: 90,
-                    border: isSelected ? '2px solid #d4af37' : '2px dashed rgba(212,175,55,0.45)',
-                    borderRadius: '50%', cursor: 'pointer',
+                    flexShrink: 0, width: 100, height: 100,
+                    border: isSelected ? '2px solid #D4AF37' : '1px dashed rgba(212,175,55,0.35)',
+                    borderRadius: '12px', cursor: 'pointer',
                     display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                    gap: 5, background: isSelected ? 'rgba(212,175,55,0.1)' : 'rgba(10,10,15,0.9)',
+                    gap: 5, background: isSelected ? 'rgba(212,175,55,0.1)' : 'rgba(30,10,53,0.9)',
                     transform: isSelected ? 'scale(1.08)' : 'scale(1)',
-                    boxShadow: isSelected ? '0 0 0 3px rgba(212,175,55,0.35), 0 0 16px rgba(212,175,55,0.7)' : 'none',
+                    boxShadow: isSelected ? '0 0 12px rgba(212,175,55,0.4)' : 'none',
                     transition: 'all 0.3s',
                   }}
                 >
                   <PlusCircle size={24} color="var(--aura-gold)" strokeWidth={1.5} />
-                  <span style={{ fontSize:'0.48rem', letterSpacing:'1px', color:'var(--aura-gold)', textTransform:'uppercase', textAlign:'center', lineHeight:1.2, padding:'0 6px', fontWeight:700 }}>
+                  <span style={{ fontSize:'0.48rem', letterSpacing:'1px', color:'#F0D060', textTransform:'uppercase', textAlign:'center', lineHeight:1.2, padding:'0 6px', fontWeight:700, textShadow:'0 0 8px rgba(240,208,96,0.5)' }}>
                     {locale === 'es' ? 'OTRA' : 'OTHER'}
                   </span>
                 </div>
@@ -363,7 +377,7 @@ const PetRegistration = ({ onSave, onCancel }) => {
                   onClick={() => {
                     setSelectedSpecies(sp);
                     setSpecificData({});
-                    const hasSpecific = ['horse','exotic','bird'].includes(sp.id);
+                    const hasSpecific = ['horse','bird'].includes(sp.id);
                     setSubTab(hasSpecific ? 'specific' : 'info');
                   }}
                 >
@@ -381,7 +395,7 @@ const PetRegistration = ({ onSave, onCancel }) => {
             {SPECIES.map((_, i) => (
               <div key={i} style={{
                 width: 5, height: 5, borderRadius: '50%',
-                background: 'rgba(212,175,55,0.35)',
+                background: 'rgba(212,175,55,0.3)',
                 transition: 'background 0.2s',
               }} />
             ))}
@@ -389,7 +403,7 @@ const PetRegistration = ({ onSave, onCancel }) => {
         </div>
 
         {selectedSpecies && (
-          <p style={{ margin:'0.8rem 0 0', fontSize:'0.72rem', letterSpacing:'2px', color:'var(--aura-gold)', textTransform:'uppercase', textAlign:'center' }}>
+          <p style={{ margin:'0.8rem 0 0', fontSize:'0.72rem', letterSpacing:'2px', color:'#F0D060', textTransform:'uppercase', textAlign:'center', textShadow:'0 0 10px rgba(240,208,96,0.5)' }}>
             {speciesLabel(selectedSpecies)} {locale==='es'?'seleccionado':'selected'}
           </p>
         )}
@@ -414,12 +428,12 @@ const PetRegistration = ({ onSave, onCancel }) => {
                 {/* Photo circle */}
                 <label style={{ cursor:'pointer', display:'flex', flexDirection:'column', alignItems:'center', gap:'0.5rem' }}>
                   <div style={{
-                    width:96, height:96, borderRadius:'50%', overflow:'hidden',
-                    border: basicData.customPhoto ? '2px solid var(--aura-gold)' : '2px dashed rgba(212,175,55,0.4)',
-                    background:'rgba(255,255,255,0.03)',
+                    width:96, height:96, borderRadius:'12px', overflow:'hidden',
+                    border: basicData.customPhoto ? '2px solid #D4AF37' : '1px dashed rgba(212,175,55,0.4)',
+                    background:'rgba(30,10,53,0.6)',
                     display:'flex', alignItems:'center', justifyContent:'center',
                     transition:'border-color 0.3s, box-shadow 0.3s',
-                    boxShadow: basicData.customPhoto ? '0 0 14px rgba(212,175,55,0.35)' : 'none',
+                    boxShadow: basicData.customPhoto ? '0 0 12px rgba(212,175,55,0.35)' : 'none',
                   }}>
                     {basicData.customPhoto
                       ? <img src={basicData.customPhoto} alt="preview" style={{ width:'100%', height:'100%', objectFit:'cover' }} />
@@ -435,17 +449,21 @@ const PetRegistration = ({ onSave, onCancel }) => {
                 <div>
                   <div className="form-group">
                     <label className="input-label">{locale==='es'?'Nombre del Miembro':'Member Name'}</label>
-                    <input className="aura-input"
-                      placeholder={locale==='es'?'Nombre de tu mascota':"Your pet's name"}
-                      value={basicData.name}
-                      onChange={e => setBasicData({...basicData, name:e.target.value})} />
+                    <FieldWrap filled={!!basicData.name}>
+                      <input className="aura-input"
+                        placeholder={locale==='es'?'Nombre de tu mascota':"Your pet's name"}
+                        value={basicData.name}
+                        onChange={e => setBasicData({...basicData, name:e.target.value})} />
+                    </FieldWrap>
                   </div>
                   <div className="form-group">
                     <label className="input-label">{locale==='es'?'Raza / Variedad':'Breed / Variety'}</label>
-                    <input className="aura-input"
-                      placeholder={locale==='es'?'Ej: Golden Retriever':'E.g: Golden Retriever'}
-                      value={basicData.breed || ''}
-                      onChange={e => setBasicData({...basicData, breed:e.target.value})} />
+                    <FieldWrap filled={!!basicData.breed}>
+                      <input className="aura-input"
+                        placeholder={locale==='es'?'Ej: Golden Retriever':'E.g: Golden Retriever'}
+                        value={basicData.breed || ''}
+                        onChange={e => setBasicData({...basicData, breed:e.target.value})} />
+                    </FieldWrap>
                   </div>
                 </div>
               </div>
@@ -454,18 +472,24 @@ const PetRegistration = ({ onSave, onCancel }) => {
               <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:'0.8rem' }}>
                 <div className="form-group">
                   <label className="input-label">{locale==='es'?'Edad':'Age'}</label>
-                  <input className="aura-input" placeholder={locale==='es'?'Años':'Years'}
-                    value={basicData.age} onChange={e => setBasicData({...basicData, age:e.target.value})} />
+                  <FieldWrap filled={!!basicData.age}>
+                    <input className="aura-input" placeholder={locale==='es'?'Años':'Years'}
+                      value={basicData.age} onChange={e => setBasicData({...basicData, age:e.target.value})} />
+                  </FieldWrap>
                 </div>
                 <div className="form-group">
                   <label className="input-label">{locale==='es'?'Peso':'Weight'}</label>
-                  <input className="aura-input" placeholder="kg"
-                    value={basicData.weight} onChange={e => setBasicData({...basicData, weight:e.target.value})} />
+                  <FieldWrap filled={!!basicData.weight}>
+                    <input className="aura-input" placeholder="kg"
+                      value={basicData.weight} onChange={e => setBasicData({...basicData, weight:e.target.value})} />
+                  </FieldWrap>
                 </div>
                 <div className="form-group">
                   <label className="input-label">Microchip</label>
-                  <input className="aura-input" placeholder="900XXXXXXXXX"
-                    value={basicData.microchip} onChange={e => setBasicData({...basicData, microchip:e.target.value})} />
+                  <FieldWrap filled={!!basicData.microchip}>
+                    <input className="aura-input" placeholder="900XXXXXXXXX"
+                      value={basicData.microchip} onChange={e => setBasicData({...basicData, microchip:e.target.value})} />
+                  </FieldWrap>
                 </div>
               </div>
             </motion.div>
@@ -475,11 +499,11 @@ const PetRegistration = ({ onSave, onCancel }) => {
               {selectedSpecies?.id === 'exotic' && <ExoticFields data={specificData} onChange={setSpecificData} locale={locale} />}
               {selectedSpecies?.id === 'bird'   && <BirdFields   data={specificData} onChange={setSpecificData} locale={locale} />}
               {selectedSpecies?.id === 'other'  && <OtherFields  data={specificData} onChange={setSpecificData} locale={locale} />}
-              {(!selectedSpecies || ['dog','cat'].includes(selectedSpecies?.id)) && (
+              {(!selectedSpecies || ['dog','cat','rabbit'].includes(selectedSpecies?.id)) && (
                 <p style={{ color:'var(--aura-text-muted)', textAlign:'center', padding:'2rem 0', fontSize:'0.85rem' }}>
                   {locale==='es'
-                    ? 'Selecciona Caballo, Exótico, Ave u Otro para ver campos específicos.'
-                    : 'Select Horse, Exotic, Bird or Other for species-specific fields.'}
+                    ? 'Selecciona Caballo, Ave u Otro para ver campos específicos.'
+                    : 'Select Horse, Bird or Other for species-specific fields.'}
                 </p>
               )}
             </motion.div>
@@ -495,6 +519,11 @@ const PetRegistration = ({ onSave, onCancel }) => {
           <p>{locale==='es'?'Tus datos están protegidos bajo HIPAA/GDPR':'Your data is protected under HIPAA/GDPR'}</p>
         </div>
       </div>
+
+      {/* ── Footer de marca ── */}
+      <p style={{ textAlign:'center', fontSize:'0.58rem', letterSpacing:'1.5px', color:'var(--aura-text-muted)', margin:'0 0 1rem', opacity:0.6 }}>
+        AURA PETS GLOBAL · EXPEDIENTE MÉDICO DIGITAL
+      </p>
 
       {/* ── Actions ── */}
       <div style={{ display:'flex', gap:'1rem' }}>
