@@ -9,7 +9,7 @@
 
 | | |
 |---|---|
-| **Versión / Version** | 1.1.0 |
+| **Versión / Version** | 1.2.0 |
 | **Fecha de emisión / Issue date** | 2026-05-10 |
 | **Empresa / Company** | Rodigital Advance |
 | **Clasificación / Classification** | Documento Oficial de Certificación / Official Certification Document |
@@ -292,8 +292,12 @@ Introduction screen with background video loaded from the **Pexels** API (HD pet
 ## 8. Despliegue / Deployment
 
 ```
-npm run build  →  /dist/  →  node deploy-hf.mjs  →  HuggingFace Spaces CDN
+npm run build  →  /dist/  →  node hf-sdk-upload.mjs  →  HuggingFace Spaces CDN
 ```
+
+> El deploy usa el paquete `@huggingface/hub` (Node.js) para subir los archivos del build directamente vía API, evitando las restricciones de almacenamiento Xet de HuggingFace para binarios.
+>
+> Deployment uses the `@huggingface/hub` (Node.js) package to upload build files directly via API, bypassing HuggingFace's Xet binary storage restrictions.
 
 | Entorno / Environment | Plataforma / Platform | URL |
 |---|---|---|
@@ -311,7 +315,46 @@ npm run lint     # Análisis estático ESLint / ESLint static analysis
 
 ---
 
-## 9. Licencia / License
+## 9. Automatización y Monitorización / Automation & Monitoring
+
+### 9.1 Monitor de Disponibilidad Principal — n8n
+
+**ES:** Workflow automatizado en n8n que comprueba cada 15 minutos si la aplicación está disponible en producción. Si el servidor devuelve un código de error HTTP ≥ 500, se envía una alerta instantánea por Telegram.
+
+**EN:** Automated n8n workflow that checks every 15 minutes whether the application is available in production. If the server returns an HTTP error code ≥ 500, an instant Telegram alert is sent.
+
+```
+Cada 15 minutos → GET https://rociogf-aura-pets-final.static.hf.space
+                      ↓
+              ¿statusCode ≥ 500?
+               /             \
+             Sí               No
+             ↓                ↓
+    Telegram - Alerta    App OK - No hacer nada
+```
+
+| Parámetro | Valor |
+|---|---|
+| Plataforma / Platform | n8n (self-hosted en automation.rodigitaladvance.link) |
+| Intervalo / Interval | 15 minutos / 15 minutes |
+| Condición de alerta / Alert condition | HTTP statusCode ≥ 500 |
+| Canal de notificación / Notification channel | Telegram Bot @aurapetsrodigital_bot |
+
+### 9.2 Monitor de Respaldo — Make (Integromat)
+
+**ES:** Escenario en Make configurado como sistema de respaldo para cuando n8n no esté disponible. Misma lógica: GET a la URL de producción, filtro statusCode ≥ 500, alerta Telegram.
+
+**EN:** Make scenario configured as a backup system for when n8n is unavailable. Same logic: GET to the production URL, statusCode ≥ 500 filter, Telegram alert.
+
+| Parámetro | Valor |
+|---|---|
+| Plataforma / Platform | Make (make.com) |
+| Estado / Status | En espera — activar si n8n falla / Standby — activate if n8n fails |
+| Canal de notificación / Notification channel | Telegram Bot @aurapetsrodigital_bot |
+
+---
+
+## 10. Licencia / License
 
 ```
 MIT License
@@ -339,7 +382,7 @@ THE SOFTWARE.
 
 ---
 
-## 10. Declaración de Conformidad / Conformity Declaration
+## 11. Declaración de Conformidad / Conformity Declaration
 
 Se declara que la aplicación **AURA Pets — Global Health Passport** ha sido desarrollada, auditada y desplegada en conformidad con:
 
@@ -361,7 +404,7 @@ It is declared that the application **AURA Pets — Global Health Passport** has
 | | |
 |---|---|
 | **Empresa / Company** | Rodigital Advance |
-| **Versión / Version** | 1.1.0 |
+| **Versión / Version** | 1.2.0 |
 | **Fecha de emisión / Issue date** | 2026-05-10 |
 | **Válido hasta / Valid until** | 2027-05-10 |
 
