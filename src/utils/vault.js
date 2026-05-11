@@ -16,7 +16,12 @@ export const vault = {
   },
 
   setScopedData: (userId, key, data) => {
-    localStorage.setItem(`vault_${userId}_${key}`, JSON.stringify(data));
+    try {
+      localStorage.setItem(`vault_${userId}_${key}`, JSON.stringify(data));
+    } catch (err) {
+      console.error('[AURA Vault] Error al guardar datos:', err);
+      throw err;
+    }
   },
 
   // Vault auto-lock logic

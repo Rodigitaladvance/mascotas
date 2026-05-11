@@ -272,7 +272,7 @@ const PetRegistration = ({ onSave, onCancel }) => {
       specific: specificData,
     };
     setSaved(true);
-    setTimeout(() => onSave(newPet), 1200);
+    onSave(newPet); // save immediately — don't wait for animation
   };
 
   const specificTabLabel = () => {

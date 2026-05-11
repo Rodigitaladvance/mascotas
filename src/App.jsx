@@ -159,7 +159,7 @@ const AppContent = () => {
     };
     storage.savePet(user.id, petWithMeta);
     setPets(prev => [...prev, petWithMeta]);
-    navigate('/dashboard');
+    setTimeout(() => navigate('/dashboard'), 1200); // delay only the nav for the success animation
   };
 
   const handleUpdatePet = (updatedPet) => {
