@@ -11,14 +11,14 @@ export const translations = {
       logout: "Cerrar Sesión Segura",
       active: "ACTIVO",
       compliance: "Protocolo Vital",
-      identity: "Identidad Biométrica"
+      identity: "Identificación"
     },
     auth: {
       title: "AURA",
       subtitle: "Pets",
       slogan: "Excelencia Sanitaria Global",
       loginTitle: "Acceso a Expedientes",
-      registerTitle: "Crear Registro Biométrico",
+      registerTitle: "Crea tu cuenta",
       emailLabel: "DIRECCIÓN DE ENLACE",
       passLabel: "CLAVE DE SEGURIDAD",
       btnEnter: "ACCEDER AL EXPEDIENTE",
@@ -94,14 +94,14 @@ export const translations = {
       logout: "Secure Logout",
       active: "ACTIVE",
       compliance: "Vital Protocol",
-      identity: "Biometric Identity"
+      identity: "Identification"
     },
     auth: {
       title: "AURA",
       subtitle: "Pets",
       slogan: "Global Sanitary Excellence",
       loginTitle: "Medical Records Access",
-      registerTitle: "Create Biometric Record",
+      registerTitle: "Create your account",
       emailLabel: "LINK ADDRESS",
       passLabel: "SECURITY KEY",
       btnEnter: "ACCESS RECORDS",
