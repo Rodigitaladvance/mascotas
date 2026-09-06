@@ -33,3 +33,12 @@ backup/
 # Windows system files
 desktop.ini
 Thumbs.db
+
+# Secretos y credenciales — nunca deben entrar al repositorio
+.env
+.env.*
+!.env.local.example
+*TOKEN*.txt
+*token*.txt
+*.pem
+*.key
