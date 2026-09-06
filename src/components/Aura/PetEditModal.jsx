@@ -246,8 +246,8 @@ const DeregistrationModal = ({ pet, onConfirm, onCancel }) => {
                 </h2>
                 <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--aura-text-muted)', lineHeight: 1.8 }}>
                   {es
-                    ? `Antes de cerrar el expediente de ${pet.name}, puedes descargar un documento de recuerdo con todo su historial y datos biométricos. Este archivo quedará guardado en tu dispositivo.`
-                    : `Before closing ${pet.name}'s record, you can download a memorial document with all health history and biometric data. This file will be saved to your device.`}
+                    ? `Antes de cerrar el expediente de ${pet.name}, puedes descargar un documento de recuerdo con todo su historial médico y su ficha completa. Este archivo quedará guardado en tu dispositivo.`
+                    : `Before closing ${pet.name}'s record, you can download a memorial document with the full health history and profile. This file will be saved to your device.`}
                 </p>
               </div>
 
@@ -260,8 +260,8 @@ const DeregistrationModal = ({ pet, onConfirm, onCancel }) => {
                 </p>
                 <p style={{ margin: 0, fontSize: '0.78rem', color: 'var(--aura-text-muted)', lineHeight: 1.7 }}>
                   {es
-                    ? `Datos biométricos · Historial de vacunas · Microchip · Pasaporte sanitario`
-                    : `Biometric data · Vaccination history · Microchip · Health passport`}
+                    ? `Ficha del animal · Historial de vacunas · Microchip · Pasaporte sanitario`
+                    : `Animal profile · Vaccination history · Microchip · Health passport`}
                 </p>
               </div>
 
@@ -304,8 +304,8 @@ const DeregistrationModal = ({ pet, onConfirm, onCancel }) => {
                 </h2>
                 <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--aura-text-muted)', lineHeight: 1.7 }}>
                   {es
-                    ? `Todo el historial clínico, biometría y pasaportes de ${pet.name} serán eliminados de la bóveda de forma permanente e irreversible.`
-                    : `All clinical history, biometrics and passports for ${pet.name} will be permanently and irreversibly deleted from the vault.`}
+                    ? `Todo el historial clínico, la ficha y los pasaportes de ${pet.name} serán eliminados de la bóveda de forma permanente e irreversible.`
+                    : `All clinical history, profile data and passports for ${pet.name} will be permanently and irreversibly deleted from the vault.`}
                 </p>
               </div>
 
@@ -318,7 +318,7 @@ const DeregistrationModal = ({ pet, onConfirm, onCancel }) => {
                   {es ? 'Datos que serán eliminados' : 'Data to be deleted'}
                 </p>
                 {[
-                  es ? '✗ Perfil y biometría' : '✗ Profile & biometrics',
+                  es ? '✗ Perfil e identificación' : '✗ Profile & identification',
                   es ? '✗ Historial médico completo' : '✗ Full medical history',
                   es ? '✗ Vacunas y certificados' : '✗ Vaccines & certificates',
                   es ? '✗ Pasaporte sanitario global' : '✗ Global health passport',
@@ -470,10 +470,28 @@ const PetEditModal = ({ pet, onSave, onDelete, onClose }) => {
         ...pet.specific,
         ...(pet.species === 'horse' ? { rega: health.rega } : {}),
       },
+      // Se conserva todo lo que esta pantalla no edita. Antes se reconstruía
+      // el objeto desde cero, así que al guardar aquí se destruían los datos
+      // que se habían introducido en el Pasaporte Global: el número de lote de
+      // la antirrábica, el certificado sanitario y el pasaporte físico entero.
       health: {
-        rabiesVaccine:    { date: health.rabiesDate, expiry: health.rabiesExpiry, status: health.rabiesStatus },
-        europeanPassport: { number: health.euNumber,  status: health.euStatus  },
-        healthCert:       { status: health.certStatus, notes: health.certNotes  },
+        ...pet.health,
+        rabiesVaccine: {
+          ...pet.health?.rabiesVaccine,
+          date:   health.rabiesDate,
+          expiry: health.rabiesExpiry,
+          status: health.rabiesStatus,
+        },
+        europeanPassport: {
+          ...pet.health?.europeanPassport,
+          number: health.euNumber,
+          status: health.euStatus,
+        },
+        healthCert: {
+          ...pet.health?.healthCert,
+          status: health.certStatus,
+          notes:  health.certNotes,
+        },
       },
     };
     onSave(updated);
