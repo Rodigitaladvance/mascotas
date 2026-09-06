@@ -73,9 +73,39 @@ const Auth = () => {
             style={{ height: '70px', marginBottom: '2rem', filter: 'drop-shadow(0 0 10px var(--aura-gold-muted))' }} 
           />
           <h1 style={{ fontSize: '2.4rem', margin: '0 0 0.5rem', letterSpacing: '-1px' }}>AURA <span style={{ color: 'var(--aura-gold)' }}>Pets Global</span></h1>
-          <p style={{ color: 'var(--aura-text-muted)', fontSize: '0.85rem', letterSpacing: '2px', textTransform: 'uppercase' }}>
-            {isRegister ? 'Crear Registro Biométrico' : 'Portal de Acceso AURA'}
+
+          {/* Distintivo: las dos pantallas comparten formulario, así que sin
+              una señal visible el usuario no sabe en cuál está. */}
+          {isRegister && (
+            <div style={{
+              display: 'inline-block',
+              margin: '0.4rem 0 0.9rem',
+              padding: '0.3rem 0.9rem',
+              border: '1px solid var(--aura-gold)',
+              borderRadius: '2rem',
+              color: 'var(--aura-gold)',
+              fontSize: '0.65rem',
+              letterSpacing: '3px',
+              textTransform: 'uppercase',
+              fontWeight: 600,
+              background: 'rgba(212,175,55,0.08)',
+            }}>
+              Nueva cuenta
+            </div>
+          )}
+
+          <p style={{ color: 'var(--aura-text-muted)', fontSize: '0.85rem', letterSpacing: '2px', textTransform: 'uppercase', margin: 0 }}>
+            {isRegister ? 'Crea tu cuenta' : 'Accede a tu expediente'}
           </p>
+
+          {isRegister && (
+            <p style={{
+              color: 'var(--aura-text-muted)', fontSize: '0.78rem',
+              lineHeight: 1.6, margin: '0.8rem auto 0', maxWidth: '30ch', opacity: 0.8,
+            }}>
+              Solo necesitas un correo y una contraseña. Nada sale de este dispositivo.
+            </p>
+          )}
         </header>
 
         <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '2rem', textAlign: 'left' }}>
@@ -110,6 +140,21 @@ const Auth = () => {
               value={formData.password}
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
             />
+            {/* Con cifrado real no hay recuperación posible: se avisa antes de
+                elegir la contraseña, no después de perderla. */}
+            {isRegister && (
+              <p style={{
+                display: 'flex', alignItems: 'flex-start', gap: '0.5rem',
+                margin: '0.8rem 0 0', fontSize: '0.73rem', lineHeight: 1.55,
+                color: 'var(--aura-text-muted)',
+              }}>
+                <KeyRound size={13} style={{ flexShrink: 0, marginTop: 2, color: 'var(--aura-gold)' }} />
+                <span>
+                  Guárdala bien: tus expedientes se cifran con ella y
+                  <strong style={{ color: 'var(--aura-gold)' }}> no se pueden recuperar si la olvidas</strong>.
+                </span>
+              </p>
+            )}
           </div>
 
           {error && (
@@ -122,7 +167,9 @@ const Auth = () => {
           )}
 
           <button type="submit" disabled={loading} className="btn-aura" style={{ padding: '1.2rem', width: '100%' }}>
-            {loading ? 'AUTENTICANDO...' : (isRegister ? 'ACTIVAR AURA PROTOCOL' : 'ACCEDER AL EXPEDIENTE')}
+            {loading
+              ? (isRegister ? 'CREANDO CUENTA…' : 'ENTRANDO…')
+              : (isRegister ? 'CREAR MI CUENTA' : 'ENTRAR')}
           </button>
         </form>
 
@@ -140,7 +187,7 @@ const Auth = () => {
               }
             }}
           >
-            {isRegister ? '¿YA TIENES UN REGISTRO? ENTRA AQUÍ' : '¿NUEVO EN EL ECOSISTEMA? CREAR CUENTA'}
+            {isRegister ? '¿YA TIENES CUENTA? ENTRAR' : '¿PRIMERA VEZ AQUÍ? CREAR CUENTA'}
           </button>
           {!isRegister && (
             <a
