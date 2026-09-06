@@ -1,8 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Shield, Activity, ChevronRight, Zap, Wind, Calendar, Award, PlusCircle, Pencil, Heart } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import { useTranslation } from '../../context/LocalizationContext';
+import { useAuth } from '../../context/AuthContext';
+import { storage } from '../../utils/storage';
+import { assessProtection } from '../../utils/intelligence';
 import ChronographGauge from './ChronographGauge';
 import PetEditModal from './PetEditModal';
 import MedicalHistory from './MedicalHistory';
@@ -26,14 +29,25 @@ const ActionCard = ({ icon: Icon, color, bgColor, borderColor, title, subtitle, 
 
 const Dashboard = ({ pets, activePetId, onActivePetChange, onAddPet, onSelectPet, onUpdatePet, onDeletePet }) => {
   const { t, locale } = useTranslation();
+  const { user } = useAuth();
   const [showPerformanceDetail, setShowPerformanceDetail] = useState(false);
   const [showMedicalHistory, setShowMedicalHistory] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingVitals, setEditingVitals] = useState(false);
+  /* Se incrementa al cerrar el historial para recalcular la protección */
+  const [historyVersion, setHistoryVersion] = useState(0);
   const [vitalsForm, setVitalsForm] = useState(EMPTY_VITALS);
   /* Active pet: prop-driven with first-pet fallback */
   const pet = pets?.find(p => p.id === activePetId) || pets?.[0] || null;
-  const healthScore = 95;
+  /* Protección real, calculada desde el historial clínico del animal.
+     Antes esta línea era `const healthScore = 95`: un número fijo, idéntico
+     para todas las mascotas, que nunca cambiaba con los datos. */
+  const protection = useMemo(
+    () => assessProtection(pet, user ? storage.getHistory(user.id, pet?.id, null) : null),
+    [pet, user, historyVersion],
+  );
+  const healthScore = protection.score ?? 0;
+  const sinDatos = protection.score === null;
 
   const es = locale === 'es';
 
@@ -117,7 +131,7 @@ const Dashboard = ({ pets, activePetId, onActivePetChange, onAddPet, onSelectPet
         <div style={{ textAlign: 'center' }}>
           <p style={{ fontSize: '0.7rem', letterSpacing: '2px', opacity: 0.5 }}>EXPEDIENTE MÉDICO</p>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.5rem' }}>
-            <Shield color="var(--aura-gold)" size={18} /> <span style={{ fontWeight: 600 }}>BIOMETRÍA OK</span>
+            <Shield color="var(--aura-gold)" size={18} /> <span style={{ fontWeight: 600 }}>CIFRADO ACTIVO</span>
           </div>
         </div>
         <div style={{ textAlign: 'center' }}>
@@ -249,8 +263,23 @@ const Dashboard = ({ pets, activePetId, onActivePetChange, onAddPet, onSelectPet
               </PieChart>
             </ResponsiveContainer>
             <div style={{ position:'absolute', top:'50%', left:'50%', transform:'translate(-50%,-50%)', textAlign:'center' }}>
-              <h2 style={{ fontSize: '3.8rem', fontWeight: 300, color: '#F0D060', margin: 0, textShadow: '0 0 20px rgba(240,208,96,0.5)' }}>{healthScore}</h2>
+              <h2 style={{ fontSize: sinDatos ? '2.4rem' : '3.8rem', fontWeight: 300, color: '#F0D060', margin: 0, textShadow: '0 0 20px rgba(240,208,96,0.5)', transition: 'font-size 0.3s' }}>
+                {sinDatos ? '—' : healthScore}
+              </h2>
               <p style={{ margin: 0, fontSize: '0.58rem', letterSpacing: '4px', opacity: 0.5 }}>{t('dashboard.scoreTitle')}</p>
+              {sinDatos && (
+                <p style={{
+                  margin: '0.7rem auto 0', maxWidth: 140, fontSize: '0.6rem',
+                  lineHeight: 1.55, letterSpacing: '0.5px', opacity: 0.55,
+                  textTransform: 'none',
+                }}>
+                  {protection.reason === 'sin-protocolo'
+                    ? (es ? 'Sin calendario vacunal estándar para esta especie'
+                          : 'No standard vaccination schedule for this species')
+                    : (es ? 'Registra una vacuna en el historial para calcularlo'
+                          : 'Log a vaccine in the history to calculate it')}
+                </p>
+              )}
             </div>
           </div>
           <div style={{ marginTop: '2.5rem', textAlign: 'center' }}>
@@ -472,7 +501,7 @@ const Dashboard = ({ pets, activePetId, onActivePetChange, onAddPet, onSelectPet
       {/* ── Medical History ── */}
       <AnimatePresence>
         {showMedicalHistory && pet && (
-          <MedicalHistory pet={pet} onClose={() => setShowMedicalHistory(false)} />
+          <MedicalHistory pet={pet} onClose={() => { setShowMedicalHistory(false); setHistoryVersion(v => v + 1); }} />
         )}
       </AnimatePresence>
 

@@ -18,6 +18,102 @@ const VACCINE_INTERVALS = {
   }
 };
 
+/* ══════════════════════════════════════════════════════════════════════════
+   Protocolo preventivo por especie
+   ──────────────────────────────────────────────────────────────────────────
+   Cada entrada define cada cuántos días toca repetir, y las palabras con las
+   que reconocer la vacuna en el historial: el usuario escribe el nombre a
+   mano, así que "Antirrábica", "rabia" o "rabies" deben valer lo mismo.
+   ══════════════════════════════════════════════════════════════════════════ */
+const PROTOCOLS = {
+  dog: [
+    { label: 'Rabia',                   days: 365, match: ['rabia', 'rabic', 'rabies'] },
+    { label: 'Polivalente',             days: 365, match: ['polivalente', 'hexavalente', 'pentavalente', 'moquillo', 'parvo', 'distemper'] },
+    { label: 'Desparasitación interna', days: 90,  match: ['interna', 'lombric', 'deworm', 'endoparas'] },
+    { label: 'Desparasitación externa', days: 30,  match: ['externa', 'pulga', 'garrapata', 'flea', 'tick', 'ectoparas'] },
+  ],
+  cat: [
+    { label: 'Rabia',                   days: 365, match: ['rabia', 'rabic', 'rabies'] },
+    { label: 'Trivalente',              days: 365, match: ['trivalente', 'triple', 'panleucopenia', 'calicivirus', 'rinotraqueitis'] },
+    { label: 'Leucemia felina',         days: 365, match: ['leucemia', 'leucosis', 'felv'] },
+    { label: 'Desparasitación interna', days: 90,  match: ['interna', 'lombric', 'deworm', 'endoparas'] },
+    { label: 'Desparasitación externa', days: 30,  match: ['externa', 'pulga', 'garrapata', 'flea', 'tick', 'ectoparas'] },
+  ],
+  horse: [
+    { label: 'Tétanos',                 days: 365, match: ['tetano', 'tetanus'] },
+    { label: 'Gripe equina',            days: 182, match: ['gripe', 'influenza', 'equina'] },
+    { label: 'Desparasitación',         days: 90,  match: ['desparasit', 'lombric', 'deworm'] },
+  ],
+  rabbit: [
+    { label: 'Mixomatosis',             days: 365, match: ['mixomatosis', 'myxomatosis'] },
+    { label: 'Enfermedad hemorrágica',  days: 365, match: ['hemorrag', 'rhd', 'vhd'] },
+    { label: 'Desparasitación',         days: 90,  match: ['desparasit', 'lombric', 'deworm'] },
+  ],
+  // Aves y "otra especie" no tienen calendario vacunal estándar: se omiten a
+  // propósito en lugar de inventar uno.
+};
+
+const normalizar = (texto) =>
+  (texto || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, ''); // quita tildes
+
+const GRACIA_DIAS = 30;
+
+/**
+ * Calcula la protección real de un animal a partir de su historial clínico.
+ *
+ * @param {object} pet      la mascota
+ * @param {object} history  { vaccines: [{ name, date, nextDose }] }
+ * @returns {{ score:number|null, reason:string|null, items:Array }}
+ *          score null significa que no se puede calcular, y `reason` dice por qué.
+ */
+export const assessProtection = (pet, history) => {
+  const protocolo = PROTOCOLS[pet?.species];
+  if (!protocolo) return { score: null, reason: 'sin-protocolo', items: [] };
+
+  /* Dosis registradas en el historial clínico */
+  const dosis = (history?.vaccines || [])
+    .filter(v => v?.date)
+    .map(v => ({ nombre: normalizar(v.name), fecha: new Date(v.date), proxima: v.nextDose ? new Date(v.nextDose) : null }));
+
+  /* La antirrábica también puede venir del Pasaporte Global */
+  const rv = pet?.health?.rabiesVaccine;
+  if (rv?.date) {
+    dosis.push({ nombre: 'rabia', fecha: new Date(rv.date), proxima: rv.expiry ? new Date(rv.expiry) : null });
+  }
+
+  if (dosis.length === 0) return { score: null, reason: 'sin-datos', items: [] };
+
+  const ahora = new Date();
+  let puntos = 0;
+
+  const items = protocolo.map(({ label, days, match }) => {
+    const propias = dosis.filter(d => match.some(m => d.nombre.includes(m)));
+    if (propias.length === 0) return { label, estado: 'ausente' };
+
+    // La dosis más reciente manda
+    const ultima = propias.reduce((a, b) => (b.fecha > a.fecha ? b : a));
+    // Si el usuario indicó la próxima dosis, se respeta su criterio; si no,
+    // se calcula con el intervalo del protocolo.
+    const vence = ultima.proxima && !isNaN(ultima.proxima)
+      ? ultima.proxima
+      : new Date(ultima.fecha.getTime() + days * 86400000);
+
+    const diasPasados = Math.floor((ahora - vence) / 86400000);
+    if (diasPasados < 0)            { puntos += 1;   return { label, estado: 'al-dia',    vence }; }
+    if (diasPasados <= GRACIA_DIAS) { puntos += 0.5; return { label, estado: 'por-vencer', vence }; }
+    return { label, estado: 'vencida', vence };
+  });
+
+  return {
+    score: Math.round((puntos / protocolo.length) * 100),
+    reason: null,
+    items,
+  };
+};
+
 export const intelligence = {
   // Suggest next date based on species and vaccine type
   getNextDate: (species, type, lastDate) => {
