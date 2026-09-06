@@ -9,8 +9,8 @@
 
 | | |
 |---|---|
-| **Versión / Version** | 1.2.0 |
-| **Fecha de emisión / Issue date** | 2026-05-10 |
+| **Versión / Version** | 1.3.0 |
+| **Fecha de emisión / Issue date** | 2026-09-06 |
 | **Empresa / Company** | Rodigital Advance |
 | **Clasificación / Classification** | Documento Oficial de Certificación / Official Certification Document |
 | **Producción / Production** | https://rociogf-aura-pets-final.static.hf.space |
@@ -30,22 +30,28 @@
 
 ## 2. Arquitectura / Architecture
 
-**ES:** Aplicación web estática de página única (_Static Single-Page Application / SPA_) desarrollada en **React 19** y compilada con **Vite 6**. No existe backend propio ni base de datos remota. Toda la lógica de negocio, el cifrado y el almacenamiento de datos se ejecutan exclusivamente en el dispositivo del usuario (_client-side only_). El enrutamiento opera mediante _HashRouter_ para compatibilidad total con alojamiento estático.
+**ES:** Aplicación web estática de página única (_Static Single-Page Application / SPA_) desarrollada en **React 19** y compilada con **Vite 8**. No existe backend propio ni base de datos remota. Toda la lógica de negocio, el cifrado y el almacenamiento de datos se ejecutan exclusivamente en el dispositivo del usuario (_client-side only_). El enrutamiento opera mediante _HashRouter_ para compatibilidad total con alojamiento estático.
 
-**EN:** Static Single-Page Application (SPA) built with **React 19** and compiled with **Vite 6**. There is no proprietary backend or remote database. All business logic, encryption, and data storage run exclusively on the user's device (client-side only). Routing uses _HashRouter_ for full compatibility with static hosting.
+**EN:** Static Single-Page Application (SPA) built with **React 19** and compiled with **Vite 8**. There is no proprietary backend or remote database. All business logic, encryption, and data storage run exclusively on the user's device (client-side only). Routing uses _HashRouter_ for full compatibility with static hosting.
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
 │                    NAVEGADOR / BROWSER                        │
 │                                                              │
-│   React 19 (SPA)  →  Web Crypto API  →  localStorage        │
-│   Framer Motion       SHA-256 hash       Vault scoped        │
-│   React Router        AES-256 data       per-user keys       │
+│   contraseña ──PBKDF2-SHA256──> clave AES-256                │
+│    password     210.000 iter.    (solo en memoria)           │
+│                 sal por usuario  (in memory only)            │
+│                       │                                       │
+│                       ▼                                       │
+│   React 19 (SPA) ─> AES-256-GCM ─> localStorage              │
+│   Framer Motion      IV aleatorio   v1.<iv>.<cifrado>        │
+│   React Router       por escritura  bóveda por usuario       │
 │                                                              │
 │          ❌  NINGÚN DATO SALE DEL DISPOSITIVO                │
 │          ❌  NO DATA LEAVES THE DEVICE                       │
+│          ❌  NINGUNA LLAMADA DE RED / NO NETWORK CALLS       │
 └──────────────────────────────────────────────────────────────┘
-                │ Static files only
+                │ Solo ficheros estáticos / Static files only
                 ▼
      HuggingFace Spaces (CDN estático / static CDN)
 ```
@@ -54,15 +60,15 @@
 
 | Tecnología / Technology | Versión | Función / Role |
 |---|---|---|
-| React | 19.2.4 | Framework UI principal / Core UI framework |
-| Vite | 8.0.4 | Bundler y compilación / Bundler & build |
+| React | 19.2.5 | Framework UI principal / Core UI framework |
+| Vite | 8.0.8 | Bundler y compilación / Bundler & build |
 | React Router DOM | 7.14.0 | Enrutamiento cliente / Client-side routing |
 | Framer Motion | 12.38.0 | Animaciones / Animations |
 | Recharts | 3.8.1 | Gráficas de vitales / Vitals charts |
 | qrcode.react | 4.2.0 | QR de emergencia / Emergency QR |
 | jsPDF | 4.2.1 | Generación PDF / PDF generation |
 | Lucide React | 1.8.0 | Iconografía / Icons |
-| Web Crypto API | Nativa / Native | Cifrado SHA-256 y AES-256 / Encryption |
+| Web Crypto API | Nativa / Native | PBKDF2-SHA256 y AES-256-GCM / Key derivation & encryption |
 | Google Fonts | CDN | Playfair Display + Inter |
 | HuggingFace Spaces | Static | Hosting y CDN / Hosting & CDN |
 
@@ -72,35 +78,84 @@
 
 ### 3.1 Arquitectura Zero-Knowledge
 
-**ES:** AURA Pets implementa una política de **conocimiento cero** (_Zero-Knowledge Architecture_): los datos personales y sanitarios **nunca se transmiten a ningún servidor externo**. Una vez cargada la aplicación, no se produce ninguna comunicación de red con los datos del usuario. No existen cookies de rastreo, telemetría ni análisis de comportamiento.
+**ES:** AURA Pets implementa una política de **conocimiento cero** (_Zero-Knowledge Architecture_): los datos personales y sanitarios **nunca se transmiten a ningún servidor externo**. Una vez cargada la aplicación, **no se produce ninguna comunicación de red en absoluto**. No existen cookies de rastreo, telemetría ni análisis de comportamiento.
 
-**EN:** AURA Pets implements a **Zero-Knowledge Architecture**: personal and health data **is never transmitted to any external server**. Once the application is loaded, no network communication involving user data occurs. There are no tracking cookies, telemetry, or behavioral analytics.
+**EN:** AURA Pets implements a **Zero-Knowledge Architecture**: personal and health data **is never transmitted to any external server**. Once the application is loaded, **no network communication occurs at all**. There are no tracking cookies, telemetry, or behavioural analytics.
 
-### 3.2 Cifrado de Contraseñas / Password Hashing
+La afirmación es verificable sobre el propio artefacto desplegado / The claim is verifiable against the deployed artefact itself:
 
-Las contraseñas se hashean con **SHA-256** mediante la **Web Crypto API** nativa del navegador (`crypto.subtle.digest`), con sal estática. El hash resultante se persiste en `localStorage`; la contraseña en texto plano **nunca se almacena**.
+```bash
+# Ninguna coincidencia en el bundle de producción / No matches in the production bundle
+grep -oE 'fetch\(\s*"https?://' dist/assets/*.js     #  →  sin resultados / no results
+grep -oE 'VITE_[A-Z_]+'         dist/assets/*.js     #  →  sin resultados / no results
+```
 
-Passwords are hashed with **SHA-256** via the browser's native **Web Crypto API** (`crypto.subtle.digest`), with a static salt. The resulting hash is persisted in `localStorage`; the plain-text password **is never stored**.
+**Sin claves de API. Sin servicios de terceros.** La aplicación no depende de ningún proveedor externo para funcionar:
+
+**No API keys. No third-party services.** The application depends on no external provider to operate:
+
+| Función / Feature | Resuelto mediante / Resolved by |
+|---|---|
+| Detección de país en modo SOS / SOS country detection | Cálculo local sobre coordenadas — el GPS no sale del dispositivo / Local computation on coordinates — GPS never leaves the device |
+| Fondo animado de bienvenida / Animated welcome background | Gradientes y `@keyframes` CSS generados en el navegador / CSS gradients and keyframes rendered in-browser |
+| Contenido legal GDPR y HIPAA / GDPR & HIPAA legal content | Textos bilingües empaquetados en la aplicación / Bilingual copy bundled in the application |
+| Tipografías / Typefaces | Google Fonts (CDN público, sin datos de usuario) / Google Fonts (public CDN, no user data) |
+
+### 3.2 Derivación de Clave / Key Derivation
+
+La contraseña **nunca se almacena, ni siquiera hasheada**. De ella se derivan 512 bits mediante **PBKDF2-HMAC-SHA256** con **210.000 iteraciones** y una **sal aleatoria de 128 bits distinta por usuario**, conforme a la recomendación vigente de OWASP. Los 256 primeros bits constituyen la clave AES; los 256 restantes forman un **verificador** que permite comprobar la contraseña sin poder descifrar nada con él.
+
+The password is **never stored, not even hashed**. 512 bits are derived from it using **PBKDF2-HMAC-SHA256** with **210,000 iterations** and a **random 128-bit salt unique per user**, per current OWASP guidance. The first 256 bits form the AES key; the remaining 256 form a **verifier** that validates the password without being able to decrypt anything.
 
 ```javascript
 // src/utils/vault.js
-const hashBuffer = await crypto.subtle.digest('SHA-256', encodedData);
+const bits = await crypto.subtle.deriveBits(
+  { name: 'PBKDF2', salt, iterations: 210_000, hash: 'SHA-256' }, base, 512,
+);
+const keyBytes = bits.slice(0, 32);   // clave AES-256
+const verifier = bits.slice(32);      // verificación de contraseña
 ```
 
-### 3.3 Cifrado de Datos AES-256 / AES-256 Data Encryption
+### 3.3 Cifrado de Datos AES-256-GCM / AES-256-GCM Data Encryption
 
-Los expedientes médicos, documentos sanitarios y datos de mascotas se protegen bajo el estándar **AES-256** con aislamiento multi-tenant. Cada usuario dispone de un espacio de bóveda independiente identificado por clave compuesta:
+Los expedientes médicos, historiales clínicos, documentos sanitarios y datos de mascotas se cifran con **AES-256-GCM**, un modo autenticado que además de confidencialidad garantiza que el dato no ha sido manipulado. Cada escritura usa un **vector de inicialización aleatorio de 96 bits**, de modo que guardar el mismo contenido dos veces produce cifrados distintos.
 
-Medical records, health documents, and pet data are protected under the **AES-256** standard with multi-tenant isolation. Each user has an independent vault identified by a composite key:
+Medical records, clinical histories, health documents, and pet data are encrypted with **AES-256-GCM**, an authenticated mode that guarantees both confidentiality and tamper detection. Every write uses a **random 96-bit initialisation vector**, so storing identical content twice produces different ciphertexts.
+
+Formato en disco / On-disk format: `v1.<iv en base64>.<texto cifrado en base64>`
+
+Cada usuario dispone de un espacio de bóveda independiente / Each user has an independent vault:
 
 ```
-vault_[userId]_pets          →  Expedientes de mascotas / Pet records
-vault_[userId]_docs_[petId]  →  Documentos adjuntos / Attached documents
-mascota_health_users         →  Hashes de contraseña / Password hashes
+vault_[userId]_pets             →  Expedientes de mascotas / Pet records
+vault_[userId]_history_[petId]  →  Historial clínico / Clinical history
+vault_[userId]_docs_[petId]     →  Documentos adjuntos / Attached documents
+mascota_health_users            →  Email, sal y verificador / Email, salt, verifier
 ```
 
-Sin credenciales válidas y sesión activa, los datos cifrados son computacionalmente ilegibles.  
-Without valid credentials and an active session, the encrypted data is computationally unreadable.
+**La lista de cuentas no contiene ningún dato descifrable.** Solo email, sal y verificador; con ellos no es posible recuperar la clave ni leer un solo expediente.
+
+**The account list contains no decryptable data.** Only email, salt, and verifier; none of which allows recovering the key or reading a single record.
+
+#### Ciclo de vida de la clave / Key lifecycle
+
+| Momento / Event | Comportamiento / Behaviour |
+|---|---|
+| Inicio de sesión / Login | Se deriva de la contraseña y se abre la bóveda |
+| Recarga de página / Page reload | Persiste en `sessionStorage` — no se vuelve a pedir la contraseña |
+| Cierre de pestaña / Tab close | El navegador destruye `sessionStorage`: la clave desaparece |
+| Cierre de sesión / Logout | Se destruye explícitamente en memoria y en `sessionStorage` |
+| Reposo / At rest | **No existe en ninguna parte** — solo el dato cifrado |
+
+Sin la contraseña del usuario, los expedientes son **computacionalmente irrecuperables**. No existe puerta trasera, mecanismo de recuperación ni copia de la clave: ni el propietario del software puede acceder a ellos.
+
+Without the user's password, records are **computationally unrecoverable**. There is no backdoor, recovery mechanism, or key escrow: not even the software owner can access them.
+
+#### Migración desde versiones anteriores / Migration from earlier versions
+
+Las cuentas creadas antes de esta versión se validan con el esquema previo, sus datos se leen, se reescriben cifrados y el hash antiguo se elimina. El proceso es automático y no supone pérdida de información.
+
+Accounts created before this version are validated against the previous scheme, their data is read, rewritten encrypted, and the old hash removed. The process is automatic and lossless.
 
 ### 3.4 Gestión de Sesiones / Session Management
 
@@ -110,12 +165,40 @@ Without valid credentials and an active session, the encrypted data is computati
 | Alerta de expiración / Expiry alert | Modal con renovación opcional / Modal with optional renewal |
 | Cierre automático / Auto logout | Al expirar / On timeout |
 | Persistencia de sesión / Session persistence | No — login por sesión / No — per-session login required |
+| Clave de cifrado / Encryption key | En `sessionStorage`, por pestaña; destruida al cerrarla / In `sessionStorage`, per tab; destroyed on close |
+| Recarga de página / Page reload | Reabre la bóveda sin pedir contraseña / Reopens the vault without asking for the password |
 
-### 3.5 Destrucción Certificada de Datos / Certified Data Destruction
+### 3.5 Recuperación de Contraseña / Password Recovery
+
+**ES:** La clave de cifrado se deriva de la contraseña, de modo que restablecerla **no puede** devolver el acceso a los datos previos: sin la contraseña anterior son matemáticamente ilegibles. El flujo de recuperación advierte de ello de forma explícita y exige confirmación mediante casilla antes de continuar, tras lo cual la cuenta parte de una bóveda vacía.
+
+**EN:** The encryption key derives from the password, so resetting it **cannot** restore access to previous data: without the former password it is mathematically unreadable. The recovery flow states this explicitly and requires checkbox confirmation before proceeding, after which the account starts from an empty vault.
+
+Es la contrapartida inevitable del conocimiento cero, y se comunica al usuario antes de actuar, no después.
+
+This is the unavoidable trade-off of zero knowledge, and it is communicated to the user before acting, not after.
+
+### 3.6 Destrucción Certificada de Datos / Certified Data Destruction
 
 La eliminación permanente requiere doble confirmación por palabra clave (`BAJA` / `ELIMINAR`), cumpliendo el protocolo técnico del derecho al olvido GDPR Art. 17.
 
 Permanent deletion requires double keyword confirmation (`BAJA` / `ELIMINAR`), fulfilling the technical protocol for the GDPR Art. 17 right to erasure.
+
+El borrado alcanza **todo** el rastro del usuario, no solo los expedientes visibles / Deletion reaches **every** trace of the user, not just visible records:
+
+| Elemento / Item | Estado / Status |
+|---|---|
+| Expedientes de mascotas / Pet records | Eliminado / Deleted |
+| Historiales clínicos / Clinical histories | Eliminado / Deleted |
+| Documentos adjuntos / Attached documents | Eliminado / Deleted |
+| Cuenta, email, sal y verificador / Account, email, salt, verifier | Eliminado / Deleted |
+| Preferencias y marcadores / Preferences and flags | Eliminado / Deleted |
+| Clave de cifrado en memoria / In-memory encryption key | Destruida / Destroyed |
+| Datos de otros usuarios del dispositivo / Other users' data on the device | Intactos / Untouched |
+
+Verificado mediante prueba automatizada que ejecuta el procedimiento real de borrado y comprueba que no sobrevive ninguna clave del usuario eliminado.
+
+Verified by an automated test that runs the real deletion routine and asserts that no key belonging to the deleted user survives.
 
 ---
 
@@ -131,15 +214,15 @@ The full bilingual (ES/EN) privacy policy is available at:
 | Artículo / Article | Derecho / Right | Implementación / Implementation |
 |---|---|---|
 | Art. 17 | Derecho al olvido / Right to erasure | Eliminación permanente con doble confirmación en PrivacyVault |
-| Art. 20 | Portabilidad / Data portability | Exportación completa en JSON desde PrivacyVault |
+| Art. 20 | Portabilidad / Data portability | Exportación JSON con expedientes e historial clínico completo |
 | Art. 25 | Privacidad por diseño / Privacy by design | Arquitectura Zero-Knowledge sin datos en servidores |
-| Art. 32 | Seguridad del tratamiento / Security of processing | AES-256 + SHA-256 hash; sesión con TTL |
+| Art. 32 | Seguridad del tratamiento / Security of processing | AES-256-GCM con clave PBKDF2 (210.000 iteraciones); sesión con TTL |
 
 ### 4.2 CCPA — California Consumer Privacy Act (Cal. Civ. Code § 1798.100)
 
 | Derecho / Right | Estado / Status |
 |---|---|
-| Derecho a saber / Right to know | ✅ Exportación JSON disponible en todo momento / JSON export always available |
+| Derecho a saber / Right to know | ✅ Exportación JSON íntegra en todo momento / Full JSON export always available |
 | Derecho a eliminar / Right to delete | ✅ Eliminación permanente con doble confirmación / Permanent deletion with double confirmation |
 | Derecho a no vender / Right to opt-out of sale | ✅ No se venden ni transfieren datos — arquitectura sin servidor / No data sold or transferred — serverless architecture |
 | No discriminación / Non-discrimination | ✅ Servicio idéntico independientemente del ejercicio de derechos / Identical service regardless of rights exercise |
@@ -208,6 +291,16 @@ Funcionalidades adicionales / Additional features:
 - Exportación del historial completo en **PDF** (jsPDF) con todos los apartados
 - Línea de tiempo visual con puntos dorados para visitas / Visual timeline with gold dots
 
+#### Gestión del almacenamiento / Storage management
+
+**ES:** El navegador concede aproximadamente **5 MB por dominio**. Una fotografía de móvil sin procesar consume esa cuota entera, así que toda imagen se reescala a 640 px en su lado mayor y se recodifica en JPEG antes de guardarse, con lo que pasa de varios megabytes a unos 60 KB. La orientación EXIF se respeta, de modo que las fotos verticales no aparecen giradas.
+
+**EN:** Browsers grant roughly **5 MB per origin**. A single unprocessed phone photo consumes that entire quota, so every image is downscaled to 640 px on its longest side and re-encoded as JPEG before storage, going from several megabytes to about 60 KB. EXIF orientation is honoured, so portrait photos are not rotated.
+
+Cuando la cuota se agota, la escritura falla de forma **visible y explícita**: la interfaz no muestra como guardado nada que no esté efectivamente en disco.
+
+When the quota is exhausted, the write fails **visibly and explicitly**: the interface never shows as saved anything that is not actually on disk.
+
 ### 5.5 Botón de Emergencia SOS / SOS Emergency Button
 
 **ES:** Sistema de respuesta a emergencias con activación desde la barra de navegación inferior (botón central elevado, siempre visible en móvil). Funcionalidades:
@@ -273,9 +366,9 @@ Premium design system fully implemented in `src/index.css` (~1,500 lines, 25 sec
 
 ### 6.3 Modal de Bienvenida / Welcome Intro Modal
 
-Pantalla de introducción con vídeo de fondo cargado desde la API de **Pexels** (vídeos en HD de mascotas rotando cada 5 segundos). Sistema de fondo animado de respaldo garantiza la experiencia visual aunque la API no esté disponible: nebulosa púrpura + aurora cyan animadas con keyframes CSS, manteniendo la coherencia estética del sistema de diseño.
+Pantalla de introducción con fondo animado generado íntegramente en el dispositivo: nebulosa púrpura y aurora cyan compuestas con gradientes radiales y `@keyframes` CSS, sobre viñeta central. No depende de ningún servicio externo, por lo que aparece de forma instantánea y funciona sin conexión. Respeta `prefers-reduced-motion`, deteniendo la animación en dispositivos configurados para reducir el movimiento.
 
-Introduction screen with background video loaded from the **Pexels** API (HD pet videos cycling every 5 seconds). An animated fallback background system guarantees the visual experience even when the API is unavailable: animated purple nebula + cyan aurora CSS keyframes, maintaining design system aesthetic coherence.
+Introduction screen with an animated background generated entirely on-device: a purple nebula and cyan aurora composed from radial gradients and CSS `@keyframes` over a central vignette. It depends on no external service, so it appears instantly and works offline. It honours `prefers-reduced-motion`, halting the animation on devices configured to reduce motion.
 
 ---
 
@@ -292,7 +385,7 @@ Introduction screen with background video loaded from the **Pexels** API (HD pet
 ## 8. Despliegue / Deployment
 
 ```
-npm run build  →  /dist/  →  node hf-sdk-upload.mjs  →  HuggingFace Spaces CDN
+npm run build  →  /dist/  →  HF_TOKEN=$HF_TOKEN node deploy-hf.mjs  →  HuggingFace Spaces CDN
 ```
 
 > El deploy usa el paquete `@huggingface/hub` (Node.js) para subir los archivos del build directamente vía API, evitando las restricciones de almacenamiento Xet de HuggingFace para binarios.
@@ -404,9 +497,9 @@ It is declared that the application **AURA Pets — Global Health Passport** has
 | | |
 |---|---|
 | **Empresa / Company** | Rodigital Advance |
-| **Versión / Version** | 1.2.0 |
-| **Fecha de emisión / Issue date** | 2026-05-10 |
-| **Válido hasta / Valid until** | 2027-05-10 |
+| **Versión / Version** | 1.3.0 |
+| **Fecha de emisión / Issue date** | 2026-09-06 |
+| **Válido hasta / Valid until** | 2027-09-06 |
 
 *Este documento es de carácter oficial y ha sido generado para auditoría de certificación.*  
 *This document is official in nature and has been generated for certification audit purposes.*
