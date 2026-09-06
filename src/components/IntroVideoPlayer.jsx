@@ -26,14 +26,14 @@ export const IntroVideoModal = ({ isOpen, onContinue }) => {
         <style>{`
           @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Inter:wght@300;400&display=swap');
           @keyframes aura-nebula {
-            0%   { opacity: 0.55; transform: scale(1)    rotate(0deg);  }
-            50%  { opacity: 0.80; transform: scale(1.08) rotate(2deg);  }
-            100% { opacity: 0.55; transform: scale(1)    rotate(0deg);  }
+            0%   { opacity: 0.70; transform: scale(1)    translate(0, 0)         rotate(0deg); }
+            50%  { opacity: 1.00; transform: scale(1.14) translate(4vw, 2.5vw)   rotate(6deg); }
+            100% { opacity: 0.70; transform: scale(1)    translate(0, 0)         rotate(0deg); }
           }
           @keyframes aura-nebula2 {
-            0%   { opacity: 0.40; transform: scale(1.05) rotate(0deg);  }
-            50%  { opacity: 0.65; transform: scale(1)    rotate(-3deg); }
-            100% { opacity: 0.40; transform: scale(1.05) rotate(0deg);  }
+            0%   { opacity: 0.55; transform: scale(1.08) translate(0, 0)         rotate(0deg);  }
+            50%  { opacity: 0.90; transform: scale(1)    translate(-3vw, -2vw)   rotate(-7deg); }
+            100% { opacity: 0.55; transform: scale(1.08) translate(0, 0)         rotate(0deg);  }
           }
           @media (prefers-reduced-motion: reduce) {
             .aura-nebula-layer { animation: none !important; }
@@ -49,7 +49,7 @@ export const IntroVideoModal = ({ isOpen, onContinue }) => {
               position: 'absolute',
               width: '80vw', height: '80vw',
               top: '-20vw', left: '-20vw',
-              background: 'radial-gradient(ellipse, rgba(100,20,200,0.55) 0%, rgba(60,10,140,0.25) 45%, transparent 70%)',
+              background: 'radial-gradient(circle, rgba(138,43,226,0.85) 0%, rgba(88,20,170,0.45) 40%, rgba(50,10,110,0.15) 65%, transparent 78%)',
               borderRadius: '50%',
               animation: 'aura-nebula 9s ease-in-out infinite',
             }}
@@ -59,43 +59,24 @@ export const IntroVideoModal = ({ isOpen, onContinue }) => {
             className="aura-nebula-layer"
             style={{
               position: 'absolute',
-              width: '70vw', height: '70vw',
-              bottom: '-20vw', right: '-15vw',
-              background: 'radial-gradient(ellipse, rgba(0,180,220,0.30) 0%, rgba(0,100,180,0.12) 50%, transparent 72%)',
+              width: '75vw', height: '75vw',
+              bottom: '-22vw', right: '-18vw',
+              background: 'radial-gradient(circle, rgba(0,200,240,0.55) 0%, rgba(0,130,200,0.28) 42%, rgba(0,70,150,0.10) 66%, transparent 80%)',
               borderRadius: '50%',
               animation: 'aura-nebula2 12s ease-in-out infinite',
             }}
           />
-          {/* Viñeta central */}
+          {/* Viñeta: oscurece los BORDES, no el centro. La versión anterior
+              pintaba un óvalo opaco justo encima de las nebulosas y las
+              ocultaba por completo. */}
           <div
             style={{
               position: 'absolute', inset: 0,
-              background: 'radial-gradient(ellipse 70% 60% at 50% 50%, #0e0020 0%, #060010 60%, transparent 100%)',
+              background: 'radial-gradient(ellipse 85% 75% at 50% 45%, transparent 20%, rgba(4,0,10,0.45) 70%, rgba(4,0,10,0.8) 100%)',
+              pointerEvents: 'none',
             }}
           />
         </div>
-
-        {/* ── Overlay oscuro suave ── */}
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            background: 'rgba(0,0,0,0.3)',
-            zIndex: 1,
-            pointerEvents: 'none',
-          }}
-        />
-
-        {/* ── Tinte azul para unificar con la webapp ── */}
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            background: 'rgba(10,15,30,0.25)',
-            zIndex: 1,
-            pointerEvents: 'none',
-          }}
-        />
 
         {/* ── Gradient inferior para legibilidad del botón ── */}
         <div
