@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { vault } from '../utils/vault';
+import { storage } from '../utils/storage';
 import { KeyRound, Mail, ShieldCheck, UserPlus, Lock } from 'lucide-react';
 import { motion } from 'framer-motion';
 import logo from '../assets/logo-aura-pets.png';
@@ -20,30 +21,33 @@ const Auth = () => {
     setLoading(true);
     
     try {
-      const users = JSON.parse(localStorage.getItem('mascota_health_users') || '[]');
-      const hashedPass = await vault.hashPassword(formData.password);
-      
+      const users = storage.getUsers();
+
       if (isRegister) {
         if (users.find(u => u.email === formData.email)) {
           setError('Identidad ya registrada en la red AURA');
           return;
         }
-        const newUser = { 
-          id: Date.now().toString(), 
-          email: formData.email, 
-          password: hashedPass 
-        };
-        localStorage.setItem('mascota_health_users', JSON.stringify([...users, newUser]));
+        const id = Date.now().toString();
+        // Deriva la clave AES de la contraseña y abre la bóveda del usuario
+        const { salt, verifier } = await vault.createSession(id, formData.password);
+        const newUser = { id, email: formData.email, salt, verifier };
+        storage.saveUser(newUser);
         login(newUser);
       } else {
-        const user = users.find(u => u.email === formData.email && u.password === hashedPass);
-        if (user) {
-          login(user);
+        const candidate = users.find(u => u.email === formData.email);
+        // openSession valida la contraseña y descifra el expediente. Devuelve el
+        // usuario ya migrado al esquema cifrado si venía de una versión antigua.
+        const opened = candidate ? await vault.openSession(candidate, formData.password) : null;
+        if (opened) {
+          storage.updateUser(opened);
+          login(opened);
         } else {
           setError('Clave de acceso o identidad no válida');
         }
       }
     } catch (err) {
+      console.error('[AURA] Error de autenticación:', err);
       setError('Error en el protocolo de seguridad Vault™');
     } finally {
       setLoading(false);

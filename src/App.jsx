@@ -14,7 +14,7 @@ import RecuperarAcceso from './components/Aura/RecuperarAcceso';
 import { storage } from './utils/storage';
 import {
   LogOut, LayoutDashboard, ShieldAlert, ShieldCheck,
-  Settings, PlusCircle, Globe,
+  Settings, PlusCircle, Globe, AlertTriangle, X,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -124,7 +124,7 @@ const SessionModal = ({ locale, onRenew, onLogout }) => {
    Inner App — requires providers
 ════════════════════════════════ */
 const AppContent = () => {
-  const { user, logout, renewSession, sessionWarning } = useAuth();
+  const { user, logout, renewSession, sessionWarning, vaultReady } = useAuth();
   const { t, locale, setManualConfig, currency } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
@@ -133,42 +133,62 @@ const AppContent = () => {
   const [activePetId, setActivePetId] = useState(null);
   const [isSOS, setIsSOS]         = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [saveError, setSaveError] = useState(null);
 
   /* Derive active pet — falls back to first pet if activePetId is null or stale */
   const activePet = pets.find(p => p.id === activePetId) || pets[0] || null;
 
   useEffect(() => {
-    if (user) {
+    // Espera a que la bóveda esté abierta: antes de eso el expediente aún no
+    // está descifrado y se leería vacío.
+    if (user && vaultReady) {
       const isFirstTime = localStorage.getItem(`aura_onboarding_${user.id}`) === null;
       if (isFirstTime) setShowOnboarding(true);
       setPets(storage.getPets(user.id));
     }
-  }, [user]);
+  }, [user, vaultReady]);
 
   const handleOnboardingComplete = () => {
     localStorage.setItem(`aura_onboarding_${user.id}`, 'done');
     setShowOnboarding(false);
   };
 
-  const handleAddPet = (newPet) => {
+  const handleAddPet = async (newPet) => {
     const petWithMeta = {
       ...newPet,
       id: Date.now(),
       userId: user.id,
       emergencyConfig: { active: true, medicalAlerts: '', contacts: [{ name: 'Dueño', phone: '' }] },
     };
-    storage.savePet(user.id, petWithMeta);
+    // Solo se refleja en pantalla si el cifrado y la escritura han ido bien:
+    // antes, un fallo de cuota dejaba la mascota visible pero sin guardar.
+    try {
+      await storage.savePet(user.id, petWithMeta);
+    } catch (err) {
+      setSaveError(err.message);
+      return;
+    }
     setPets(prev => [...prev, petWithMeta]);
     setTimeout(() => navigate('/dashboard'), 1200); // delay only the nav for the success animation
   };
 
-  const handleUpdatePet = (updatedPet) => {
-    storage.updatePet(user.id, updatedPet.id, () => updatedPet);
+  const handleUpdatePet = async (updatedPet) => {
+    try {
+      await storage.updatePet(user.id, updatedPet.id, () => updatedPet);
+    } catch (err) {
+      setSaveError(err.message);
+      return;
+    }
     setPets(prev => prev.map(p => p.id === updatedPet.id ? updatedPet : p));
   };
 
-  const handleDeletePet = (petId) => {
-    storage.deletePet(user.id, petId);
+  const handleDeletePet = async (petId) => {
+    try {
+      await storage.deletePet(user.id, petId);
+    } catch (err) {
+      setSaveError(err.message);
+      return;
+    }
     setPets(prev => {
       const remaining = prev.filter(p => p.id !== petId);
       if (activePetId === petId) setActivePetId(remaining[0]?.id ?? null);
@@ -178,6 +198,19 @@ const AppContent = () => {
 
   /* ── Auth / Onboarding gates ── */
   if (location.pathname === '/recuperar-acceso') return <RecuperarAcceso />;
+  // Mientras se descifra el expediente no se muestra nada: evita el parpadeo de
+  // un panel vacío antes de que los datos estén disponibles.
+  if (!vaultReady) {
+    return (
+      <div style={{
+        minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center',
+        background: 'var(--aura-black)', color: 'var(--aura-gold)',
+        fontSize: '0.78rem', letterSpacing: '3px', textTransform: 'uppercase',
+      }}>
+        {locale === 'es' ? 'Descifrando expediente…' : 'Decrypting records…'}
+      </div>
+    );
+  }
   if (!user) return <Auth />;
   if (showOnboarding) return <Onboarding onComplete={handleOnboardingComplete} />;
   if (isSOS) return <SOSMode pet={activePet} pets={pets} onActivePetChange={setActivePetId} onExit={() => setIsSOS(false)} />;
@@ -187,6 +220,46 @@ const AppContent = () => {
   /* ── Main layout ── */
   return (
     <>
+      {/* ── Aviso de fallo al guardar — antes esto fallaba en silencio ── */}
+      <AnimatePresence>
+        {saveError && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            role="alert"
+            style={{
+              position: 'fixed', top: 0, left: 0, right: 0, zIndex: 5000,
+              display: 'flex', alignItems: 'center', gap: '0.9rem',
+              padding: '1rem 1.2rem',
+              paddingTop: 'max(1rem, env(safe-area-inset-top))',
+              background: '#2A0A12',
+              borderBottom: '1px solid var(--aura-neon-pink, #E24B4A)',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.6)',
+            }}
+          >
+            <AlertTriangle size={18} color="var(--aura-neon-pink, #E24B4A)" style={{ flexShrink: 0 }} />
+            <p style={{
+              margin: 0, flex: 1, fontSize: '0.82rem', lineHeight: 1.5,
+              color: '#FFE9EC',
+            }}>
+              {saveError}
+            </p>
+            <button
+              onClick={() => setSaveError(null)}
+              aria-label={locale === 'es' ? 'Cerrar aviso' : 'Dismiss'}
+              style={{
+                background: 'transparent', border: 'none', cursor: 'pointer',
+                color: '#FFE9EC', padding: '0.3rem', flexShrink: 0,
+                display: 'flex', alignItems: 'center',
+              }}
+            >
+              <X size={18} />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* ── Session expiry modal ── */}
       <AnimatePresence>
         {sessionWarning && (

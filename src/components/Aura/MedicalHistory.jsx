@@ -2,9 +2,12 @@ import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Plus, Download, Calendar, Shield, Activity, Award, FileText, Eye } from 'lucide-react';
 import { jsPDF } from 'jspdf';
+import { storage } from '../../utils/storage';
+import { useAuth } from '../../context/AuthContext';
 
 // ─── Storage ──────────────────────────────────────────────────────────────────
-const storageKey = (petId) => `aura_medical_${petId}`;
+// El historial clínico se guarda cifrado dentro de la bóveda del usuario.
+// Antes vivía suelto en localStorage, en claro y sin separar por cuenta.
 const EMPTY_DATA = { visits: [], vaccines: [], medications: [], analyses: [] };
 
 const EMPTY_VISIT    = { date: '', clinic: '', vet: '', reason: '', diagnosis: '', treatment: '', cost: '' };
@@ -29,8 +32,9 @@ const ADD_LABELS = {
 const MAX_FILE_BYTES = 3 * 1024 * 1024; // 3 MB antes de base64
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-const loadData = (petId) => {
-  try { return JSON.parse(localStorage.getItem(storageKey(petId))) || EMPTY_DATA; }
+const loadData = (userId, petId) => {
+  if (!userId) return EMPTY_DATA;
+  try { return storage.getHistory(userId, petId, EMPTY_DATA) || EMPTY_DATA; }
   catch { return EMPTY_DATA; }
 };
 
@@ -123,8 +127,10 @@ const Field = ({ label, as, ...props }) => (
 
 // ─── Component ────────────────────────────────────────────────────────────────
 const MedicalHistory = ({ pet, onClose }) => {
+  const { user } = useAuth();
   const [tab, setTab]             = useState('visits');
-  const [data, setData]           = useState(() => loadData(pet.id));
+  const [data, setData]           = useState(() => loadData(user?.id, pet.id));
+  const [saveError, setSaveError]  = useState('');
   const [showForm, setShowForm]   = useState(false);
   const [form, setForm]           = useState(EMPTY_VISIT);
   const [docPreview, setDocPreview] = useState(null);   // { dataUrl, type, name }
@@ -136,9 +142,20 @@ const MedicalHistory = ({ pet, onClose }) => {
   const cameraInputRef = useRef(null);
 
   // ── Persistence ───────────────────────────────────────────────────────────
-  const persist = (newData) => {
+  /** Devuelve true si el historial quedó guardado y cifrado en disco. */
+  const persist = async (newData) => {
+    if (!user) return false;
+    // La pantalla solo se actualiza si el guardado cifrado ha ido bien: antes
+    // un fallo de espacio dejaba el dato visible pero sin escribir en disco.
+    try {
+      await storage.saveHistory(user.id, pet.id, newData);
+    } catch (err) {
+      setSaveError(err.message);
+      return false;
+    }
     setData(newData);
-    localStorage.setItem(storageKey(pet.id), JSON.stringify(newData));
+    setSaveError('');
+    return true;
   };
 
   const f = (key) => (e) => setForm((p) => ({ ...p, [key]: e.target.value }));
@@ -157,10 +174,13 @@ const MedicalHistory = ({ pet, onClose }) => {
     setFileError('');
   };
 
-  const submit = () => {
+  const submit = async () => {
     const item = { id: Date.now(), ...form };
     if (tab === 'analyses' && docPreview) item.document = docPreview;
-    persist({ ...data, [tab]: [item, ...data[tab]] });
+    const ok = await persist({ ...data, [tab]: [item, ...data[tab]] });
+    // Si el guardado falla, el formulario sigue abierto con lo escrito para
+    // que el usuario pueda reintentar en lugar de perderlo.
+    if (!ok) return;
     setShowForm(false);
     setDocPreview(null);
   };
@@ -541,6 +561,26 @@ const MedicalHistory = ({ pet, onClose }) => {
             </button>
           </div>
         </div>
+
+        {/* Aviso de fallo al guardar — antes esto fallaba en silencio */}
+        {saveError && (
+          <div role="alert" style={{
+            display: 'flex', alignItems: 'center', gap: '0.7rem', flexShrink: 0,
+            padding: '0.8rem 2rem', background: 'rgba(255,0,110,0.08)',
+            borderBottom: '1px solid rgba(255,0,110,0.35)',
+          }}>
+            <p style={{ margin: 0, flex: 1, fontSize: '0.76rem', lineHeight: 1.5, color: '#ff8fb4' }}>
+              {saveError}
+            </p>
+            <button
+              onClick={() => setSaveError('')}
+              aria-label="Cerrar aviso"
+              style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ff8fb4', display: 'flex', padding: '0.2rem' }}
+            >
+              <X size={15} />
+            </button>
+          </div>
+        )}
 
         {/* Tabs */}
         <div style={{ display: 'flex', borderBottom: '1px solid rgba(212,175,55,0.12)', overflowX: 'auto', flexShrink: 0 }}>

@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { KeyRound, Mail, ArrowLeft, CheckCircle2 } from 'lucide-react';
+import { KeyRound, Mail, ArrowLeft, CheckCircle2, AlertTriangle } from 'lucide-react';
 import logo from '../../assets/logo-aura-pets.png';
 import { vault } from '../../utils/vault';
+import { storage } from '../../utils/storage';
 
 /* ── Client-side token: stored in localStorage ── */
 const TOKEN_TTL_MS = 20 * 60 * 1000; // 20 min
@@ -25,6 +26,7 @@ const RecuperarAcceso = () => {
   const [code,     setCode]     = useState('');
   const [newPass,  setNewPass]  = useState('');
   const [newPass2, setNewPass2] = useState('');
+  const [confirmed, setConfirmed] = useState(false);
   const [error,    setError]    = useState('');
   const [loading,  setLoading]  = useState(false);
   const [localCode, setLocalCode] = useState(''); // shown in demo banner
@@ -66,14 +68,29 @@ const RecuperarAcceso = () => {
     setError('');
     if (newPass.length < 6) { setError('La clave debe tener al menos 6 caracteres.'); return; }
     if (newPass !== newPass2) { setError('Las claves no coinciden.'); return; }
+    if (!confirmed) { setError('Debes confirmar que entiendes que perderás los expedientes.'); return; }
     setLoading(true);
     try {
-      const hashed = await vault.hashPassword(newPass);
-      const users  = JSON.parse(localStorage.getItem('mascota_health_users') || '[]');
-      const updated = users.map(u =>
-        u.email.toLowerCase() === email.toLowerCase() ? { ...u, password: hashed } : u,
+      const users = storage.getUsers();
+      const target = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+      if (!target) { setError('No existe ninguna cuenta con ese correo.'); return; }
+
+      // La clave de cifrado se deriva de la contraseña. Sin la contraseña
+      // anterior no hay forma de descifrar lo guardado, así que restablecerla
+      // obliga a partir de una bóveda nueva y vacía: lo contrario dejaría al
+      // usuario con una cuenta que abre pero cuyos datos no puede leer nadie.
+      Object.keys(localStorage).forEach(key => {
+        if (key.startsWith(`vault_${target.id}_`)) localStorage.removeItem(key);
+      });
+
+      const { salt, verifier } = await vault.createSession(target.id, newPass);
+      vault.lock(); // que tenga que iniciar sesión de forma explícita
+
+      const rebuilt = { id: target.id, email: target.email, salt, verifier };
+      localStorage.setItem(
+        'mascota_health_users',
+        JSON.stringify(users.map(u => (u.id === target.id ? rebuilt : u))),
       );
-      localStorage.setItem('mascota_health_users', JSON.stringify(updated));
       localStorage.removeItem(`aura_reset_${email.toLowerCase()}`);
       setStep(4);
     } catch {
@@ -182,6 +199,38 @@ const RecuperarAcceso = () => {
               <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--aura-text-muted)', lineHeight: 1.7, textAlign: 'center' }}>
                 Introduce tu nueva clave de seguridad.
               </p>
+
+              {/* El cifrado no tiene puerta trasera: hay que decirlo antes, no después */}
+              <div style={{
+                display: 'flex', gap: '0.8rem', alignItems: 'flex-start',
+                padding: '1rem 1.1rem', background: 'rgba(255,0,110,0.06)',
+                border: '1px solid rgba(255,0,110,0.32)', borderRadius: '0.6rem',
+              }}>
+                <AlertTriangle size={17} color="var(--aura-neon-pink)" style={{ flexShrink: 0, marginTop: 2 }} />
+                <div>
+                  <p style={{ margin: '0 0 0.5rem', fontSize: '0.78rem', lineHeight: 1.65, color: '#ff8fb4', fontWeight: 600 }}>
+                    Perderás todos los expedientes guardados.
+                  </p>
+                  <p style={{ margin: 0, fontSize: '0.75rem', lineHeight: 1.65, color: 'var(--aura-text-muted)' }}>
+                    Tus datos están cifrados con una clave que nace de tu contraseña anterior.
+                    Sin ella no se pueden descifrar: ni tú ni nosotros podemos recuperarlos.
+                    Al establecer una clave nueva empiezas con una bóveda vacía.
+                  </p>
+                </div>
+              </div>
+
+              <label style={{
+                display: 'flex', gap: '0.7rem', alignItems: 'flex-start', cursor: 'pointer',
+                fontSize: '0.78rem', lineHeight: 1.6, color: 'var(--aura-text-muted)',
+              }}>
+                <input
+                  type="checkbox"
+                  checked={confirmed}
+                  onChange={e => setConfirmed(e.target.checked)}
+                  style={{ marginTop: 3, accentColor: 'var(--aura-gold)', width: 16, height: 16, flexShrink: 0 }}
+                />
+                <span>Entiendo que los expedientes guardados se perderán de forma irreversible.</span>
+              </label>
               <div className="input-group">
                 <label style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.7rem', color: 'var(--aura-gold)', fontSize: '0.75rem', letterSpacing: '1px', fontWeight: 600 }}>
                   NUEVA CLAVE
