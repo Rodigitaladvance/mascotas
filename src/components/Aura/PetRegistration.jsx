@@ -217,7 +217,7 @@ const FieldWrap = ({ filled, children }) => (
     {filled && (
       <span style={{
         position: 'absolute', right: '0.75rem', top: '50%', transform: 'translateY(-50%)',
-        color: '#1D9E75', fontSize: '0.85rem', fontWeight: 700, pointerEvents: 'none',
+        color: '#2E9C7A', fontSize: '0.85rem', fontWeight: 700, pointerEvents: 'none',
         lineHeight: 1,
       }}>✓</span>
     )}
@@ -287,7 +287,7 @@ const PetRegistration = ({ onSave, onCancel }) => {
   if (saved) return (
     <div style={{ minHeight:'60vh', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:'1.5rem' }}>
       <motion.div initial={{ scale:0 }} animate={{ scale:1 }} transition={{ type:'spring', stiffness:200 }}>
-        <CheckCircle2 size={72} color="var(--aura-neon-cyan)" style={{ filter:'drop-shadow(0 0 20px rgba(0,245,255,0.5))' }} />
+        <CheckCircle2 size={72} color="var(--aura-neon-cyan)" style={{ filter:'drop-shadow(0 0 20px rgba(67, 191, 199, 0.5))' }} />
       </motion.div>
       <h2 style={{ color:'var(--aura-neon-cyan)' }}>{locale==='es'?'Miembro Registrado':'Member Registered'}</h2>
       <p style={{ color:'var(--aura-text-muted)', textAlign:'center' }}>
@@ -325,8 +325,8 @@ const PetRegistration = ({ onSave, onCancel }) => {
               <button onClick={() => scrollCarousel(-1)} style={{
                 position:'absolute', left:0, top:'50%', transform:'translateY(-60%)',
                 zIndex:3, background:'transparent', border:'none', cursor:'pointer',
-                color:'#F0D060', fontSize:'1.6rem', lineHeight:1, padding:'0 4px',
-                textShadow:'0 0 10px rgba(240,208,96,0.9)',
+                color:'#B8862C', fontSize:'1.6rem', lineHeight:1, padding:'0 4px',
+                textShadow:'0 0 10px rgba(184, 134, 44, 0.9)',
               }}>‹</button>
             </>
           )}
@@ -342,8 +342,8 @@ const PetRegistration = ({ onSave, onCancel }) => {
               <button onClick={() => scrollCarousel(1)} style={{
                 position:'absolute', right:0, top:'50%', transform:'translateY(-60%)',
                 zIndex:3, background:'transparent', border:'none', cursor:'pointer',
-                color:'#F0D060', fontSize:'1.6rem', lineHeight:1, padding:'0 4px',
-                textShadow:'0 0 10px rgba(240,208,96,0.9)',
+                color:'#B8862C', fontSize:'1.6rem', lineHeight:1, padding:'0 4px',
+                textShadow:'0 0 10px rgba(184, 134, 44, 0.9)',
               }}>›</button>
             </>
           )}
@@ -357,17 +357,17 @@ const PetRegistration = ({ onSave, onCancel }) => {
                   onClick={() => { setSelectedSpecies(sp); setSpecificData({}); setSubTab('specific'); }}
                   style={{
                     flexShrink: 0, width: 100, height: 100,
-                    border: isSelected ? '2px solid #D4AF37' : '1px dashed rgba(212,175,55,0.35)',
+                    border: isSelected ? '2px solid #D9A441' : '1px dashed rgba(217, 164, 65, 0.35)',
                     borderRadius: '12px', cursor: 'pointer',
                     display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                    gap: 5, background: isSelected ? 'rgba(212,175,55,0.1)' : 'rgba(30,10,53,0.9)',
+                    gap: 5, background: isSelected ? 'rgba(217, 164, 65, 0.1)' : 'rgba(30,10,53,0.9)',
                     transform: isSelected ? 'scale(1.08)' : 'scale(1)',
-                    boxShadow: isSelected ? '0 0 12px rgba(212,175,55,0.4)' : 'none',
+                    boxShadow: isSelected ? '0 0 12px rgba(217, 164, 65, 0.4)' : 'none',
                     transition: 'all 0.3s',
                   }}
                 >
                   <PlusCircle size={24} color="var(--aura-gold)" strokeWidth={1.5} />
-                  <span style={{ fontSize:'0.48rem', letterSpacing:'1px', color:'#F0D060', textTransform:'uppercase', textAlign:'center', lineHeight:1.2, padding:'0 6px', fontWeight:700, textShadow:'0 0 8px rgba(240,208,96,0.5)' }}>
+                  <span style={{ fontSize:'0.48rem', letterSpacing:'1px', color:'#B8862C', textTransform:'uppercase', textAlign:'center', lineHeight:1.2, padding:'0 6px', fontWeight:700, textShadow:'0 0 8px rgba(184, 134, 44, 0.5)' }}>
                     {locale === 'es' ? 'OTRA' : 'OTHER'}
                   </span>
                 </div>
@@ -395,7 +395,7 @@ const PetRegistration = ({ onSave, onCancel }) => {
             {SPECIES.map((_, i) => (
               <div key={i} style={{
                 width: 5, height: 5, borderRadius: '50%',
-                background: 'rgba(212,175,55,0.3)',
+                background: 'rgba(217, 164, 65, 0.3)',
                 transition: 'background 0.2s',
               }} />
             ))}
@@ -403,7 +403,7 @@ const PetRegistration = ({ onSave, onCancel }) => {
         </div>
 
         {selectedSpecies && (
-          <p style={{ margin:'0.8rem 0 0', fontSize:'0.72rem', letterSpacing:'2px', color:'#F0D060', textTransform:'uppercase', textAlign:'center', textShadow:'0 0 10px rgba(240,208,96,0.5)' }}>
+          <p style={{ margin:'0.8rem 0 0', fontSize:'0.72rem', letterSpacing:'2px', color:'#B8862C', textTransform:'uppercase', textAlign:'center', textShadow:'0 0 10px rgba(184, 134, 44, 0.5)' }}>
             {speciesLabel(selectedSpecies)} {locale==='es'?'seleccionado':'selected'}
           </p>
         )}
@@ -429,11 +429,11 @@ const PetRegistration = ({ onSave, onCancel }) => {
                 <label style={{ cursor:'pointer', display:'flex', flexDirection:'column', alignItems:'center', gap:'0.5rem' }}>
                   <div style={{
                     width:96, height:96, borderRadius:'12px', overflow:'hidden',
-                    border: basicData.customPhoto ? '2px solid #D4AF37' : '1px dashed rgba(212,175,55,0.4)',
+                    border: basicData.customPhoto ? '2px solid #D9A441' : '1px dashed rgba(217, 164, 65, 0.4)',
                     background:'rgba(30,10,53,0.6)',
                     display:'flex', alignItems:'center', justifyContent:'center',
                     transition:'border-color 0.3s, box-shadow 0.3s',
-                    boxShadow: basicData.customPhoto ? '0 0 12px rgba(212,175,55,0.35)' : 'none',
+                    boxShadow: basicData.customPhoto ? '0 0 12px rgba(217, 164, 65, 0.35)' : 'none',
                   }}>
                     {basicData.customPhoto
                       ? <img src={basicData.customPhoto} alt="preview" style={{ width:'100%', height:'100%', objectFit:'cover' }} />

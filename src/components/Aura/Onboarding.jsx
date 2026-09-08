@@ -92,7 +92,7 @@ const Onboarding = ({ onComplete }) => {
               <div key={i} style={{
                 width: i === step ? 32 : 8,
                 height: 2,
-                background: i === step ? 'var(--aura-gold)' : 'rgba(212,175,55,0.2)',
+                background: i === step ? 'var(--aura-gold)' : 'rgba(217, 164, 65, 0.2)',
                 transition: 'all 0.4s',
                 borderRadius: 1,
               }} />

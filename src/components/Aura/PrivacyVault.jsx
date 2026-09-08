@@ -191,7 +191,7 @@ const getLegalContent = (locale) => {
     },
     gdpr: {
       title: 'GDPR — General Data Protection Regulation',
-      accentColor: '#B57BFF',
+      accentColor: '#8B5CF6',
       icon: <EyeOff size={22} />,
       cardDesc: es
         ? 'Protege los datos personales y la privacidad de los ciudadanos de la UE. Los usuarios tienen derecho a acceder, corregir, eliminar y transferir sus datos.'
@@ -266,7 +266,7 @@ const LegalInfoModal = ({ type, onClose }) => {
       initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
       onClick={onClose}
       style={{
-        position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.88)',
+        position: 'fixed', inset: 0, background: 'rgba(42, 45, 124, 0.42)',
         backdropFilter: 'blur(18px)', zIndex: 3000,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         padding: '1rem',
@@ -279,7 +279,7 @@ const LegalInfoModal = ({ type, onClose }) => {
         transition={{ type: 'spring', stiffness: 300, damping: 28 }}
         onClick={e => e.stopPropagation()}
         style={{
-          background: 'linear-gradient(135deg, #1E0830 0%, #280D3D 100%)',
+          background: 'linear-gradient(135deg, #FFFFFF 0%, #FAF7FE 100%)',
           border: `1px solid ${content.accentColor}40`,
           borderRadius: '1.2rem',
           width: '100%',
@@ -288,7 +288,7 @@ const LegalInfoModal = ({ type, onClose }) => {
           display: 'flex',
           flexDirection: 'column',
           overflow: 'hidden',
-          boxShadow: `0 24px 80px rgba(0,0,0,0.8), 0 0 40px ${content.accentColor}18`,
+          boxShadow: `0 24px 80px rgba(42, 45, 124, 0.42), 0 0 40px ${content.accentColor}18`,
         }}
       >
         {/* Header */}
@@ -381,9 +381,9 @@ const LegalInfoModal = ({ type, onClose }) => {
               const open = openIdx === i;
               return (
                 <div key={i} style={{
-                  border: `1px solid ${open ? `${content.accentColor}40` : 'rgba(255,255,255,0.07)'}`,
+                  border: `1px solid ${open ? `${content.accentColor}40` : '#FFFFFF'}`,
                   borderRadius: '0.7rem',
-                  background: open ? `${content.accentColor}0A` : 'rgba(255,255,255,0.02)',
+                  background: open ? `${content.accentColor}0A` : '#FFFFFF',
                   overflow: 'hidden',
                   transition: 'border-color 0.2s, background 0.2s',
                 }}>
@@ -479,7 +479,7 @@ const DestructionModal = ({ onConfirm, onClose, locale }) => {
       initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
       onClick={onClose}
       style={{
-        position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.92)',
+        position: 'fixed', inset: 0, background: 'rgba(42, 45, 124, 0.42)',
         backdropFilter: 'blur(16px)', zIndex: 3000,
         display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem',
       }}
@@ -664,7 +664,7 @@ const PrivacyVault = () => {
           {/* Shield card */}
           <div className="aura-card" style={{ padding: '2.5rem' }}>
             <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'start', flexWrap: 'wrap' }}>
-              <div style={{ padding: '1rem', background: 'rgba(0,245,255,0.05)', borderRadius: '50%', flexShrink: 0 }}>
+              <div style={{ padding: '1rem', background: 'rgba(67, 191, 199, 0.05)', borderRadius: '50%', flexShrink: 0 }}>
                 <ShieldCheck color="var(--aura-neon-cyan)" size={28} />
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
@@ -691,7 +691,7 @@ const PrivacyVault = () => {
               onMouseEnter={e => {
                 e.currentTarget.style.transform = 'translateY(-3px)';
                 e.currentTarget.style.borderColor = 'rgba(201,168,76,0.55)';
-                e.currentTarget.style.boxShadow = '0 12px 40px rgba(0,0,0,0.6), 0 0 24px rgba(201,168,76,0.18)';
+                e.currentTarget.style.boxShadow = '0 12px 40px rgba(42, 45, 124, 0.28), 0 0 24px rgba(201,168,76,0.18)';
               }}
               onMouseLeave={e => {
                 e.currentTarget.style.transform = '';
@@ -723,7 +723,7 @@ const PrivacyVault = () => {
               onMouseEnter={e => {
                 e.currentTarget.style.transform = 'translateY(-3px)';
                 e.currentTarget.style.borderColor = 'rgba(181,123,255,0.55)';
-                e.currentTarget.style.boxShadow = '0 12px 40px rgba(0,0,0,0.6), 0 0 24px rgba(181,123,255,0.18)';
+                e.currentTarget.style.boxShadow = '0 12px 40px rgba(42, 45, 124, 0.28), 0 0 24px rgba(181,123,255,0.18)';
               }}
               onMouseLeave={e => {
                 e.currentTarget.style.transform = '';
@@ -731,14 +731,14 @@ const PrivacyVault = () => {
                 e.currentTarget.style.boxShadow = '';
               }}
             >
-              <EyeOff size={24} color="#B57BFF" style={{ marginBottom: '1.5rem' }} />
+              <EyeOff size={24} color="#8B5CF6" style={{ marginBottom: '1.5rem' }} />
               <h4 style={{ margin: '0 0 0.5rem' }}>GDPR (Europa)</h4>
               <p style={{ fontSize: '0.8rem', color: 'var(--aura-text-muted)', margin: '0 0 1rem' }}>
                 {legalContent.gdpr.cardDesc}
               </p>
               <span style={{
                 fontSize: '0.65rem', letterSpacing: '1.5px', textTransform: 'uppercase',
-                color: '#B57BFF', display: 'flex', alignItems: 'center', gap: '0.3rem',
+                color: '#8B5CF6', display: 'flex', alignItems: 'center', gap: '0.3rem',
               }}>
                 <BookOpen size={11} /> {legalContent.gdpr.readLabel}
               </span>
@@ -752,7 +752,7 @@ const PrivacyVault = () => {
             </h3>
             <div style={{ display: 'grid', gap: '1rem' }}>
               <button className="btn-aura"
-                style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', background: 'rgba(212,175,55,0.05)' }}
+                style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', background: 'rgba(217, 164, 65, 0.05)' }}
                 onClick={handleExportPDF}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
                   <FileText size={16} color="var(--aura-gold)" />
@@ -769,7 +769,7 @@ const PrivacyVault = () => {
               </button>
 
               <button className="btn-aura"
-                style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', background: 'rgba(255,255,255,0.03)' }}
+                style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', background: '#FFFFFF' }}
                 onClick={handleExportJSON}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
                   <Download size={16} />
@@ -786,7 +786,7 @@ const PrivacyVault = () => {
               </button>
 
               <button className="btn-aura"
-                style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', background: 'rgba(255,255,255,0.02)' }}
+                style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', background: '#FFFFFF' }}
                 onClick={() => window.open('/politicas.html', '_blank', 'noopener,noreferrer')}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
                   <ExternalLink size={16} color="var(--aura-text-muted)" />

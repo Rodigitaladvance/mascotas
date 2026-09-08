@@ -148,7 +148,7 @@ const DeregistrationModal = ({ pet, onConfirm, onCancel }) => {
       initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
       style={{
         position: 'fixed', inset: 0, zIndex: 3000,
-        background: 'rgba(0,0,0,0.92)', backdropFilter: 'blur(18px)',
+        background: 'rgba(42, 45, 124, 0.42)', backdropFilter: 'blur(18px)',
         display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem',
       }}
       onClick={step < 4 ? onCancel : undefined}
@@ -171,7 +171,7 @@ const DeregistrationModal = ({ pet, onConfirm, onCancel }) => {
               <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
                 <div style={{
                   width: 56, height: 56, borderRadius: '50%',
-                  border: '1px solid rgba(212,175,55,0.4)',
+                  border: '1px solid rgba(217, 164, 65, 0.4)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   margin: '0 auto 1.4rem',
                 }}>
@@ -192,7 +192,7 @@ const DeregistrationModal = ({ pet, onConfirm, onCancel }) => {
                   <button key={id} type="button"
                     onClick={() => setReason({ id, label })}
                     style={{
-                      background: reason?.id === id ? 'rgba(212,175,55,0.08)' : 'rgba(255,255,255,0.02)',
+                      background: reason?.id === id ? 'rgba(217, 164, 65, 0.08)' : '#FFFFFF',
                       border: `1px solid ${reason?.id === id ? 'var(--aura-gold)' : 'var(--aura-border)'}`,
                       borderRadius: 4, padding: '1.1rem 1.3rem',
                       cursor: 'pointer', textAlign: 'left',
@@ -220,7 +220,7 @@ const DeregistrationModal = ({ pet, onConfirm, onCancel }) => {
                   {es ? 'CANCELAR' : 'CANCEL'}
                 </button>
                 <button className="btn-aura"
-                  style={{ flex: 2, borderColor: 'var(--aura-gold)', color: 'var(--aura-gold)', background: 'rgba(212,175,55,0.07)' }}
+                  style={{ flex: 2, borderColor: 'var(--aura-gold)', color: 'var(--aura-gold)', background: 'rgba(217, 164, 65, 0.07)' }}
                   onClick={proceed}>
                   {es ? 'CONTINUAR' : 'CONTINUE'}
                 </button>
@@ -235,7 +235,7 @@ const DeregistrationModal = ({ pet, onConfirm, onCancel }) => {
               <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
                 <div style={{
                   width: 56, height: 56, borderRadius: '50%',
-                  border: '1px solid rgba(0,245,255,0.35)',
+                  border: '1px solid rgba(67, 191, 199, 0.35)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   margin: '0 auto 1.4rem',
                 }}>
@@ -252,7 +252,7 @@ const DeregistrationModal = ({ pet, onConfirm, onCancel }) => {
               </div>
 
               <div style={{
-                background: 'rgba(0,245,255,0.04)', border: '1px solid rgba(0,245,255,0.2)',
+                background: 'rgba(67, 191, 199, 0.04)', border: '1px solid rgba(67, 191, 199, 0.2)',
                 borderRadius: 4, padding: '1.4rem', marginBottom: '2rem', textAlign: 'center',
               }}>
                 <p style={{ margin: '0 0 4px', fontSize: '0.65rem', letterSpacing: '2px', color: 'var(--aura-neon-cyan)', textTransform: 'uppercase' }}>
@@ -267,7 +267,7 @@ const DeregistrationModal = ({ pet, onConfirm, onCancel }) => {
 
               <div style={{ display: 'grid', gap: '0.8rem' }}>
                 <button className="btn-aura"
-                  style={{ borderColor: 'var(--aura-neon-cyan)', color: 'var(--aura-neon-cyan)', background: 'rgba(0,245,255,0.05)',
+                  style={{ borderColor: 'var(--aura-neon-cyan)', color: 'var(--aura-neon-cyan)', background: 'rgba(67, 191, 199, 0.05)',
                     padding: '1.1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.6rem' }}
                   onClick={() => { generateMemorialPDF(pet); setStep(3); }}>
                   <Download size={16} />
@@ -292,10 +292,10 @@ const DeregistrationModal = ({ pet, onConfirm, onCancel }) => {
               <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
                 <div style={{
                   width: 56, height: 56, borderRadius: '50%',
-                  border: '1px solid rgba(255,0,122,0.4)',
+                  border: '1px solid rgba(236, 92, 141, 0.4)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   margin: '0 auto 1.4rem',
-                  background: 'rgba(255,0,122,0.06)',
+                  background: 'rgba(236, 92, 141, 0.06)',
                 }}>
                   <ShieldOff size={24} color="var(--aura-neon-pink)" />
                 </div>
@@ -310,7 +310,7 @@ const DeregistrationModal = ({ pet, onConfirm, onCancel }) => {
               </div>
 
               <div style={{
-                background: 'rgba(255,0,122,0.04)', border: '1px dashed rgba(255,0,122,0.3)',
+                background: 'rgba(236, 92, 141, 0.04)', border: '1px dashed rgba(236, 92, 141, 0.3)',
                 borderRadius: 4, padding: '1.2rem', marginBottom: '1.6rem',
               }}>
                 <p style={{ margin: '0 0 8px', fontSize: '0.65rem', letterSpacing: '2px',
@@ -352,7 +352,7 @@ const DeregistrationModal = ({ pet, onConfirm, onCancel }) => {
                   disabled={typed !== CONFIRM_KEYWORD}
                   style={{
                     flex: 2,
-                    background:   typed === CONFIRM_KEYWORD ? 'rgba(255,0,122,0.12)' : undefined,
+                    background:   typed === CONFIRM_KEYWORD ? 'rgba(236, 92, 141, 0.12)' : undefined,
                     borderColor:  typed === CONFIRM_KEYWORD ? 'var(--aura-neon-pink)' : 'var(--aura-border)',
                     color:        typed === CONFIRM_KEYWORD ? 'var(--aura-neon-pink)' : 'var(--aura-text-muted)',
                     opacity:      typed === CONFIRM_KEYWORD ? 1 : 0.4,
@@ -504,7 +504,7 @@ const PetEditModal = ({ pet, onSave, onDelete, onClose }) => {
         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
         onClick={onClose}
         style={{
-          position:'fixed', inset:0, background:'rgba(0,0,0,0.88)',
+          position:'fixed', inset:0, background:'rgba(42, 45, 124, 0.42)',
           backdropFilter:'blur(14px)', zIndex:2000,
           display:'flex', alignItems:'center', justifyContent:'center', padding:'1.5rem',
         }}
@@ -547,7 +547,7 @@ const PetEditModal = ({ pet, onSave, onDelete, onClose }) => {
               <div className="form-group" style={{ display:'flex', alignItems:'center', gap:'1.4rem' }}>
                 <div style={{ width:72, height:72, borderRadius:'50%', overflow:'hidden',
                   border:'2px solid var(--aura-gold)', flexShrink:0,
-                  background:'rgba(255,255,255,0.05)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                  background:'#FFFFFF', display:'flex', alignItems:'center', justifyContent:'center' }}>
                   {photo
                     ? <img src={photo} alt={pet.name} style={{ width:'100%', height:'100%', objectFit:'cover' }} />
                     : <span style={{ fontSize:'2rem' }}>{pet.avatar || '🐾'}</span>}
@@ -665,12 +665,12 @@ const PetEditModal = ({ pet, onSave, onDelete, onClose }) => {
           </button>
 
           {/* ── Deregistration zone ── */}
-          <div style={{ marginTop:'2.5rem', paddingTop:'1.8rem', borderTop:'1px solid rgba(255,255,255,0.06)' }}>
+          <div style={{ marginTop:'2.5rem', paddingTop:'1.8rem', borderTop:'1px solid #FFFFFF' }}>
             <button
               type="button"
               style={{
                 width: '100%', background: 'none',
-                border: '1px solid rgba(255,255,255,0.08)',
+                border: '1px solid #FFFFFF',
                 color: 'var(--aura-text-muted)', cursor: 'pointer',
                 padding: '0.9rem 1.2rem', borderRadius: 4,
                 fontSize: '0.7rem', letterSpacing: '1.5px',
@@ -678,8 +678,8 @@ const PetEditModal = ({ pet, onSave, onDelete, onClose }) => {
                 transition: 'all 0.2s',
                 fontFamily: 'var(--font-sans)',
               }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(255,0,122,0.35)'; e.currentTarget.style.color = 'var(--aura-neon-pink)'; }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; e.currentTarget.style.color = 'var(--aura-text-muted)'; }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(236, 92, 141, 0.35)'; e.currentTarget.style.color = 'var(--aura-neon-pink)'; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = '#FFFFFF'; e.currentTarget.style.color = 'var(--aura-text-muted)'; }}
               onClick={() => setShowDeregistration(true)}
             >
               <HeartHandshake size={14} />

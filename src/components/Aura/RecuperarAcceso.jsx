@@ -108,7 +108,7 @@ const RecuperarAcceso = () => {
       <div className="aura-card" style={{ width: '100%', maxWidth: 440, textAlign: 'center' }}>
         {/* Logo */}
         <header style={{ marginBottom: '2.5rem' }}>
-          <img src={logo} alt="AURA" style={{ height: 58, marginBottom: '1.5rem', filter: 'drop-shadow(0 0 10px rgba(212,175,55,0.35))' }} />
+          <img src={logo} alt="AURA" style={{ height: 58, marginBottom: '1.5rem', filter: 'drop-shadow(0 0 10px rgba(217, 164, 65, 0.35))' }} />
           <h1 style={{ fontSize: '1.8rem', margin: '0 0 0.4rem' }}>
             Recuperar <span style={{ color: 'var(--aura-gold)' }}>Acceso</span>
           </h1>
@@ -156,7 +156,7 @@ const RecuperarAcceso = () => {
             >
               {/* Demo banner — shown because there's no backend mailer */}
               <div style={{
-                background: 'rgba(212,175,55,0.07)', border: '1px solid rgba(212,175,55,0.3)',
+                background: 'rgba(217, 164, 65, 0.07)', border: '1px solid rgba(217, 164, 65, 0.3)',
                 borderRadius: 4, padding: '1rem 1.2rem',
               }}>
                 <p style={{ margin: '0 0 4px', fontSize: '0.68rem', letterSpacing: '2px', color: 'var(--aura-gold)', textTransform: 'uppercase' }}>
@@ -203,12 +203,12 @@ const RecuperarAcceso = () => {
               {/* El cifrado no tiene puerta trasera: hay que decirlo antes, no después */}
               <div style={{
                 display: 'flex', gap: '0.8rem', alignItems: 'flex-start',
-                padding: '1rem 1.1rem', background: 'rgba(255,0,110,0.06)',
-                border: '1px solid rgba(255,0,110,0.32)', borderRadius: '0.6rem',
+                padding: '1rem 1.1rem', background: 'rgba(236, 92, 141, 0.06)',
+                border: '1px solid rgba(236, 92, 141, 0.32)', borderRadius: '0.6rem',
               }}>
                 <AlertTriangle size={17} color="var(--aura-neon-pink)" style={{ flexShrink: 0, marginTop: 2 }} />
                 <div>
-                  <p style={{ margin: '0 0 0.5rem', fontSize: '0.78rem', lineHeight: 1.65, color: '#ff8fb4', fontWeight: 600 }}>
+                  <p style={{ margin: '0 0 0.5rem', fontSize: '0.78rem', lineHeight: 1.65, color: '#C93B5C', fontWeight: 600 }}>
                     Perderás todos los expedientes guardados.
                   </p>
                   <p style={{ margin: 0, fontSize: '0.75rem', lineHeight: 1.65, color: 'var(--aura-text-muted)' }}>
@@ -266,7 +266,7 @@ const RecuperarAcceso = () => {
               initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
               style={{ display: 'grid', gap: '1.5rem' }}
             >
-              <CheckCircle2 size={56} color="var(--aura-neon-cyan)" style={{ margin: '0 auto', filter: 'drop-shadow(0 0 16px rgba(0,245,255,0.4))' }} />
+              <CheckCircle2 size={56} color="var(--aura-neon-cyan)" style={{ margin: '0 auto', filter: 'drop-shadow(0 0 16px rgba(67, 191, 199, 0.4))' }} />
               <h2 style={{ color: 'var(--aura-neon-cyan)', margin: 0 }}>Clave Actualizada</h2>
               <p style={{ color: 'var(--aura-text-muted)', fontSize: '0.82rem', margin: 0 }}>
                 Tu clave de seguridad ha sido actualizada correctamente.

@@ -6,6 +6,7 @@ import { KeyRound, Mail, ShieldCheck, UserPlus, Lock } from 'lucide-react';
 import { motion } from 'framer-motion';
 import logo from '../assets/logo-aura-pets.png';
 import { IntroVideoModal } from './IntroVideoPlayer';
+import gatoYPerro from '../assets/gato-y-perro.png';
 
 const Auth = () => {
   const { login } = useAuth();
@@ -88,7 +89,7 @@ const Auth = () => {
               letterSpacing: '3px',
               textTransform: 'uppercase',
               fontWeight: 600,
-              background: 'rgba(212,175,55,0.08)',
+              background: 'rgba(217, 164, 65, 0.08)',
             }}>
               Nueva cuenta
             </div>
@@ -118,8 +119,8 @@ const Auth = () => {
               required
               placeholder="ejemplo@aura.com"
               style={{ 
-                width: '100%', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--aura-border)', 
-                padding: '1.2rem', color: 'white', fontSize: '1rem', outline: 'none'
+                width: '100%', background: '#FFFFFF', border: '1px solid var(--aura-border)', 
+                padding: '1.2rem', color: 'var(--ink)', fontSize: '1rem', outline: 'none'
               }}
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
@@ -134,8 +135,8 @@ const Auth = () => {
               required
               placeholder="••••••••"
               style={{ 
-                width: '100%', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--aura-border)', 
-                padding: '1.2rem', color: 'white', fontSize: '1rem', outline: 'none'
+                width: '100%', background: '#FFFFFF', border: '1px solid var(--aura-border)', 
+                padding: '1.2rem', color: 'var(--ink)', fontSize: '1rem', outline: 'none'
               }}
               value={formData.password}
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
@@ -159,7 +160,7 @@ const Auth = () => {
 
           {error && (
             <div style={{ 
-              padding: '1rem', background: 'rgba(255, 0, 110, 0.05)', border: '1px solid var(--aura-neon-pink)',
+              padding: '1rem', background: 'rgba(236, 92, 141, 0.05)', border: '1px solid var(--aura-neon-pink)',
               color: 'var(--aura-neon-pink)', fontSize: '0.8rem', textAlign: 'center', letterSpacing: '1px'
             }}>
               {error.toUpperCase()}
@@ -204,6 +205,16 @@ const Auth = () => {
           )}
         </footer>
       </div>
+
+      <img
+        src={gatoYPerro}
+        alt="Un perro y un gato con sus medallas AURA"
+        style={{
+          width: 'min(340px, 80vw)', height: 'auto', display: 'block',
+          margin: '2rem auto 0',
+          filter: 'drop-shadow(0 14px 28px rgba(42, 45, 124, 0.18))',
+        }}
+      />
     </div>
     </>
   );

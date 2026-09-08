@@ -2,6 +2,7 @@ import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { PlaneTakeoff, CheckCircle2, AlertCircle, FileText, X, Shield, Syringe, Stethoscope, FileCheck, Upload, Save } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from '../../context/LocalizationContext';
+import perroPasaporte from '../../assets/perro-pasaporte.jpg';
 
 /* ── Icon helper ── */
 const ReqIcon = ({ type, color }) => {
@@ -152,7 +153,7 @@ const exportPDF = (country, reqs, pet, readiness, locale) => {
       <td style="padding:10px 8px;font-weight:600;">${r.label}</td>
       <td style="padding:10px 8px;color:#555;font-size:0.85em;">${r.detail}</td>
       <td style="padding:10px 8px;font-weight:700;white-space:nowrap;color:${
-        r.status==='ok'?'#0a9a6e':r.status==='pending'?'#b88a00':'#c0392b'
+        r.status==='ok'?'#2E9C7A':r.status==='pending'?'#B8862C':'#c0392b'
       };">${r.status==='ok'?'✓ '+(es?'CUMPLIDO':'DONE'):r.status==='pending'?'⏳ '+(es?'PENDIENTE':'PENDING'):'⚠ '+(es?'ATENCIÓN':'ATTENTION')}</td>
     </tr>`).join('');
 
@@ -161,16 +162,16 @@ const exportPDF = (country, reqs, pet, readiness, locale) => {
     <title>AURA Pets — ${es?'Pasaporte Sanitario':'Health Passport'} ${country.name}</title>
     <style>
       body{font-family:Georgia,serif;max-width:800px;margin:0 auto;padding:40px;color:#111;}
-      h1{color:#D4AF37;font-size:1.8rem;margin:0 0 4px;}
+      h1{color:#D9A441;font-size:1.8rem;margin:0 0 4px;}
       .sub{letter-spacing:3px;font-size:0.7rem;text-transform:uppercase;color:#888;margin:0 0 20px;}
-      .meta{display:flex;gap:40px;margin-bottom:28px;padding-bottom:20px;border-bottom:2px solid #D4AF37;}
+      .meta{display:flex;gap:40px;margin-bottom:28px;padding-bottom:20px;border-bottom:2px solid #D9A441;}
       .meta-item label{font-size:0.65rem;letter-spacing:2px;text-transform:uppercase;color:#888;display:block;}
       .meta-item span{font-weight:700;font-size:1.05rem;}
       .bar-bg{background:#eee;height:6px;border-radius:3px;margin:6px 0;}
-      .bar-fill{height:6px;border-radius:3px;background:${readiness>85?'#0a9a6e':readiness>60?'#b88a00':'#c0392b'};}
+      .bar-fill{height:6px;border-radius:3px;background:${readiness>85?'#2E9C7A':readiness>60?'#B8862C':'#c0392b'};}
       table{width:100%;border-collapse:collapse;margin-top:20px;}
       th{background:#f5f0e0;padding:10px 8px;text-align:left;font-size:0.75rem;letter-spacing:2px;text-transform:uppercase;}
-      .note{background:#fff8e0;border-left:4px solid #D4AF37;padding:12px 16px;margin:20px 0;font-size:0.85rem;}
+      .note{background:#FEFBF4;border-left:4px solid #D9A441;padding:12px 16px;margin:20px 0;font-size:0.85rem;}
       .footer{margin-top:40px;padding-top:20px;border-top:1px solid #ddd;font-size:0.75rem;color:#888;text-align:center;}
       @media print{body{padding:20px;}button{display:none;}}
     </style>
@@ -232,7 +233,7 @@ const CountryModal = ({ countryId, pet, locale, onClose }) => {
         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
         onClick={onClose}
         style={{
-          position:'fixed', inset:0, background:'rgba(0,0,0,0.85)',
+          position:'fixed', inset:0, background:'rgba(42, 45, 124, 0.42)',
           backdropFilter:'blur(12px)', zIndex:1000,
           display:'flex', alignItems:'center', justifyContent:'center', padding:'2rem',
         }}
@@ -258,7 +259,7 @@ const CountryModal = ({ countryId, pet, locale, onClose }) => {
                 </div>
               </div>
               <div style={{ display:'flex', alignItems:'center', gap:'1rem' }}>
-                <div style={{ flex:1, height:4, background:'rgba(255,255,255,0.05)', borderRadius:2 }}>
+                <div style={{ flex:1, height:4, background:'#FFFFFF', borderRadius:2 }}>
                   <motion.div
                     initial={{ width:0 }} animate={{ width:`${readiness}%` }}
                     transition={{ duration:1, delay:0.3, ease:'easeOut' }}
@@ -282,7 +283,7 @@ const CountryModal = ({ countryId, pet, locale, onClose }) => {
 
           {/* Warning note */}
           {meta.note && (
-            <div style={{ background:'rgba(212,175,55,0.06)', border:'1px solid rgba(212,175,55,0.25)',
+            <div style={{ background:'rgba(217, 164, 65, 0.06)', border:'1px solid rgba(217, 164, 65, 0.25)',
               borderRadius:4, padding:'1rem 1.2rem', marginBottom:'2rem' }}>
               <p style={{ margin:0, fontSize:'0.8rem', color:'var(--aura-gold)', lineHeight:1.6 }}>⚠ {meta.note}</p>
             </div>
@@ -294,7 +295,7 @@ const CountryModal = ({ countryId, pet, locale, onClose }) => {
               <div key={i} style={{
                 display:'flex', alignItems:'center', gap:'1.2rem',
                 padding:'1.2rem 1.4rem',
-                background:'rgba(255,255,255,0.02)',
+                background:'#FFFFFF',
                 border:'1px solid var(--aura-border)',
                 borderLeft:`3px solid ${STATUS_COLOR[req.status]}`,
                 borderRadius:4,
@@ -313,7 +314,7 @@ const CountryModal = ({ countryId, pet, locale, onClose }) => {
 
           {/* Pending notice */}
           {!pet?.microchip && (
-            <div style={{ background:'rgba(212,175,55,0.05)', border:'1px dashed rgba(212,175,55,0.3)',
+            <div style={{ background:'rgba(217, 164, 65, 0.05)', border:'1px dashed rgba(217, 164, 65, 0.3)',
               borderRadius:4, padding:'0.9rem 1.2rem', marginBottom:'1.5rem' }}>
               <p style={{ margin:0, fontSize:'0.75rem', color:'var(--aura-gold)' }}>
                 💡 {es
@@ -460,6 +461,23 @@ const GlobalPassport = ({ pet, onUpdatePet }) => {
   return (
     <>
       <div className="fade-in">
+        {/* Banda ilustrada: la imagen ya trae su propio fondo pastel, asi que
+            se recorta con esquinas grandes y actua como cabecera del modulo. */}
+        <div style={{
+          position: 'relative',
+          borderRadius: 'var(--radius-lg)',
+          overflow: 'hidden',
+          margin: '1.5rem 0 0.5rem',
+          boxShadow: 'var(--shadow-md)',
+          border: '1px solid var(--border)',
+        }}>
+          <img
+            src={perroPasaporte}
+            alt={es ? 'Un perro golden retriever junto a un pasaporte para mascotas' : 'A golden retriever beside a pet passport'}
+            style={{ width: '100%', height: 'clamp(150px, 26vw, 260px)', objectFit: 'cover', objectPosition: 'center 32%', display: 'block' }}
+          />
+        </div>
+
         {/* Header */}
         <header style={{ padding:'2rem 0 1.5rem', display:'flex', justifyContent:'space-between', alignItems:'center', flexWrap:'wrap', gap:'1rem' }}>
           <div style={{ flex:1, minWidth:0 }}>
@@ -475,9 +493,9 @@ const GlobalPassport = ({ pet, onUpdatePet }) => {
             <div style={{
               width:52, height:52, borderRadius:'50%', overflow:'hidden',
               border:'2px solid var(--aura-gold)',
-              background:'rgba(212,175,55,0.08)',
+              background:'rgba(217, 164, 65, 0.08)',
               display:'flex', alignItems:'center', justifyContent:'center',
-              boxShadow:'0 0 12px rgba(212,175,55,0.3)',
+              boxShadow:'0 0 12px rgba(217, 164, 65, 0.3)',
             }}>
               {pet?.customImage
                 ? <img src={pet.customImage} alt={pet?.name} style={{ width:'100%', height:'100%', objectFit:'cover' }} />
@@ -502,7 +520,7 @@ const GlobalPassport = ({ pet, onUpdatePet }) => {
                 <h2 style={{ fontSize:'1.6rem', margin:'0 0 6px' }}>
                   {es?'Disponibilidad':'Readiness'}: {draftReadiness}%
                 </h2>
-                <div style={{ height:4, background:'rgba(255,255,255,0.06)', borderRadius:2 }}>
+                <div style={{ height:4, background:'#FFFFFF', borderRadius:2 }}>
                   <motion.div
                     animate={{ width:`${draftReadiness}%` }}
                     transition={{ duration:0.5, ease:'easeOut' }}
@@ -663,7 +681,7 @@ const GlobalPassport = ({ pet, onUpdatePet }) => {
                     display:'flex', alignItems:'center', justifyContent:'center', gap:'0.5rem',
                     borderColor: draft.passportFileName ? 'var(--aura-neon-cyan)' : 'var(--aura-gold)',
                     color:       draft.passportFileName ? 'var(--aura-neon-cyan)' : 'var(--aura-gold)',
-                    background:  draft.passportFileName ? 'rgba(0,245,255,0.05)' : 'rgba(212,175,55,0.04)',
+                    background:  draft.passportFileName ? 'rgba(67, 191, 199, 0.05)' : 'rgba(217, 164, 65, 0.04)',
                     overflow:'hidden',
                   }}
                 >
@@ -694,7 +712,7 @@ const GlobalPassport = ({ pet, onUpdatePet }) => {
               style={{
                 marginTop:'1.8rem', width:'100%', padding:'1.1rem',
                 borderColor:'var(--aura-gold)', color:'var(--aura-gold)',
-                background:'rgba(212,175,55,0.06)',
+                background:'rgba(217, 164, 65, 0.06)',
                 display:'flex', alignItems:'center', justifyContent:'center', gap:'0.6rem',
               }}
             >
@@ -748,7 +766,7 @@ const GlobalPassport = ({ pet, onUpdatePet }) => {
                             window.open(`/politicas.html?lang=${locale}`, '_blank', 'noopener,noreferrer');
                           }}
                           style={{ color:'var(--aura-text)', cursor:'pointer', transition:'color 0.2s' }}
-                          onMouseEnter={e => { e.currentTarget.style.color = '#d4af37'; }}
+                          onMouseEnter={e => { e.currentTarget.style.color = '#D9A441'; }}
                           onMouseLeave={e => { e.currentTarget.style.color = 'var(--aura-text)'; }}
                         >
                           {meta.name}

@@ -1,6 +1,7 @@
 import { createPortal } from 'react-dom';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import gatoYPerro from '../assets/gato-y-perro.png';
 
 // ─── Portal Modal ─────────────────────────────────────────────────────────────
 export const IntroVideoModal = ({ isOpen, onContinue }) => {
@@ -20,7 +21,7 @@ export const IntroVideoModal = ({ isOpen, onContinue }) => {
           position: 'fixed',
           inset: 0,
           zIndex: 9999,
-          background: '#04000a',
+          background: '#FEFBF4',
         }}
       >
         <style>{`
@@ -49,7 +50,7 @@ export const IntroVideoModal = ({ isOpen, onContinue }) => {
               position: 'absolute',
               width: '80vw', height: '80vw',
               top: '-20vw', left: '-20vw',
-              background: 'radial-gradient(circle, rgba(138,43,226,0.85) 0%, rgba(88,20,170,0.45) 40%, rgba(50,10,110,0.15) 65%, transparent 78%)',
+              background: 'radial-gradient(circle, rgba(201,189,242,0.85) 0%, rgba(201,189,242,0.42) 42%, rgba(201,189,242,0.14) 66%, transparent 80%)',
               borderRadius: '50%',
               animation: 'aura-nebula 9s ease-in-out infinite',
             }}
@@ -61,7 +62,7 @@ export const IntroVideoModal = ({ isOpen, onContinue }) => {
               position: 'absolute',
               width: '75vw', height: '75vw',
               bottom: '-22vw', right: '-18vw',
-              background: 'radial-gradient(circle, rgba(0,200,240,0.55) 0%, rgba(0,130,200,0.28) 42%, rgba(0,70,150,0.10) 66%, transparent 80%)',
+              background: 'radial-gradient(circle, rgba(165,227,220,0.90) 0%, rgba(165,227,220,0.45) 44%, rgba(165,227,220,0.14) 68%, transparent 82%)',
               borderRadius: '50%',
               animation: 'aura-nebula2 12s ease-in-out infinite',
             }}
@@ -72,7 +73,7 @@ export const IntroVideoModal = ({ isOpen, onContinue }) => {
           <div
             style={{
               position: 'absolute', inset: 0,
-              background: 'radial-gradient(ellipse 85% 75% at 50% 45%, transparent 20%, rgba(4,0,10,0.45) 70%, rgba(4,0,10,0.8) 100%)',
+              background: 'radial-gradient(ellipse 88% 78% at 50% 45%, transparent 28%, rgba(254,251,244,0.35) 72%, rgba(254,251,244,0.7) 100%)',
               pointerEvents: 'none',
             }}
           />
@@ -83,7 +84,7 @@ export const IntroVideoModal = ({ isOpen, onContinue }) => {
           style={{
             position: 'absolute',
             inset: 0,
-            background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 50%)',
+            background: 'linear-gradient(to top, rgba(254,251,244,0.85) 0%, transparent 45%)',
             zIndex: 2,
             pointerEvents: 'none',
           }}
@@ -117,10 +118,10 @@ export const IntroVideoModal = ({ isOpen, onContinue }) => {
                 fontFamily: "'Playfair Display', Georgia, serif",
                 fontSize: '52px',
                 fontWeight: 900,
-                color: '#fff',
+                color: '#2A2D7C',
                 letterSpacing: -2,
                 lineHeight: 1,
-                textShadow: '0 2px 32px rgba(0,0,0,0.9)',
+                textShadow: 'none',
               }}
             >
               AURA
@@ -131,12 +132,12 @@ export const IntroVideoModal = ({ isOpen, onContinue }) => {
               style={{
                 fontFamily: "'Playfair Display', Georgia, serif",
                 fontSize: '38px',
-                fontWeight: 400,
-                color: '#B5D4F4',
+                fontWeight: 600,
+                color: '#D9A441',
                 letterSpacing: 14,
                 lineHeight: 1,
                 marginTop: 6,
-                textShadow: '0 2px 16px rgba(0,0,0,0.9)',
+                textShadow: 'none',
               }}
             >
               PETS
@@ -147,7 +148,7 @@ export const IntroVideoModal = ({ isOpen, onContinue }) => {
               style={{
                 width: 60,
                 height: 1,
-                background: '#B5D4F4',
+                background: 'linear-gradient(90deg, #A5E3DC, #C9BDF2, #FCE1A8)',
                 margin: '20px auto 16px',
                 opacity: 0.7,
               }}
@@ -159,10 +160,10 @@ export const IntroVideoModal = ({ isOpen, onContinue }) => {
                 fontFamily: "'Inter', sans-serif",
                 fontSize: '11px',
                 fontWeight: 300,
-                color: '#B5D4F4',
+                color: '#7B7DA3',
                 letterSpacing: '0.3em',
                 textTransform: 'uppercase',
-                textShadow: '0 1px 8px rgba(0,0,0,0.9)',
+                textShadow: 'none',
                 opacity: 0.85,
               }}
             >
@@ -170,8 +171,22 @@ export const IntroVideoModal = ({ isOpen, onContinue }) => {
             </div>
           </motion.div>
 
-          {/* ── Espacio central vacío — el animal ocupa este área ── */}
-          <div style={{ flex: 1 }} />
+          {/* ── El animal ocupa el area central reservada ── */}
+          <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 0 }}>
+            <motion.img
+              src={gatoYPerro}
+              alt="Un perro y un gato con sus medallas AURA"
+              initial={{ opacity: 0, y: 18 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1.1, delay: 0.4, ease: 'easeOut' }}
+              style={{
+                maxWidth: 'min(420px, 78vw)',
+                maxHeight: '100%',
+                width: 'auto', height: 'auto', objectFit: 'contain',
+                filter: 'drop-shadow(0 16px 32px rgba(42, 45, 124, 0.20))',
+              }}
+            />
+          </div>
 
           {/* ── Botón ENTRAR — parte inferior ── */}
           <div style={{ textAlign: 'center' }}>
@@ -181,17 +196,19 @@ export const IntroVideoModal = ({ isOpen, onContinue }) => {
               onMouseLeave={() => setBtnHovered(false)}
               style={{
                 padding: '14px 60px',
-                background: btnHovered ? '#B5D4F4' : 'transparent',
-                border: '1px solid #B5D4F4',
+                background: 'linear-gradient(100deg, #8B5CF6 0%, #EC5C8D 55%, #F97B4F 100%)',
+                border: 'none',
                 borderRadius: 50,
                 fontFamily: "'Inter', sans-serif",
                 fontSize: 13,
                 fontWeight: 400,
-                color: btnHovered ? '#0A0F1E' : '#B5D4F4',
+                color: '#FFFFFF',
                 letterSpacing: '0.2em',
                 textTransform: 'uppercase',
                 cursor: 'pointer',
-                transition: 'background 0.25s ease, color 0.25s ease',
+                boxShadow: btnHovered ? '0 10px 28px -8px rgba(236,92,141,0.65)' : '0 6px 18px -8px rgba(236,92,141,0.45)',
+                transform: btnHovered ? 'translateY(-1px)' : 'none',
+                transition: 'box-shadow 0.25s ease, transform 0.25s ease',
                 whiteSpace: 'nowrap',
               }}
             >

@@ -17,6 +17,7 @@ import {
   Settings, PlusCircle, Globe, AlertTriangle, X,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import PawPrint from './components/Aura/PawPrint';
 
 /* ── Desktop tab definitions ── */
 const NAV_TABS = [
@@ -46,7 +47,7 @@ const TAB_VARIANTS = {
 const LangToggle = () => {
   const { locale, setManualConfig } = useTranslation();
   return (
-    <div style={{ display: 'flex', gap: '2px', background: 'rgba(255,255,255,0.04)', borderRadius: 4, padding: '2px' }}>
+    <div style={{ display: 'flex', gap: '2px', background: '#FFFFFF', borderRadius: 4, padding: '2px' }}>
       {['es', 'en'].map(l => (
         <button key={l} onClick={() => setManualConfig(l)}
           style={{
@@ -72,7 +73,7 @@ const SessionModal = ({ locale, onRenew, onLogout }) => {
       initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
       style={{
         position: 'fixed', inset: 0, zIndex: 3000,
-        background: 'rgba(0,0,0,0.88)', backdropFilter: 'blur(16px)',
+        background: 'rgba(42, 45, 124, 0.42)', backdropFilter: 'blur(16px)',
         display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem',
       }}
     >
@@ -89,7 +90,7 @@ const SessionModal = ({ locale, onRenew, onLogout }) => {
           width: 64, height: 64, borderRadius: '50%',
           border: '2px solid var(--aura-gold)', margin: '0 auto 2rem',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          boxShadow: '0 0 24px rgba(212,175,55,0.3)',
+          boxShadow: '0 0 24px rgba(217, 164, 65, 0.3)',
         }}>
           <ShieldAlert size={28} color="var(--aura-gold)" />
         </div>
@@ -110,7 +111,7 @@ const SessionModal = ({ locale, onRenew, onLogout }) => {
           </button>
           <button
             className="btn-aura"
-            style={{ flex: 2, borderColor: 'var(--aura-gold)', background: 'rgba(212,175,55,0.1)', color: 'var(--aura-gold)' }}
+            style={{ flex: 2, borderColor: 'var(--aura-gold)', background: 'rgba(217, 164, 65, 0.1)', color: 'var(--aura-gold)' }}
             onClick={onRenew}>
             {es ? '✓ CONTINUAR SESIÓN' : '✓ CONTINUE SESSION'}
           </button>
@@ -203,10 +204,17 @@ const AppContent = () => {
   if (!vaultReady) {
     return (
       <div style={{
-        minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center',
+        minHeight: '100vh', display: 'flex', flexDirection: 'column',
+        alignItems: 'center', justifyContent: 'center', gap: '1.4rem',
         background: 'var(--aura-black)', color: 'var(--aura-gold)',
         fontSize: '0.78rem', letterSpacing: '3px', textTransform: 'uppercase',
       }}>
+        <motion.div
+          animate={{ scale: [1, 1.12, 1], opacity: [0.45, 0.9, 0.45] }}
+          transition={{ repeat: Infinity, duration: 1.6, ease: 'easeInOut' }}
+        >
+          <PawPrint size={40} />
+        </motion.div>
         {locale === 'es' ? 'Descifrando expediente…' : 'Decrypting records…'}
       </div>
     );
@@ -233,15 +241,15 @@ const AppContent = () => {
               display: 'flex', alignItems: 'center', gap: '0.9rem',
               padding: '1rem 1.2rem',
               paddingTop: 'max(1rem, env(safe-area-inset-top))',
-              background: '#2A0A12',
-              borderBottom: '1px solid var(--aura-neon-pink, #E24B4A)',
-              boxShadow: '0 8px 32px rgba(0,0,0,0.6)',
+              background: '#FDECEF',
+              borderBottom: '1px solid var(--aura-neon-pink, #EF5F7A)',
+              boxShadow: '0 8px 32px rgba(42, 45, 124, 0.28)',
             }}
           >
-            <AlertTriangle size={18} color="var(--aura-neon-pink, #E24B4A)" style={{ flexShrink: 0 }} />
+            <AlertTriangle size={18} color="var(--aura-neon-pink, #EF5F7A)" style={{ flexShrink: 0 }} />
             <p style={{
               margin: 0, flex: 1, fontSize: '0.82rem', lineHeight: 1.5,
-              color: '#FFE9EC',
+              color: '#7A1F33',
             }}>
               {saveError}
             </p>
@@ -250,7 +258,7 @@ const AppContent = () => {
               aria-label={locale === 'es' ? 'Cerrar aviso' : 'Dismiss'}
               style={{
                 background: 'transparent', border: 'none', cursor: 'pointer',
-                color: '#FFE9EC', padding: '0.3rem', flexShrink: 0,
+                color: '#7A1F33', padding: '0.3rem', flexShrink: 0,
                 display: 'flex', alignItems: 'center',
               }}
             >
@@ -277,7 +285,7 @@ const AppContent = () => {
           <img src={logo} alt="AURA Pets" className="aura-pulse-logo"
                style={{ height: 42, borderRadius: '50%', objectFit: 'contain',
                         border: '1px solid var(--aura-gold-muted)',
-                        filter: 'drop-shadow(0 0 10px rgba(212,175,55,0.35))' }}
+                        filter: 'drop-shadow(0 0 10px rgba(217, 164, 65, 0.35))' }}
                alt="AURA Pets Global" />
           <div style={{ width: 1, height: 24, background: 'var(--aura-border)' }} />
           <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -292,20 +300,20 @@ const AppContent = () => {
             return (
               <button key={id} onClick={() => navigate(path)}
                 style={{
-                  background: isActive ? '#3D1A6B' : 'transparent',
-                  border: isActive ? '1px solid #F0D060' : '1px solid transparent',
-                  borderRadius: 6,
-                  color: isActive ? '#F0D060' : '#C8B8F8',
-                  textShadow: isActive ? '0 0 8px rgba(240,208,96,0.5)' : 'none',
-                  boxShadow: isActive ? '0 0 12px rgba(61,26,107,0.8), inset 0 0 8px rgba(212,175,55,0.06)' : 'none',
+                  background: isActive ? 'var(--violet)' : 'transparent',
+                  border: '1px solid transparent',
+                  borderRadius: 14,
+                  color: isActive ? '#FFFFFF' : 'var(--ink-muted)',
+                  
+                  boxShadow: isActive ? '0 6px 16px -6px rgba(139, 92, 246, 0.55)' : 'none',
                   padding: '0.45rem 0.75rem',
                   cursor: 'pointer',
                   display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3px',
                   transition: 'all 0.22s',
                   fontFamily: 'var(--font-sans)',
                 }}
-                onMouseEnter={e => { if (!isActive) e.currentTarget.style.color = '#EDE8FF'; }}
-                onMouseLeave={e => { if (!isActive) e.currentTarget.style.color = '#C8B8F8'; }}
+                onMouseEnter={e => { if (!isActive) { e.currentTarget.style.background = 'var(--bg-soft)'; e.currentTarget.style.color = 'var(--violet)'; } }}
+                onMouseLeave={e => { if (!isActive) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--ink-muted)'; } }}
               >
                 <Icon size={20} />
                 <span style={{ fontSize: '9px', letterSpacing: '0.8px', fontWeight: 600, lineHeight: 1 }}>
@@ -320,7 +328,7 @@ const AppContent = () => {
             style={{
               background: 'rgba(226,75,74,0.1)',
               border: '1px solid rgba(226,75,74,0.5)',
-              borderRadius: 6,
+              borderRadius: 14,
               color: 'var(--aura-neon-pink)',
               padding: '0.45rem 0.75rem',
               cursor: 'pointer',
@@ -345,13 +353,13 @@ const AppContent = () => {
           {/* Logout */}
           <button onClick={logout}
             style={{
-              background: 'transparent', border: '1px solid transparent', borderRadius: 6,
-              color: '#9F77DD', padding: '0.45rem 0.6rem', cursor: 'pointer',
+              background: 'transparent', border: '1px solid transparent', borderRadius: 14,
+              color: '#8B5CF6', padding: '0.45rem 0.6rem', cursor: 'pointer',
               display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3px',
               transition: 'all 0.22s', opacity: 0.7, fontFamily: 'var(--font-sans)',
             }}
             onMouseEnter={e => { e.currentTarget.style.opacity = '1'; e.currentTarget.style.color = '#C8C8E8'; }}
-            onMouseLeave={e => { e.currentTarget.style.opacity = '0.7'; e.currentTarget.style.color = '#9F77DD'; }}
+            onMouseLeave={e => { e.currentTarget.style.opacity = '0.7'; e.currentTarget.style.color = '#8B5CF6'; }}
           >
             <LogOut size={20} />
             <span style={{ fontSize: '9px', letterSpacing: '0.8px', fontWeight: 600, lineHeight: 1 }}>SALIR</span>
@@ -418,7 +426,7 @@ const AppContent = () => {
                       <p style={{ fontSize: '0.68rem', letterSpacing: '2.5px', opacity: 0.5, marginBottom: '1.2rem', textTransform: 'uppercase' }}>
                         {locale === 'es' ? 'Sesión' : 'Session'}
                       </p>
-                      <button className="btn-aura" style={{ width: '100%', borderColor: 'rgba(255,255,255,0.15)', color: 'var(--aura-text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.6rem' }}
+                      <button className="btn-aura" style={{ width: '100%', borderColor: '#FAF7FE', color: 'var(--aura-text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.6rem' }}
                         onClick={logout}>
                         <LogOut size={15} />
                         {locale === 'es' ? 'CERRAR SESIÓN' : 'SIGN OUT'}
