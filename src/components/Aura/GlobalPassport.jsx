@@ -219,10 +219,382 @@ const buildEquineRequirements = (pet, countryId, locale, origen = 'ES') => {
   }
 };
 
+/* ── Requisitos para aves ────────────────────────────────────────────────────
+   Las aves tampoco entran en el régimen de animales de compañía habitual. Se
+   identifican por anilla cerrada, no por microchip, y la mayoría de psitácidas
+   están en los apéndices de CITES: cruzar una frontera exige permiso de
+   exportación del país de salida y de importación del de entrada, aunque el
+   animal haya nacido en cautividad y sea la mascota de toda la vida.
+
+   A eso se suma la sanidad aviar: gripe aviar y enfermedad de Newcastle son
+   las que cierran fronteras, y varios destinos imponen cuarentena.
+──────────────────────────────────────────────────────────────────────────── */
+const buildBirdRequirements = (pet, countryId, locale, origen = 'ES') => {
+  const es = locale === 'es';
+  const sp = pet?.specific || {};
+  const h = pet?.health || {};
+  const hecho = (v) => (v && String(v).trim() ? 'ok' : 'pending');
+
+  /* Sin apéndice declarado no se puede saber si hace falta permiso */
+  const enCites = sp.citesAppendix && sp.citesAppendix !== 'no';
+  const citesDesconocido = !sp.citesAppendix;
+
+  const anilla = {
+    icon: 'chip',
+    label: es ? 'Identificación por anilla o microchip' : 'Ring or microchip identification',
+    status: sp.ringing?.trim() && sp.idType ? 'ok' : 'pending',
+    detail: sp.ringing?.trim()
+      ? `${sp.idType || (es ? 'Sin tipo' : 'No type')} · ${sp.ringing}`
+      : (es ? 'La anilla cerrada acredita la cría en cautividad' : 'A closed ring proves captive breeding'),
+  };
+
+  const especie = {
+    icon: 'doc',
+    label: es ? 'Especie identificada' : 'Species identified',
+    status: hecho(sp.scientificName),
+    detail: sp.scientificName
+      || (es ? 'El nombre científico determina si aplica CITES' : 'The scientific name determines whether CITES applies'),
+  };
+
+  const cites = citesDesconocido
+    ? {
+        icon: 'doc',
+        label: 'CITES',
+        status: 'alert',
+        detail: es
+          ? 'Sin determinar. Compruébalo antes de comprar el billete'
+          : 'Undetermined. Check before booking the flight',
+      }
+    : enCites
+      ? {
+          icon: 'doc',
+          label: `CITES · ${es ? 'Apéndice' : 'Appendix'} ${sp.citesAppendix}`,
+          status: hecho(sp.citesNumber),
+          detail: sp.citesNumber
+            ? `${es ? 'Certificado' : 'Certificate'} ${sp.citesNumber}`
+            : (es
+                ? 'Requiere permiso de exportación e importación, uno por cada frontera'
+                : 'Requires export and import permits, one for each border'),
+        }
+      : {
+          icon: 'doc',
+          label: 'CITES',
+          status: 'ok',
+          detail: es ? 'Especie no listada' : 'Species not listed',
+        };
+
+  const gripeAviar = {
+    icon: 'syringe',
+    label: es ? 'Gripe aviar' : 'Avian influenza',
+    status: 'pending',
+    detail: es
+      ? 'Certificado veterinario y, según el destino, aislamiento previo'
+      : 'Veterinary certificate and, depending on destination, prior isolation',
+  };
+
+  const newcastle = {
+    icon: 'syringe',
+    label: es ? 'Enfermedad de Newcastle' : 'Newcastle disease',
+    status: 'pending',
+    detail: es ? 'Vacunación o prueba según el país de salida' : 'Vaccination or testing depending on country of departure',
+  };
+
+  const psitacosis = {
+    icon: 'vet',
+    label: es ? 'Clamidiosis (psitacosis)' : 'Chlamydiosis (psittacosis)',
+    status: 'pending',
+    detail: es ? 'Exigida a psitácidas en varios destinos' : 'Required for parrots by several destinations',
+  };
+
+  const sanitario = {
+    icon: 'vet',
+    label: es ? 'Certificado sanitario oficial' : 'Official health certificate',
+    status: h.healthCert?.status || 'pending',
+    detail: h.healthCert?.status === 'ok'
+      ? (es ? 'Emitido por veterinario oficial' : 'Issued by an official vet')
+      : (es ? 'Debe firmarlo un veterinario oficial' : 'Must be signed by an official vet'),
+  };
+
+  const cuarentena = (dias) => ({
+    icon: 'vet',
+    label: es ? `Cuarentena (${dias})` : `Quarantine (${dias})`,
+    status: 'alert',
+    detail: es ? 'En instalación autorizada del destino' : 'At an approved facility in the destination',
+  });
+
+  const permiso = (organismo) => ({
+    icon: 'doc',
+    label: `${es ? 'Permiso de importación' : 'Import permit'} · ${organismo}`,
+    status: 'pending',
+    detail: es ? 'Solicitar con antelación: los plazos son largos' : 'Apply well ahead: lead times are long',
+  });
+
+  /* Movimiento dentro del mismo país */
+  if (origen === countryId) {
+    return [
+      anilla, especie,
+      { ...cites, detail: enCites
+          ? (es ? 'Documenta la tenencia legal aunque no cruces frontera' : 'Documents lawful keeping even without crossing a border')
+          : cites.detail },
+      { icon: 'doc', label: es ? 'Movimiento nacional' : 'Domestic movement', status: 'ok',
+        detail: es ? 'Sin trámite de exportación' : 'No export procedure needed' },
+    ];
+  }
+
+  switch (countryId) {
+    case 'ES': return [
+      anilla, especie, cites, gripeAviar, newcastle,
+      { ...sanitario, label: es ? 'Certificado sanitario · TRACES' : 'Health certificate · TRACES' },
+    ];
+    case 'UK': return [
+      anilla, especie, cites, gripeAviar, newcastle,
+      { ...sanitario, label: 'Export Health Certificate (EHC)' },
+      { icon: 'doc', label: es ? 'Entrada por Puesto de Control Fronterizo' : 'Entry via Border Control Post',
+        status: 'pending',
+        detail: es ? 'Las aves no pueden entrar por la vía de mascotas' : 'Birds cannot use the pet travel route' },
+      cuarentena(es ? '30 días' : '30 days'),
+    ];
+    case 'US': return [
+      anilla, especie, cites, permiso('USDA APHIS'),
+      gripeAviar, newcastle, psitacosis,
+      cuarentena(es ? '30 días' : '30 days'),
+      sanitario,
+    ];
+    case 'CA': return [
+      anilla, especie, cites, permiso('CFIA'),
+      gripeAviar, newcastle,
+      { ...sanitario, label: es ? 'Certificado sanitario endosado' : 'Endorsed health certificate' },
+      cuarentena(es ? 'según origen' : 'depending on origin'),
+    ];
+    case 'AU': return [
+      anilla, especie, cites, permiso('DAFF'),
+      gripeAviar, newcastle, psitacosis,
+      cuarentena(es ? 'previa y posterior' : 'pre-export and post-arrival'),
+      { icon: 'vet', label: es ? 'Restricciones de especie' : 'Species restrictions', status: 'alert',
+        detail: es
+          ? 'Australia solo admite aves de un listado muy corto: confírmalo antes de nada'
+          : 'Australia admits only a very short list of birds: confirm before anything else' },
+      sanitario,
+    ];
+    default: return [anilla, especie, cites];
+  }
+};
+
+/* ── Requisitos para conejos ─────────────────────────────────────────────────
+   El reglamento europeo de animales de compañía cubre perros, gatos y hurones.
+   Los conejos quedan fuera: dependen de la norma nacional de cada país, y eso
+   los hace más impredecibles. Australia, por ejemplo, prohíbe su entrada salvo
+   desde Nueva Zelanda.
+──────────────────────────────────────────────────────────────────────────── */
+const buildRabbitRequirements = (pet, countryId, locale, origen = 'ES') => {
+  const es = locale === 'es';
+  const sp = pet?.specific || {};
+  const h = pet?.health || {};
+
+  const identificacion = {
+    icon: 'chip',
+    label: es ? 'Identificación' : 'Identification',
+    status: (sp.rabbitId?.trim() || pet?.microchip?.trim()) ? 'ok' : 'pending',
+    detail: sp.rabbitId?.trim() || pet?.microchip?.trim()
+      || (es ? 'Tatuaje auricular o microchip' : 'Ear tattoo or microchip'),
+  };
+
+  const vacuna = (campo, etiqueta) => ({
+    icon: 'syringe',
+    label: etiqueta,
+    status: sp[campo] ? 'ok' : 'pending',
+    detail: sp[campo]
+      ? `${es ? 'Última dosis' : 'Last dose'} ${new Date(sp[campo]).toLocaleDateString(es ? 'es-ES' : 'en-GB')}`
+      : (es ? 'Sin registrar' : 'Not recorded'),
+  });
+
+  const mixomatosis = vacuna('myxoDate', es ? 'Mixomatosis' : 'Myxomatosis');
+  const rhd = vacuna('rhdDate', es ? 'Enfermedad hemorrágica (RHD)' : 'Rabbit haemorrhagic disease (RHD)');
+
+  const sanitario = {
+    icon: 'vet',
+    label: es ? 'Certificado sanitario oficial' : 'Official health certificate',
+    status: h.healthCert?.status || 'pending',
+    detail: h.healthCert?.status === 'ok'
+      ? (es ? 'Emitido por veterinario oficial' : 'Issued by an official vet')
+      : (es ? 'Debe firmarlo un veterinario oficial' : 'Must be signed by an official vet'),
+  };
+
+  const fueraDelReglamento = {
+    icon: 'doc',
+    label: es ? 'Fuera del régimen de mascotas' : 'Outside the pet travel scheme',
+    status: 'alert',
+    detail: es
+      ? 'El reglamento europeo solo cubre perros, gatos y hurones: aquí manda la norma nacional del destino'
+      : 'The EU pet regulation covers only dogs, cats and ferrets: national rules of the destination apply',
+  };
+
+  if (origen === countryId) {
+    return [identificacion, mixomatosis, rhd,
+      { icon: 'doc', label: es ? 'Movimiento nacional' : 'Domestic movement', status: 'ok',
+        detail: es ? 'Sin trámite de exportación' : 'No export procedure needed' }];
+  }
+
+  switch (countryId) {
+    case 'ES': return [identificacion, fueraDelReglamento, mixomatosis, rhd, sanitario];
+    case 'UK': return [
+      identificacion, fueraDelReglamento, mixomatosis, rhd,
+      { icon: 'doc', label: es ? 'Licencia de importación' : 'Import licence', status: 'pending',
+        detail: es
+          ? 'Los conejos entran como “otros mamíferos”, con licencia previa'
+          : 'Rabbits enter as “other mammals”, under prior licence' },
+      sanitario,
+    ];
+    case 'US': return [
+      identificacion, fueraDelReglamento, mixomatosis, rhd,
+      { icon: 'vet', label: es ? 'Inspección en el punto de entrada' : 'Inspection at the point of entry',
+        status: 'pending', detail: es ? 'Sin requisito de vacuna antirrábica' : 'No rabies vaccination requirement' },
+      sanitario,
+    ];
+    case 'CA': return [
+      identificacion, fueraDelReglamento, mixomatosis, rhd,
+      { icon: 'doc', label: es ? 'Permiso de importación · CFIA' : 'Import permit · CFIA', status: 'pending',
+        detail: es ? 'Requisitos según el país de salida' : 'Requirements depend on the country of departure' },
+      sanitario,
+    ];
+    case 'AU': return [
+      identificacion,
+      { icon: 'doc', label: es ? 'Entrada prohibida' : 'Entry prohibited', status: 'alert',
+        detail: es
+          ? 'Australia no admite conejos salvo procedentes de Nueva Zelanda. Este viaje no es viable.'
+          : 'Australia does not admit rabbits except from New Zealand. This trip is not viable.' },
+    ];
+    default: return [identificacion, fueraDelReglamento];
+  }
+};
+
+/* ── Requisitos para reptiles y exóticos ─────────────────────────────────────
+   Aquí manda CITES por encima de la sanidad animal: muchas especies de tortuga,
+   camaleón, iguana o serpiente están listadas, y varias en el apéndice I, donde
+   el comercio está prohibido salvo excepciones muy tasadas. Además, casi ningún
+   país los admite por la vía de mascotas.
+──────────────────────────────────────────────────────────────────────────── */
+const buildExoticRequirements = (pet, countryId, locale, origen = 'ES') => {
+  const es = locale === 'es';
+  const sp = pet?.specific || {};
+  const h = pet?.health || {};
+  const hecho = (v) => (v && String(v).trim() ? 'ok' : 'pending');
+
+  const enCites = sp.citesAppendix && sp.citesAppendix !== 'no';
+  const citesDesconocido = !sp.citesAppendix;
+
+  const especie = {
+    icon: 'doc',
+    label: es ? 'Especie identificada' : 'Species identified',
+    status: hecho(sp.scientificName),
+    detail: sp.scientificName
+      || (es ? 'El nombre científico decide todo lo demás' : 'The scientific name determines everything else'),
+  };
+
+  const cites = citesDesconocido
+    ? { icon: 'doc', label: 'CITES', status: 'alert',
+        detail: es
+          ? 'Sin determinar. Muchos reptiles están listados: compruébalo antes que nada'
+          : 'Undetermined. Many reptiles are listed: check this before anything else' }
+    : enCites
+      ? { icon: 'doc', label: `CITES · ${es ? 'Apéndice' : 'Appendix'} ${sp.citesAppendix}`,
+          status: sp.citesAppendix === 'I' ? 'alert' : hecho(sp.citesNumber),
+          detail: sp.citesAppendix === 'I'
+            ? (es
+                ? 'Apéndice I: comercio prohibido salvo excepciones muy tasadas'
+                : 'Appendix I: trade banned save for narrowly defined exceptions')
+            : (sp.citesNumber
+                ? `${es ? 'Certificado' : 'Certificate'} ${sp.citesNumber}`
+                : (es ? 'Permiso de exportación e importación por cada frontera' : 'Export and import permits for each border')) }
+      : { icon: 'doc', label: 'CITES', status: 'ok', detail: es ? 'Especie no listada' : 'Species not listed' };
+
+  const identificacion = {
+    icon: 'chip',
+    label: es ? 'Identificación' : 'Identification',
+    status: pet?.microchip?.trim() ? 'ok' : 'pending',
+    detail: pet?.microchip?.trim()
+      || (es ? 'Microchip o fotografía identificativa según especie' : 'Microchip or identifying photograph, by species'),
+  };
+
+  const sanitario = {
+    icon: 'vet',
+    label: es ? 'Certificado sanitario oficial' : 'Official health certificate',
+    status: h.healthCert?.status || 'pending',
+    detail: h.healthCert?.status === 'ok'
+      ? (es ? 'Emitido por veterinario oficial' : 'Issued by an official vet')
+      : (es ? 'Debe firmarlo un veterinario oficial' : 'Must be signed by an official vet'),
+  };
+
+  const fueraDelReglamento = {
+    icon: 'doc',
+    label: es ? 'Fuera del régimen de mascotas' : 'Outside the pet travel scheme',
+    status: 'alert',
+    detail: es
+      ? 'Los reptiles no viajan como animales de compañía: cada país aplica su propia norma'
+      : 'Reptiles do not travel as pets: each country applies its own rules',
+  };
+
+  if (origen === countryId) {
+    return [especie, cites, identificacion,
+      { icon: 'doc', label: es ? 'Movimiento nacional' : 'Domestic movement', status: 'ok',
+        detail: es ? 'Sin trámite de exportación' : 'No export procedure needed' }];
+  }
+
+  const permiso = (org) => ({
+    icon: 'doc', label: `${es ? 'Permiso de importación' : 'Import permit'} · ${org}`, status: 'pending',
+    detail: es ? 'Trámite específico por especie' : 'Species-specific procedure',
+  });
+
+  switch (countryId) {
+    case 'ES': return [especie, cites, identificacion, fueraDelReglamento, sanitario];
+    case 'UK': return [especie, cites, identificacion, fueraDelReglamento, permiso('APHA'), sanitario];
+    case 'US': return [especie, cites, identificacion, fueraDelReglamento, permiso('USFWS'),
+      { icon: 'vet', label: es ? 'Declaración de vida silvestre' : 'Wildlife declaration', status: 'pending',
+        detail: es ? 'Entrada solo por puertos designados' : 'Entry only through designated ports' }, sanitario];
+    case 'CA': return [especie, cites, identificacion, fueraDelReglamento, permiso('CFIA / ECCC'), sanitario];
+    case 'AU': return [especie, cites, identificacion,
+      { icon: 'doc', label: es ? 'Entrada muy restringida' : 'Entry heavily restricted', status: 'alert',
+        detail: es
+          ? 'Australia prohíbe la entrada de casi todos los reptiles como mascota. Confírmalo antes de cualquier gestión.'
+          : 'Australia bans almost all reptiles as pets. Confirm before taking any step.' }];
+    default: return [especie, cites, identificacion, fueraDelReglamento];
+  }
+};
+
+/* ── Especie sin determinar ──────────────────────────────────────────────────
+   Si el usuario eligió "otra mascota", no se puede afirmar nada: fingir una
+   lista de requisitos sería peor que reconocer que hace falta consultar.
+──────────────────────────────────────────────────────────────────────────── */
+const buildUnknownRequirements = (pet, countryId, locale) => {
+  const es = locale === 'es';
+  return [
+    {
+      icon: 'doc',
+      label: es ? 'Especie sin determinar' : 'Species undetermined',
+      status: 'alert',
+      detail: es
+        ? 'Indica la especie exacta en el registro para poder evaluar los requisitos'
+        : 'Enter the exact species in registration so requirements can be assessed',
+    },
+    {
+      icon: 'vet',
+      label: es ? 'Consulta obligatoria' : 'Mandatory enquiry',
+      status: 'alert',
+      detail: es
+        ? 'Cada especie tiene su propio régimen. Pregunta a la autoridad sanitaria del destino antes de reservar nada.'
+        : 'Every species has its own regime. Ask the destination’s animal health authority before booking anything.',
+    },
+  ];
+};
+
 /* ── Build requirements dynamically from pet data ── */
 const buildRequirements = (pet, countryId, locale, origen = 'ES') => {
   /* Los équidos van por su propia normativa, no por la de mascotas */
   if (pet?.species === 'horse') return buildEquineRequirements(pet, countryId, locale, origen);
+  if (pet?.species === 'bird') return buildBirdRequirements(pet, countryId, locale, origen);
+  if (pet?.species === 'rabbit') return buildRabbitRequirements(pet, countryId, locale, origen);
+  if (pet?.species === 'exotic') return buildExoticRequirements(pet, countryId, locale, origen);
+  if (pet?.species === 'other') return buildUnknownRequirements(pet, countryId, locale);
 
   const es = locale === 'es';
   const hasMicrochip = !!pet?.microchip?.trim();
