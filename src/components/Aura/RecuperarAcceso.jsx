@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { KeyRound, Mail, ArrowLeft, CheckCircle2, AlertTriangle } from 'lucide-react';
-import logo from '../../assets/logo-aura-pets.png';
+import logo from '../../assets/logo-aura.png';
 import { vault } from '../../utils/vault';
 import { storage } from '../../utils/storage';
 

@@ -3,7 +3,7 @@ import { Routes, Route, useNavigate, useLocation, Navigate } from 'react-router-
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { useTranslation } from './context/LocalizationContext';
 import Auth from './components/Auth';
-import logo from './assets/logo-aura-pets.png';
+import logo from './assets/logo-aura.png';
 import Dashboard from './components/Aura/Dashboard';
 import GlobalPassport from './components/Aura/GlobalPassport';
 import SOSMode from './components/Aura/SOSMode';
