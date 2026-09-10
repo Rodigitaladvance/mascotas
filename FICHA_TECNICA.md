@@ -9,8 +9,8 @@
 
 | | |
 |---|---|
-| **Versión / Version** | 1.3.0 |
-| **Fecha de emisión / Issue date** | 2026-09-06 |
+| **Versión / Version** | 1.4.0 |
+| **Fecha de emisión / Issue date** | 2026-09-10 |
 | **Empresa / Company** | Rodigital Advance |
 | **Clasificación / Classification** | Documento Oficial de Certificación / Official Certification Document |
 | **Producción / Production** | https://rociogf-aura-pets-final.static.hf.space |
@@ -49,7 +49,7 @@
 │                                                              │
 │          ❌  NINGÚN DATO SALE DEL DISPOSITIVO                │
 │          ❌  NO DATA LEAVES THE DEVICE                       │
-│          ❌  NINGUNA LLAMADA DE RED / NO NETWORK CALLS       │
+│          ❌  SIN CLAVES DE API / NO API KEYS                 │
 └──────────────────────────────────────────────────────────────┘
                 │ Solo ficheros estáticos / Static files only
                 ▼
@@ -78,17 +78,27 @@
 
 ### 3.1 Arquitectura Zero-Knowledge
 
-**ES:** AURA Pets implementa una política de **conocimiento cero** (_Zero-Knowledge Architecture_): los datos personales y sanitarios **nunca se transmiten a ningún servidor externo**. Una vez cargada la aplicación, **no se produce ninguna comunicación de red en absoluto**. No existen cookies de rastreo, telemetría ni análisis de comportamiento.
+**ES:** AURA Pets implementa una política de **conocimiento cero** (_Zero-Knowledge Architecture_): los datos personales y sanitarios **nunca se transmiten a ningún servidor externo**. Una vez cargada la aplicación, **ninguna comunicación de red transporta datos del expediente**. No existen cookies de rastreo, telemetría ni análisis de comportamiento.
 
-**EN:** AURA Pets implements a **Zero-Knowledge Architecture**: personal and health data **is never transmitted to any external server**. Once the application is loaded, **no network communication occurs at all**. There are no tracking cookies, telemetry, or behavioural analytics.
+**EN:** AURA Pets implements a **Zero-Knowledge Architecture**: personal and health data **is never transmitted to any external server**. Once the application is loaded, **no network communication carries record data**. There are no tracking cookies, telemetry, or behavioural analytics.
 
 La afirmación es verificable sobre el propio artefacto desplegado / The claim is verifiable against the deployed artefact itself:
 
 ```bash
-# Ninguna coincidencia en el bundle de producción / No matches in the production bundle
-grep -oE 'fetch\(\s*"https?://' dist/assets/*.js     #  →  sin resultados / no results
-grep -oE 'VITE_[A-Z_]+'         dist/assets/*.js     #  →  sin resultados / no results
+npm run build
+
+# 1 · Ninguna clave de API en el artefacto / No API key in the artefact
+grep -oE 'sk-[A-Za-z0-9-]{20,}|VITE_[A-Z_]+' dist/assets/*.js
+
+# 2 · TODA URL externa, no solo las peticiones fetch / EVERY external URL,
+#     not just fetch calls. Una etiqueta <img src="https://…"> también es
+#     una petición de red y no aparece buscando 'fetch('.
+grep -ohE 'https://[a-z0-9.-]+\.[a-z]{2,}' dist/assets/*.js | sort -u
 ```
+
+**ES:** La segunda comprobación debe hacerse sobre **cualquier URL**, no solo sobre llamadas `fetch`. Una etiqueta `<img>` apuntando a un servidor externo genera una petición idéntica y no aparece buscando `fetch(`. El resultado esperado son únicamente las dos conexiones declaradas más abajo; el resto de coincidencias proceden del interior de las librerías —textos de mensajes de error— y no llegan a ejecutarse.
+
+**EN:** The second check must cover **any URL**, not only `fetch` calls. An `<img>` tag pointing at an external server produces an identical request and does not show up when searching for `fetch(`. The expected result is only the two connections declared below; any other matches come from inside library code as error-message strings and are never executed.
 
 **Sin claves de API. Sin servicios de terceros.** La aplicación no depende de ningún proveedor externo para funcionar:
 
@@ -100,6 +110,18 @@ grep -oE 'VITE_[A-Z_]+'         dist/assets/*.js     #  →  sin resultados / no
 | Fondo animado de bienvenida / Animated welcome background | Gradientes y `@keyframes` CSS generados en el navegador / CSS gradients and keyframes rendered in-browser |
 | Contenido legal GDPR y HIPAA / GDPR & HIPAA legal content | Textos bilingües empaquetados en la aplicación / Bilingual copy bundled in the application |
 | Tipografías / Typefaces | Google Fonts (CDN público, sin datos de usuario) / Google Fonts (public CDN, no user data) |
+| Miniaturas de especie / Species thumbnails | Empaquetadas en la aplicación / Bundled with the application |
+
+#### Las dos únicas conexiones externas / The only two external connections
+
+| Conexión / Connection | Cuándo / When | Qué se transmite / What is transmitted |
+|---|---|---|
+| `fonts.googleapis.com` | Al cargar la aplicación / On application load | Nada del usuario ni del animal / Nothing about the user or the animal |
+| `google.com/maps` | **Solo al pulsar** «buscar veterinario 24 h» en el modo SOS / **Only on pressing** "find a 24 h vet" in SOS mode | Las coordenadas, a petición expresa del usuario y en una pestaña nueva / The coordinates, at the user's explicit request and in a new tab |
+
+**ES:** Ninguna de las dos transporta datos del expediente. La segunda es una acción deliberada del usuario en una situación de emergencia, no una petición automática de la aplicación, y se declara aquí por transparencia.
+
+**EN:** Neither carries record data. The second is a deliberate user action in an emergency, not an automatic request by the application, and is declared here for transparency.
 
 ### 3.2 Derivación de Clave / Key Derivation
 
@@ -261,12 +283,51 @@ Compliance aligned with GDPR. Animal health data is processed exclusively on the
 |---|---|
 | 🐕 Perro / Dog | Datos básicos, vacunas, microchip |
 | 🐈 Gato / Cat | Datos básicos, vacunas, microchip |
-| 🐴 Caballo / Horse | Último herrador, competición deportiva, número REGA |
-| 🦎 Exótico / Exotic | Temperatura de hábitat, humedad, estado de muda |
-| 🦜 Ave / Bird | Número de anilla, condición del plumaje, tipo de canto |
+| 🐴 Caballo / Horse | Ubicación del microchip, pasaporte equino, UELN, REGA, sexo, capa, marcas distintivas, tatuaje o hierro, herrador, competición |
+| 🦜 Ave / Bird | Tipo de identificación, nº de anilla, especie científica, apéndice y certificado CITES, criador, muda, canto |
+| 🐇 Conejo / Rabbit | Tatuaje auricular o microchip, criador, mixomatosis, enfermedad hemorrágica (RHD) |
+| 🦎 Reptil / Reptile | Temperatura de hábitat, humedad, estado de muda, CITES |
 | ➕ Otra / Other | Campo de especie personalizado / Custom species field |
 
+**ES:** Las miniaturas del carrusel se sirven desde el propio dominio. En versiones anteriores se cargaban desde un banco de imágenes externo, lo que generaba cinco peticiones a un tercero cada vez que se abría el alta e impedía usar la pantalla sin conexión.
+
+**EN:** Carousel thumbnails are served from the application's own origin. Earlier versions loaded them from an external image bank, which fired five third-party requests each time the registration screen opened and prevented the screen from working offline.
+
 ### 5.3 Sistema de Requisitos Internacionales / International Requirements System
+
+#### Regímenes normativos por especie / Regulatory regimes by species
+
+**ES:** No existe un único régimen de viaje aplicable a todos los animales de compañía. El motor de reglas selecciona el que corresponde a cada especie, porque exigir a un conejo la vacuna antirrábica de un perro, o a un camaleón un tratamiento antiparasitario, produce una lista de requisitos que no sirve para nada.
+
+**EN:** There is no single travel regime covering all companion animals. The rules engine selects the one that applies to each species, because asking a rabbit for a dog's rabies vaccination, or a chameleon for a tapeworm treatment, produces a checklist that helps nobody.
+
+| Especie / Species | Régimen aplicable / Applicable regime | Documento central / Core document |
+|---|---|---|
+| 🐕 🐈 Perro y gato / Dog and cat | Régimen de animales de compañía / Pet travel scheme | Pasaporte o certificado sanitario / Passport or health certificate |
+| 🐴 Caballo / Horse | Sanidad animal equina / Equine animal health law | Documento de identificación equina con UELN |
+| 🦜 Ave / Bird | CITES + sanidad aviar / CITES + avian health | Permisos CITES de exportación e importación |
+| 🐇 Conejo / Rabbit | **Fuera del reglamento europeo** — norma nacional del destino / **Outside the EU pet regulation** — destination's national rules | Certificado sanitario y licencia según destino |
+| 🦎 Reptil / Reptile | CITES por encima de la sanidad animal / CITES above animal health | Certificado CITES por espécimen |
+| ➕ Sin determinar / Undetermined | No se emite valoración / No assessment issued | Consulta previa a la autoridad del destino |
+
+#### Dependencia del corredor / Corridor dependency
+
+**ES:** Para las especies distintas de perro y gato, los requisitos no dependen solo del destino sino del corredor completo de salida y llegada. La aplicación incorpora un selector de país de origen sobre los cinco mercados cubiertos, lo que da lugar a veinticinco combinaciones evaluables.
+
+**EN:** For species other than dogs and cats, requirements depend not only on the destination but on the full departure-arrival corridor. The application provides an origin-country selector across the five covered markets, giving twenty-five assessable combinations.
+
+| Ejemplo / Example | Motivo / Reason |
+|---|---|
+| Piroplasmosis exigida solo con origen España | Zona endémica / Endemic area |
+| Metritis contagiosa equina solo hacia EE. UU. y desde España o Reino Unido | Orígenes afectados hacia destino libre / Affected origins into a free destination |
+| Vacuna de gripe equina solo hacia Australia | Destino libre de la enfermedad / Destination free of the disease |
+| Origen igual a destino | Movimiento nacional, sin trámite de exportación / Domestic movement, no export procedure |
+
+#### Advertencia sobre el alcance / Scope disclaimer
+
+**ES:** AURA Pets prepara y custodia documentación; **no emite documentos oficiales ni sustituye la consulta a la autoridad competente**. Los requisitos sanitarios cambian con frecuencia y su verificación corresponde al organismo del país de destino. La aplicación muestra esta advertencia al usuario en las especies cuyo régimen es más variable.
+
+**EN:** AURA Pets prepares and safeguards documentation; **it does not issue official documents nor replace consulting the competent authority**. Sanitary requirements change frequently and their verification rests with the destination country's body. The application displays this warning to the user for the species whose regime varies most.
 
 **ES:** Motor de reglas que cruza el expediente médico real de la mascota con los requisitos sanitarios oficiales del país de destino. Devuelve: porcentaje de cumplimiento, lista de requisitos cumplidos y pendientes, detalle de cada requisito, y exportación en PDF del informe completo.
 
@@ -497,9 +558,9 @@ It is declared that the application **AURA Pets — Global Health Passport** has
 | | |
 |---|---|
 | **Empresa / Company** | Rodigital Advance |
-| **Versión / Version** | 1.3.0 |
-| **Fecha de emisión / Issue date** | 2026-09-06 |
-| **Válido hasta / Valid until** | 2027-09-06 |
+| **Versión / Version** | 1.4.0 |
+| **Fecha de emisión / Issue date** | 2026-09-10 |
+| **Válido hasta / Valid until** | 2027-09-10 |
 
 *Este documento es de carácter oficial y ha sido generado para auditoría de certificación.*  
 *This document is official in nature and has been generated for certification audit purposes.*
