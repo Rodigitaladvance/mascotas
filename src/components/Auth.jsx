@@ -4,9 +4,29 @@ import { vault } from '../utils/vault';
 import { storage } from '../utils/storage';
 import { KeyRound, Mail, ShieldCheck, UserPlus, Lock } from 'lucide-react';
 import { motion } from 'framer-motion';
-import logo from '../assets/logo-aura-pets.png';
+import logo from '../assets/logo-aura.png';
 import { IntroVideoModal } from './IntroVideoPlayer';
-import gatoYPerro from '../assets/gato-y-perro.png';
+import PawPrint from './Aura/PawPrint';
+import { PlaneTrail, Sparkle, HeartOutline, Rays, Blob } from './Aura/Decorations';
+
+/* Huellas en azules y verdes pastel repartidas por la tarjeta de acceso.
+   Posiciones fijas: si fueran aleatorias saltarían en cada render. */
+const AUTH_BLOBS = [
+  { size: 190, color: '#A5E3DC', top: '-6%',    left: '-16%', opacity: 0.55 },
+  { size: 150, color: '#C9BDF2', top: '-4%',    right: '-14%', opacity: 0.50 },
+  { size: 170, color: '#F9C9D8', bottom: '6%',  right: '-18%', opacity: 0.42 },
+  { size: 140, color: '#BFE0F5', bottom: '-8%', left: '-12%', opacity: 0.45 },
+  { size: 110, color: '#FCE1A8', top: '42%',    right: '-13%', opacity: 0.40 },
+];
+
+const AUTH_PAWS = [
+  { size: 54, top: '4%',   left: '-3%',  color: '#A5E3DC', opacity: 0.55, rot: -20 },
+  { size: 34, top: '18%',  right: '2%',  color: '#BFE0F5', opacity: 0.60, rot: 26 },
+  { size: 26, top: '46%',  left: '2%',   color: '#C9BDF2', opacity: 0.45, rot: 12 },
+  { size: 44, bottom: '18%', right: '-2%', color: '#A5E3DC', opacity: 0.42, rot: -34 },
+  { size: 30, bottom: '4%',  left: '6%',  color: '#BFE0F5', opacity: 0.50, rot: 40 },
+  { size: 20, top: '62%',  right: '9%',  color: '#A5E3DC', opacity: 0.38, rot: -8 },
+];
 
 const Auth = () => {
   const { login } = useAuth();
@@ -66,14 +86,46 @@ const Auth = () => {
       background: 'var(--aura-black)',
       padding: '1.5rem'
     }}>
-      <div className="aura-card" style={{ width: '100%', maxWidth: '440px', textAlign: 'center' }}>
-        <header style={{ marginBottom: '3.5rem' }}>
-          <img 
-            src={logo} 
-            alt="AURA Logo" 
-            style={{ height: '70px', marginBottom: '2rem', filter: 'drop-shadow(0 0 10px var(--aura-gold-muted))' }} 
+      <div className="aura-card" style={{ width: '100%', maxWidth: '440px', textAlign: 'center', position: 'relative' }}>
+        {AUTH_BLOBS.map((b, i) => (
+          <Blob key={`b${i}`} size={b.size} color={b.color}
+            style={{ top: b.top, left: b.left, right: b.right, bottom: b.bottom, opacity: b.opacity, zIndex: 0 }} />
+        ))}
+
+        {/* Avión con estela de corazón, arriba a la derecha */}
+        <PlaneTrail size={118} style={{ position: 'absolute', top: '3%', right: '-4%', color: 'var(--violet)', opacity: 0.65, zIndex: 0, pointerEvents: 'none' }} />
+        {/* Corazón suelto, abajo a la izquierda */}
+        <HeartOutline size={30} style={{ position: 'absolute', bottom: '9%', left: '4%', color: '#F19FB8', opacity: 0.75, zIndex: 0, pointerEvents: 'none' }} />
+
+        {AUTH_PAWS.map((h, i) => (
+          <PawPrint
+            key={i}
+            size={h.size}
+            style={{
+              position: 'absolute', top: h.top, left: h.left, right: h.right, bottom: h.bottom,
+              color: h.color, opacity: h.opacity, transform: `rotate(${h.rot}deg)`,
+              pointerEvents: 'none', zIndex: 0,
+            }}
           />
-          <h1 style={{ fontSize: '2.4rem', margin: '0 0 0.5rem', letterSpacing: '-1px' }}>AURA <span style={{ color: 'var(--aura-gold)' }}>Pets Global</span></h1>
+        ))}
+        <div style={{ position: 'relative', zIndex: 1 }}>
+        <header style={{ marginBottom: '3.5rem' }}>
+          <div style={{ position: 'relative', display: 'block', width: 'fit-content', marginInline: 'auto', marginBottom: '0.9rem' }}>
+              <Sparkle size={15} style={{ position: 'absolute', top: '4%',  left: '-2%',  color: '#FCE1A8', zIndex: 2 }} />
+              <Sparkle size={11} style={{ position: 'absolute', top: '20%', right: '-4%', color: '#C9BDF2', zIndex: 2 }} />
+              <Rays size={38} style={{ position: 'absolute', top: '26%', left: '-30%', transform: 'scaleX(-1)', zIndex: 2 }} />
+              <img
+                src={logo}
+                alt="Aura Pets Global"
+                style={{
+                  height: 'clamp(120px, 22vw, 158px)',
+                  display: 'block',
+                  position: 'relative',
+                  zIndex: 1,
+                  filter: 'drop-shadow(0 10px 22px rgba(42, 45, 124, 0.14))',
+                }}
+              />
+            </div>
 
           {/* Distintivo: las dos pantallas comparten formulario, así que sin
               una señal visible el usuario no sabe en cuál está. */}
@@ -95,9 +147,15 @@ const Auth = () => {
             </div>
           )}
 
-          <p style={{ color: 'var(--aura-text-muted)', fontSize: '0.85rem', letterSpacing: '2px', textTransform: 'uppercase', margin: 0 }}>
-            {isRegister ? 'Crea tu cuenta' : 'Accede a tu expediente'}
-          </p>
+          <p style={{ color: 'var(--ink)', fontSize: '0.78rem', letterSpacing: '2.6px', textTransform: 'uppercase', margin: 0, fontWeight: 600 }}>
+              {isRegister ? 'Crea tu cuenta' : 'Tu mascota, en todo el mundo'}
+            </p>
+            {!isRegister && (
+              <p className="aura-script" style={{ fontSize: 'clamp(1.5rem, 4vw, 2rem)', margin: '0.1rem 0 0' }}>
+                con total seguridad
+              </p>
+            )}
+            <div className="aura-rainbow-rule" style={{ width: 118, height: 4, margin: '0.9rem auto 0' }} />
 
           {isRegister && (
             <p style={{
@@ -167,7 +225,9 @@ const Auth = () => {
             </div>
           )}
 
-          <button type="submit" disabled={loading} className="btn-aura" style={{ padding: '1.2rem', width: '100%' }}>
+          <button type="submit" disabled={loading} className="btn-aura"
+            style={{ padding: '1.2rem', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.7rem' }}>
+            <PawPrint size={17} />
             {loading
               ? (isRegister ? 'CREANDO CUENTA…' : 'ENTRANDO…')
               : (isRegister ? 'CREAR MI CUENTA' : 'ENTRAR')}
@@ -191,8 +251,15 @@ const Auth = () => {
             {isRegister ? '¿YA TIENES CUENTA? ENTRAR' : '¿PRIMERA VEZ AQUÍ? CREAR CUENTA'}
           </button>
           {!isRegister && (
-            <a
-              href="/recuperar-acceso"
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', width: '100%', maxWidth: 300, margin: '0.2rem 0' }}>
+                <span style={{ flex: 1, height: 1, background: 'var(--border)' }} />
+                <PawPrint size={13} style={{ color: 'var(--pastel-lavender)', flexShrink: 0 }} />
+                <span style={{ flex: 1, height: 1, background: 'var(--border)' }} />
+              </div>
+            )}
+            {!isRegister && (
+              <a
+                href="/recuperar-acceso"
               style={{
                 color: 'var(--aura-gold)', fontSize: '0.75rem', letterSpacing: '1.5px',
                 textDecoration: 'none', opacity: 0.75, fontWeight: 600,
@@ -204,17 +271,8 @@ const Auth = () => {
             </a>
           )}
         </footer>
+        </div>
       </div>
-
-      <img
-        src={gatoYPerro}
-        alt="Un perro y un gato con sus medallas AURA"
-        style={{
-          width: 'min(340px, 80vw)', height: 'auto', display: 'block',
-          margin: '2rem auto 0',
-          filter: 'drop-shadow(0 14px 28px rgba(42, 45, 124, 0.18))',
-        }}
-      />
     </div>
     </>
   );
