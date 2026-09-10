@@ -492,20 +492,14 @@ h4, h5, h6 {
    not pure glass, subtle purple border glow.
 ───────────────────────────────────────────── */
 .aura-card {
-  background: rgba(20, 6, 42, 0.90);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
+  background: var(--bg-card-solid);
   border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 2.5rem;
+  border-radius: var(--radius-lg);
+  padding: 2.2rem;
   position: relative;
   overflow: hidden;
-  transition:
-    transform     0.42s cubic-bezier(0.16,1,0.3,1),
-    border-color  0.42s ease,
-    box-shadow    0.42s ease;
-  box-shadow:
-    0 4px 32px rgba(42, 45, 124, 0.13);
+  transition: transform 0.42s cubic-bezier(0.16,1,0.3,1), box-shadow 0.42s ease;
+  box-shadow: var(--shadow-md);
 }
 
 /* Top shimmer edge */
@@ -548,16 +542,10 @@ h4, h5, h6 {
 
 /* Glass card alias */
 .glass-card {
-  background: rgba(20, 6, 42, 0.88);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
+  background: var(--bg-card-solid);
   border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 1.5rem;
-  position: relative;
-  overflow: hidden;
-  transition: transform 0.4s cubic-bezier(0.16,1,0.3,1), border-color 0.4s;
-  box-shadow: 0 4px 28px rgba(42, 45, 124, 0.13);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
 }
 .glass-card:hover {
   border-color: var(--border);
@@ -568,32 +556,29 @@ h4, h5, h6 {
    8. BUTTONS
 ───────────────────────────────────────────── */
 .btn-aura {
-  background: rgba(212,175,55,0.08);
-  border: 1px solid rgba(212,175,55,0.48);
-  color: var(--gold-bright);
-  padding: 0.9rem 2.2rem;
+  background: var(--brand-gradient);
+  border: none;
+  color: #FFFFFF;
+  padding: 1rem 2.4rem;
   font-family: var(--font-sans);
   text-transform: uppercase;
-  letter-spacing: 3px;
-  font-size: 0.72rem;
+  letter-spacing: 2.5px;
+  font-size: 0.74rem;
   font-weight: 700;
   cursor: pointer;
-  transition: all 0.30s cubic-bezier(0.16,1,0.3,1);
+  transition: transform 0.25s cubic-bezier(0.16,1,0.3,1), box-shadow 0.25s ease, filter 0.25s ease;
   position: relative;
-  border-radius: var(--radius);
-  text-shadow: 0 0 14px rgba(212,175,55,0.30);
+  border-radius: var(--radius-pill);
+  box-shadow: var(--shadow-brand);
   overflow: hidden;
 }
 
 .btn-aura::before { content: none; }
 
 .btn-aura:hover {
-  background: var(--gold-gradient);
-  color: var(--ink-strong);
-  border-color: var(--gold-bright);
-  box-shadow: 0 0 32px rgba(212,175,55,0.50), 0 4px 20px rgba(42, 45, 124, 0.13);
-  text-shadow: none;
-  transform: translateY(-1px);
+  filter: brightness(1.06) saturate(1.05);
+  box-shadow: 0 12px 30px -8px rgba(236, 92, 141, 0.60);
+  transform: translateY(-2px);
 }
 
 .btn-aura:active {
@@ -637,7 +622,7 @@ h4, h5, h6 {
   position: sticky;
   top: 0;
   z-index: 100;
-  background: rgba(4, 0, 10, 0.97);
+  background: rgba(254, 251, 244, 0.92);
   backdrop-filter: blur(32px);
   -webkit-backdrop-filter: blur(32px);
   border-bottom: 1px solid rgba(80,40,160,0.20);
@@ -669,7 +654,7 @@ h4, h5, h6 {
 .bottom-tab-bar {
   position: fixed;
   bottom: 0; left: 0; right: 0;
-  background: rgba(4, 0, 10, 0.98);
+  background: rgba(254, 251, 244, 0.92);
   backdrop-filter: blur(32px);
   -webkit-backdrop-filter: blur(32px);
   border-top: 1px solid rgba(80,40,160,0.18);
@@ -684,7 +669,7 @@ h4, h5, h6 {
 .tab-btn {
   background: none;
   border: none;
-  color: rgba(160,140,210,0.42);
+  color: var(--ink-muted);
   cursor: pointer;
   display: flex;
   flex-direction: column;
@@ -805,7 +790,7 @@ h4, h5, h6 {
   overflow: hidden;
   cursor: pointer;
   position: relative;
-  background: rgba(20,6,42,0.80);
+  background: var(--bg-card-solid);
   backdrop-filter: blur(8px);
   transition: border-color 0.25s, transform 0.25s, box-shadow 0.25s;
 }
@@ -861,13 +846,13 @@ h4, h5, h6 {
 ───────────────────────────────────────────── */
 .aura-tabs {
   display: flex;
-  border-bottom: 1px solid rgba(80,40,160,0.22);
+  border-bottom: 1px solid var(--border);
   margin-bottom: 2rem;
 }
 .aura-tab {
   background: none;
   border: none;
-  color: rgba(160,140,210,0.42);
+  color: var(--ink-muted);
   font-family: var(--font-sans);
   font-size: 0.75rem;
   letter-spacing: 2px;
@@ -879,8 +864,8 @@ h4, h5, h6 {
   margin-bottom: -1px;
 }
 .aura-tab.active {
-  color: var(--neon-cyan);
-  border-bottom-color: var(--neon-cyan);
+  color: var(--violet);
+  border-bottom-color: var(--violet);
   text-shadow: 0 0 14px rgba(0,232,255,0.55);
 }
 .aura-tab:hover:not(.active) {
@@ -979,13 +964,13 @@ h4, h5, h6 {
 /* The shield orb — mimics the dramatic glowing sphere in the reference */
 .shield-icon {
   width: 56px; height: 56px;
-  border: 2px solid rgba(0,232,255,0.60);
+  border: 2px solid rgba(139, 92, 246, 0.45);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  color: var(--neon-cyan);
+  color: var(--violet);
   position: relative;
   background: radial-gradient(circle at 35% 35%, rgba(0,232,255,0.18) 0%, rgba(0,100,180,0.08) 50%, transparent 70%);
   box-shadow:
@@ -1542,4 +1527,26 @@ pre {
   width: 132px; height: 3px; border-radius: 999px;
   margin: 1rem auto;
   background: linear-gradient(90deg, var(--pastel-mint), var(--pastel-lavender), var(--pastel-peach), var(--pastel-pink));
+}
+
+
+/* ─────────────────────────────────────────────
+   27. TARJETA CON FLORACIÓN PASTEL
+   Variante de .aura-card para las pantallas que necesitan color propio
+   sin dejar de ser una superficie clara y legible.
+───────────────────────────────────────────── */
+.aura-card--bloom {
+  background:
+    radial-gradient(ellipse 44% 62% at 3% 8%,   rgba(165,227,220,0.42) 0%, transparent 66%),
+    radial-gradient(ellipse 38% 56% at 98% 14%, rgba(201,189,242,0.44) 0%, transparent 64%),
+    radial-gradient(ellipse 40% 58% at 6% 96%,  rgba(252,225,168,0.40) 0%, transparent 66%),
+    radial-gradient(ellipse 36% 54% at 95% 92%, rgba(249,201,216,0.40) 0%, transparent 64%),
+    var(--bg-cream);
+}
+
+/* Cabecera de sección sobre la floración */
+.aura-card--bloom .section-eyebrow {
+  color: var(--gold-deep);
+  font-weight: 700;
+  letter-spacing: 3px;
 }
