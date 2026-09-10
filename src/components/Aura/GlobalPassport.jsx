@@ -1,8 +1,10 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { PlaneTakeoff, CheckCircle2, AlertCircle, FileText, X, Shield, Syringe, Stethoscope, FileCheck, Upload, Save } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { assessAirline } from '../../utils/airline';
 import { useTranslation } from '../../context/LocalizationContext';
 import perroPasaporte from '../../assets/perro-pasaporte.jpg';
+import movilPasaporte from '../../assets/movil-pasaporte.jpg';
 
 /* ── Icon helper ── */
 const ReqIcon = ({ type, color }) => {
@@ -1040,21 +1042,45 @@ const GlobalPassport = ({ pet, onUpdatePet }) => {
   return (
     <>
       <div className="fade-in">
-        {/* Banda ilustrada: la imagen ya trae su propio fondo pastel, asi que
-            se recorta con esquinas grandes y actua como cabecera del modulo. */}
+        {/* ── Banda ilustrada ────────────────────────────────────────────────
+            Dos piezas: la escena del perro con el pasaporte y el móvil con la
+            app. En pantallas estrechas se apilan; en anchas van una al lado de
+            la otra. Ambas traen su propio fondo pastel, así que se funden con
+            el crema de la tarjeta sin costuras visibles. */}
         <div style={{
-          position: 'relative',
-          borderRadius: 'var(--radius-lg)',
-          overflow: 'hidden',
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+          gap: '0.9rem',
           margin: '1.5rem 0 0.5rem',
-          boxShadow: 'var(--shadow-md)',
-          border: '1px solid var(--border)',
         }}>
-          <img
-            src={perroPasaporte}
-            alt={es ? 'Un perro golden retriever junto a un pasaporte para mascotas' : 'A golden retriever beside a pet passport'}
-            style={{ width: '100%', height: 'clamp(150px, 26vw, 260px)', objectFit: 'cover', objectPosition: 'center 32%', display: 'block' }}
-          />
+          {[
+            { src: perroPasaporte, alt: es
+                ? 'Un perro golden retriever junto a un pasaporte para mascotas'
+                : 'A golden retriever beside a pet passport' },
+            { src: movilPasaporte, alt: es
+                ? 'Un gato apoyando las patas sobre un móvil que muestra el pasaporte en AURA Pets'
+                : 'A cat resting its paws on a phone showing the passport in AURA Pets' },
+          ].map((im, i) => (
+            <div key={i} style={{
+              borderRadius: 'var(--radius-lg)',
+              overflow: 'hidden',
+              boxShadow: 'var(--shadow-md)',
+              border: '1px solid var(--border)',
+              background: 'var(--bg-cream)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              <img
+                src={im.src}
+                alt={im.alt}
+                loading="lazy"
+                style={{
+                  width: '100%', height: 'auto',
+                  maxHeight: 'clamp(180px, 26vw, 280px)',
+                  objectFit: 'contain', display: 'block',
+                }}
+              />
+            </div>
+          ))}
         </div>
 
         {/* Header */}
@@ -1365,6 +1391,77 @@ const GlobalPassport = ({ pet, onUpdatePet }) => {
                 </p>
               )}
             </div>
+
+            {/* ── Requisitos de la compañía aérea ─────────────────────────────
+                La documentación oficial y la política de la aerolínea son dos
+                permisos distintos y se pierden por separado: un animal puede
+                llevar todos los papeles del destino en regla y que lo rechacen
+                en el mostrador por el tamaño del transportín o por la raza. */}
+            {(() => {
+              const { avisos, comprobaciones } = assessAirline(pet, locale);
+              const COLOR = {
+                alerta: { borde: 'var(--danger)', fondo: 'rgba(239, 95, 122, 0.07)', texto: '#B3324C' },
+                aviso:  { borde: 'var(--warn)',   fondo: 'rgba(240, 167, 60, 0.10)', texto: '#8F5C0C' },
+                info:   { borde: 'var(--violet)', fondo: 'rgba(139, 92, 246, 0.07)', texto: 'var(--violet)' },
+              };
+              return (
+                <div style={{
+                  background:'var(--bg-soft)', border:'1px solid var(--border)',
+                  borderRadius:'var(--radius)', padding:'1.2rem', marginBottom:'0.4rem',
+                }}>
+                  <p style={{
+                    fontSize:'0.66rem', letterSpacing:'2.5px', textTransform:'uppercase',
+                    color:'var(--gold-deep)', fontWeight:700, margin:'0 0 0.5rem',
+                  }}>
+                    {es ? '✈ La aerolínea es otro trámite' : '✈ The airline is a separate matter'}
+                  </p>
+                  <p style={{ margin:'0 0 1rem', fontSize:'0.76rem', lineHeight:1.6, color:'var(--ink-body)' }}>
+                    {es
+                      ? 'Cumplir con el país de destino no obliga a la compañía a llevar a tu animal. Son dos permisos distintos y se pierden por separado.'
+                      : 'Meeting the destination country’s rules does not oblige the airline to carry your animal. They are two separate permissions, lost separately.'}
+                  </p>
+
+                  {avisos.map((a, i) => {
+                    const c = COLOR[a.nivel] || COLOR.info;
+                    return (
+                      <div key={i} style={{
+                        borderLeft:'3px solid ' + c.borde, background:c.fondo,
+                        borderRadius:'0 8px 8px 0', padding:'0.7rem 0.9rem', marginBottom:'0.6rem',
+                      }}>
+                        <p style={{ margin:'0 0 0.25rem', fontSize:'0.78rem', fontWeight:700, color:c.texto }}>
+                          {a.titulo}
+                        </p>
+                        <p style={{ margin:0, fontSize:'0.75rem', lineHeight:1.6, color:'var(--ink-body)' }}>
+                          {a.detalle}
+                        </p>
+                      </div>
+                    );
+                  })}
+
+                  <p style={{
+                    margin:'1rem 0 0.6rem', fontSize:'0.66rem', letterSpacing:'2px',
+                    textTransform:'uppercase', color:'var(--ink-muted)', fontWeight:700,
+                  }}>
+                    {es ? 'Confirma con la compañía' : 'Confirm with the airline'}
+                  </p>
+                  <ul style={{ margin:0, padding:0, listStyle:'none', display:'grid', gap:'0.45rem' }}>
+                    {comprobaciones.map((c, i) => (
+                      <li key={i} style={{
+                        display:'flex', gap:'0.6rem', alignItems:'flex-start',
+                        fontSize:'0.75rem', lineHeight:1.55, color:'var(--ink-body)',
+                      }}>
+                        <span aria-hidden="true" style={{
+                          flexShrink:0, width:14, height:14, marginTop:3,
+                          border:'1.5px solid var(--border-strong)', borderRadius:4,
+                        }} />
+                        {c}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              );
+            })()}
+
             {COUNTRY_IDS.map(id => {
               const meta = COUNTRY_META[id];
               const reqs = allReqs[id];
