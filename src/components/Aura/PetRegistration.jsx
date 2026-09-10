@@ -3,6 +3,16 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Shield, CheckCircle2, Upload, PlusCircle } from 'lucide-react';
 import { useTranslation } from '../../context/LocalizationContext';
 import { readImageAsDataURL } from '../../utils/imageUpload';
+import PawPrint from './PawPrint';
+import { Blob, Sparkle } from './Decorations';
+
+/* Huellas y manchas para las tarjetas del alta. Posiciones fijas para que
+   no salten en cada render. */
+const REG_PAWS = [
+  { size: 40, top: '10%',   right: '3%',  color: '#C9BDF2', opacity: 0.45, rot: 24 },
+  { size: 26, bottom: '14%', left: '3%',  color: '#A5E3DC', opacity: 0.50, rot: -18 },
+  { size: 20, top: '46%',   left: '1%',   color: '#BFE0F5', opacity: 0.40, rot: 8 },
+];
 
 /* ── Species config ── */
 const SPECIES = [
@@ -42,26 +52,130 @@ const SubTabs = ({ tabs, active, onChange }) => (
   </div>
 );
 
-/* ── Horse fields ── */
+/* ── Campos equinos ──────────────────────────────────────────────────────────
+   Los équidos NO viajan bajo el régimen de animales de compañía: se rigen por
+   la normativa de identificación equina, que exige una ficha mucho más
+   detallada. Estos son los datos que piden los documentos de identificación
+   equina de la UE, Reino Unido, EE. UU., Canadá y Australia.
+──────────────────────────────────────────────────────────────────────────── */
+const SEXO_ES = ['Semental', 'Yegua', 'Castrado'];
+const SEXO_EN = ['Stallion', 'Mare', 'Gelding'];
+
+/* Dónde se implanta el transpondedor. La ubicación es un dato obligatorio del
+   documento de identificación, no un detalle: el veterinario debe encontrarlo. */
+const CHIP_LOC_ES = [
+  'Ligamento nucal, lado izquierdo',
+  'Ligamento nucal, lado derecho',
+  'Otra ubicación (indicar en marcas)',
+];
+const CHIP_LOC_EN = [
+  'Nuchal ligament, left side',
+  'Nuchal ligament, right side',
+  'Other location (note in markings)',
+];
+
 const HorseFields = ({ data, onChange, locale }) => {
-  const competitions = locale === 'es' ? COMPETITION_ES : COMPETITION_EN;
+  const es = locale === 'es';
+  const competitions = es ? COMPETITION_ES : COMPETITION_EN;
+  const sexos = es ? SEXO_ES : SEXO_EN;
+  const ubicaciones = es ? CHIP_LOC_ES : CHIP_LOC_EN;
+  const set = (campo) => (e) => onChange({ ...data, [campo]: e.target.value });
+
   return (
     <div>
+      {/* ── Identificación oficial ── */}
+      <p className="section-eyebrow" style={{ margin: '0 0 1rem', fontSize: '0.68rem', letterSpacing: '3px', color: 'var(--gold-deep)', fontWeight: 700, textTransform: 'uppercase' }}>
+        {es ? 'Identificación oficial' : 'Official identification'}
+      </p>
+
       <div className="form-group">
-        <label className="input-label">{locale === 'es' ? 'Pasaporte REGA (España)' : 'REGA Passport (Spain)'}</label>
-        <input className="aura-input" placeholder="ES-XXX-XXXX" value={data.rega || ''}
-          onChange={e => onChange({ ...data, rega: e.target.value })} />
+        <label className="input-label">{es ? 'Ubicación del microchip' : 'Microchip location'}</label>
+        <select className="aura-input aura-select" value={data.chipLocation || ''} onChange={set('chipLocation')}>
+          <option value="">{es ? 'Seleccionar…' : 'Select…'}</option>
+          {ubicaciones.map(u => <option key={u} value={u}>{u}</option>)}
+        </select>
       </div>
+
       <div className="form-group">
-        <label className="input-label">{locale === 'es' ? 'Fecha Último Herraje' : 'Last Farrier Date'}</label>
-        <input type="date" className="aura-input" value={data.lastFarrier || ''}
-          onChange={e => onChange({ ...data, lastFarrier: e.target.value })} />
+        <label className="input-label">{es ? 'Nº de pasaporte equino' : 'Equine passport number'}</label>
+        <input className="aura-input" placeholder={es ? 'Nº del documento de identificación' : 'Identification document no.'}
+          value={data.passportNumber || ''} onChange={set('passportNumber')} />
       </div>
+
       <div className="form-group">
-        <label className="input-label">{locale === 'es' ? 'Rendimiento / Competición' : 'Performance / Competition'}</label>
-        <select className="aura-input aura-select" value={data.competition || ''}
-          onChange={e => onChange({ ...data, competition: e.target.value })}>
-          <option value="">{locale === 'es' ? 'Seleccionar...' : 'Select...'}</option>
+        <label className="input-label">
+          {es ? 'UELN / Nº de registro de raza' : 'UELN / breed registry number'}
+        </label>
+        <input className="aura-input" placeholder="724-002-XXXXXXXXX"
+          value={data.ueln || ''} onChange={set('ueln')} />
+        <p style={{ margin: '0.45rem 0 0', fontSize: '0.72rem', color: 'var(--ink-muted)', lineHeight: 1.5 }}>
+          {es
+            ? 'Número único de por vida del équido, de 15 dígitos. Lo asigna el organismo emisor del pasaporte.'
+            : 'The animal’s 15-digit Universal Equine Life Number, assigned by the passport-issuing body.'}
+        </p>
+      </div>
+
+      <div className="form-group">
+        <label className="input-label">{es ? 'Pasaporte REGA (España)' : 'REGA passport (Spain)'}</label>
+        <input className="aura-input" placeholder="ES-XXX-XXXX" value={data.rega || ''} onChange={set('rega')} />
+      </div>
+
+      {/* ── Reseña ── */}
+      <p className="section-eyebrow" style={{ margin: '2rem 0 1rem', fontSize: '0.68rem', letterSpacing: '3px', color: 'var(--gold-deep)', fontWeight: 700, textTransform: 'uppercase' }}>
+        {es ? 'Reseña del animal' : 'Animal description'}
+      </p>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '1rem' }}>
+        <div className="form-group">
+          <label className="input-label">{es ? 'Sexo' : 'Sex'}</label>
+          <select className="aura-input aura-select" value={data.sex || ''} onChange={set('sex')}>
+            <option value="">{es ? 'Seleccionar…' : 'Select…'}</option>
+            {sexos.map(x => <option key={x} value={x}>{x}</option>)}
+          </select>
+        </div>
+        <div className="form-group">
+          <label className="input-label">{es ? 'Fecha de nacimiento' : 'Date of birth'}</label>
+          <input type="date" className="aura-input" value={data.birthDate || ''} onChange={set('birthDate')} />
+        </div>
+        <div className="form-group">
+          <label className="input-label">{es ? 'Capa / color' : 'Coat colour'}</label>
+          <input className="aura-input" placeholder={es ? 'Ej: castaño, tordo, alazán' : 'e.g. bay, grey, chestnut'}
+            value={data.coatColor || ''} onChange={set('coatColor')} />
+        </div>
+      </div>
+
+      <div className="form-group">
+        <label className="input-label">{es ? 'Marcas distintivas' : 'Distinctive markings'}</label>
+        <textarea className="aura-input" rows={3}
+          placeholder={es ? 'Lucero, calzados, remolinos, cicatrices…' : 'Star, socks, whorls, scars…'}
+          value={data.markings || ''} onChange={set('markings')} />
+        <p style={{ margin: '0.45rem 0 0', fontSize: '0.72rem', color: 'var(--ink-muted)', lineHeight: 1.5 }}>
+          {es
+            ? 'El diagrama de reseña del pasaporte se rellena con estos rasgos. Cuanto más precisos, menos problemas en frontera.'
+            : 'The passport silhouette diagram is filled in from these features. The more precise, the fewer border problems.'}
+        </p>
+      </div>
+
+      <div className="form-group">
+        <label className="input-label">{es ? 'Tatuaje o hierro, si existe' : 'Tattoo or brand, if any'}</label>
+        <input className="aura-input" placeholder={es ? 'Marca y ubicación' : 'Mark and location'}
+          value={data.brand || ''} onChange={set('brand')} />
+      </div>
+
+      {/* ── Manejo ── */}
+      <p className="section-eyebrow" style={{ margin: '2rem 0 1rem', fontSize: '0.68rem', letterSpacing: '3px', color: 'var(--gold-deep)', fontWeight: 700, textTransform: 'uppercase' }}>
+        {es ? 'Manejo y deporte' : 'Care and sport'}
+      </p>
+
+      <div className="form-group">
+        <label className="input-label">{es ? 'Fecha último herraje' : 'Last farrier date'}</label>
+        <input type="date" className="aura-input" value={data.lastFarrier || ''} onChange={set('lastFarrier')} />
+      </div>
+
+      <div className="form-group">
+        <label className="input-label">{es ? 'Rendimiento / competición' : 'Performance / competition'}</label>
+        <select className="aura-input aura-select" value={data.competition || ''} onChange={set('competition')}>
+          <option value="">{es ? 'Seleccionar…' : 'Select…'}</option>
           {competitions.map(c => <option key={c} value={c}>{c}</option>)}
         </select>
       </div>
@@ -306,7 +420,15 @@ const PetRegistration = ({ onSave, onCancel }) => {
       </p>
 
       {/* ── Species selector ── */}
-      <div className="aura-card" style={{ marginBottom:'1.5rem' }}>
+      <div className="aura-card aura-card--bloom" style={{ marginBottom:'1.5rem', position:'relative' }}>
+        {REG_PAWS.map((h, i) => (
+          <PawPrint key={`p${i}`} size={h.size}
+            style={{
+              position:'absolute', top:h.top, left:h.left, right:h.right, bottom:h.bottom,
+              color:h.color, opacity:h.opacity, transform:`rotate(${h.rot}deg)`,
+              pointerEvents:'none', zIndex:0,
+            }} />
+        ))}
         <label className="input-label" style={{ textAlign:'center', display:'block', marginBottom:'1.2rem' }}>
           {locale==='es'?'Seleccionar Especie':'Select Species'}
         </label>
@@ -357,10 +479,10 @@ const PetRegistration = ({ onSave, onCancel }) => {
                   onClick={() => { setSelectedSpecies(sp); setSpecificData({}); setSubTab('specific'); }}
                   style={{
                     flexShrink: 0, width: 100, height: 100,
-                    border: isSelected ? '2px solid #D9A441' : '1px dashed rgba(217, 164, 65, 0.35)',
+                    border: isSelected ? '2px solid var(--violet)' : '1px solid var(--border)',
                     borderRadius: '12px', cursor: 'pointer',
                     display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                    gap: 5, background: isSelected ? 'rgba(217, 164, 65, 0.1)' : 'rgba(30,10,53,0.9)',
+                    gap: 5, background: isSelected ? 'rgba(217, 164, 65, 0.1)' : 'var(--bg-card-solid)',
                     transform: isSelected ? 'scale(1.08)' : 'scale(1)',
                     boxShadow: isSelected ? '0 0 12px rgba(217, 164, 65, 0.4)' : 'none',
                     transition: 'all 0.3s',
@@ -410,7 +532,15 @@ const PetRegistration = ({ onSave, onCancel }) => {
       </div>
 
       {/* ── Info / Specific tabs ── */}
-      <div className="aura-card" style={{ marginBottom:'1.5rem' }}>
+      <div className="aura-card aura-card--bloom" style={{ marginBottom:'1.5rem', position:'relative' }}>
+        {REG_PAWS.map((h, i) => (
+          <PawPrint key={`p${i}`} size={h.size}
+            style={{
+              position:'absolute', top:h.top, left:h.left, right:h.right, bottom:h.bottom,
+              color:h.color, opacity:h.opacity, transform:`rotate(${h.rot}deg)`,
+              pointerEvents:'none', zIndex:0,
+            }} />
+        ))}
         <SubTabs
           tabs={[
             { id:'info',     label: locale==='es'?'Info General':'General Info' },
@@ -428,16 +558,16 @@ const PetRegistration = ({ onSave, onCancel }) => {
                 {/* Photo circle */}
                 <label style={{ cursor:'pointer', display:'flex', flexDirection:'column', alignItems:'center', gap:'0.5rem' }}>
                   <div style={{
-                    width:96, height:96, borderRadius:'12px', overflow:'hidden',
-                    border: basicData.customPhoto ? '2px solid #D9A441' : '1px dashed rgba(217, 164, 65, 0.4)',
-                    background:'rgba(30,10,53,0.6)',
+                    width:96, height:96, borderRadius:'18px', overflow:'hidden',
+                    border: basicData.customPhoto ? '2px solid var(--violet)' : '2px dashed rgba(139, 92, 246, 0.35)',
+                    background: basicData.customPhoto ? 'transparent' : 'linear-gradient(140deg, rgba(201,189,242,0.30), rgba(165,227,220,0.30))',
                     display:'flex', alignItems:'center', justifyContent:'center',
                     transition:'border-color 0.3s, box-shadow 0.3s',
-                    boxShadow: basicData.customPhoto ? '0 0 12px rgba(217, 164, 65, 0.35)' : 'none',
+                    boxShadow: basicData.customPhoto ? '0 6px 18px -8px rgba(139, 92, 246, 0.45)' : 'none',
                   }}>
                     {basicData.customPhoto
                       ? <img src={basicData.customPhoto} alt="preview" style={{ width:'100%', height:'100%', objectFit:'cover' }} />
-                      : <Upload size={22} color="var(--aura-gold)" />}
+                      : <Upload size={22} color="var(--violet)" />}
                   </div>
                   <span style={{ fontSize:'0.58rem', letterSpacing:'1px', color:'var(--aura-text-muted)', textTransform:'uppercase' }}>
                     {locale==='es'?'Foto':'Photo'}

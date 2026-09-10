@@ -24,8 +24,206 @@ const statusLabel = (s, locale) => ({
   alert:   locale === 'es' ? '⚠ ATENCIÓN'   : '⚠ ATTENTION',
 }[s]);
 
+/* ── Estatus sanitario equino de los cinco países que cubre la app ───────────
+   Lo que se exige a un caballo no depende solo del destino: depende del
+   corredor. Un caballo que sale de España no lleva las mismas pruebas que uno
+   que sale de Australia, porque cambia el estatus sanitario del origen.
+──────────────────────────────────────────────────────────────────────────── */
+
+/* Países afectados por metritis contagiosa equina. EE. UU. impone cuarentena
+   y pruebas específicas a los reproductores procedentes de estos orígenes. */
+const CEM_AFECTADOS = ['ES', 'UK'];
+
+/* Zonas donde la piroplasmosis es endémica. Los destinos libres exigen prueba
+   a los animales que vienen de aquí. */
+const PIROPLASMOSIS_ENDEMICA = ['ES'];
+
+/* Destinos libres de gripe equina que exigen vacunación previa. */
+const EXIGEN_GRIPE_EQUINA = ['AU'];
+
+/* ── Requisitos equinos ──────────────────────────────────────────────────────
+   Los équidos NO se mueven bajo el régimen de animales de compañía. Se rigen
+   por la normativa de sanidad animal para équidos, que exige documento de
+   identificación con UELN, pruebas serológicas y, en varios destinos,
+   cuarentena. Por eso la lista es distinta y bastante más larga.
+
+   AVISO: los requisitos equinos cambian con frecuencia y dependen del país de
+   origen, no solo del destino. Esta lista sirve para preparar el viaje; la
+   confirmación siempre corresponde a la autoridad competente del destino.
+──────────────────────────────────────────────────────────────────────────── */
+const buildEquineRequirements = (pet, countryId, locale, origen = 'ES') => {
+  const es = locale === 'es';
+  const sp = pet?.specific || {};
+  const h = pet?.health || {};
+
+  const hecho = (v) => (v && String(v).trim() ? 'ok' : 'pending');
+
+  const chip = {
+    icon: 'chip',
+    label: es ? 'Microchip ISO y su ubicación' : 'ISO microchip and its location',
+    status: pet?.microchip?.trim() && sp.chipLocation ? 'ok' : 'pending',
+    detail: pet?.microchip?.trim()
+      ? (sp.chipLocation
+          ? `${pet.microchip} · ${sp.chipLocation}`
+          : (es ? 'Falta indicar dónde está implantado' : 'Implant location missing'))
+      : (es ? 'Introduce el microchip en el registro' : 'Enter the microchip in registration'),
+  };
+
+  const documento = {
+    icon: 'doc',
+    label: es ? 'Documento de identificación equina' : 'Equine identification document',
+    status: hecho(sp.passportNumber),
+    detail: sp.passportNumber
+      ? `${es ? 'Nº' : 'No.'} ${sp.passportNumber}`
+      : (es ? 'Pasaporte equino obligatorio de por vida' : 'Lifelong equine passport is mandatory'),
+  };
+
+  const ueln = {
+    icon: 'doc',
+    label: 'UELN',
+    status: hecho(sp.ueln),
+    detail: sp.ueln
+      ? sp.ueln
+      : (es ? 'Número único de por vida, 15 dígitos' : 'Unique lifetime number, 15 digits'),
+  };
+
+  const resena = {
+    icon: 'vet',
+    label: es ? 'Reseña completa' : 'Full description',
+    status: sp.sex && sp.coatColor && sp.markings ? 'ok' : 'pending',
+    detail: sp.sex && sp.coatColor && sp.markings
+      ? (es ? 'Sexo, capa y marcas registrados' : 'Sex, coat and markings recorded')
+      : (es ? 'Faltan sexo, capa o marcas distintivas' : 'Sex, coat colour or markings missing'),
+  };
+
+  const coggins = {
+    icon: 'syringe',
+    label: es ? 'Test de Anemia Infecciosa Equina (Coggins)' : 'Equine Infectious Anaemia test (Coggins)',
+    status: 'pending',
+    detail: es
+      ? 'Resultado negativo, con validez limitada en el tiempo'
+      : 'Negative result, valid for a limited period',
+  };
+
+  const piroplasmosis = {
+    icon: 'syringe',
+    label: es ? 'Test de piroplasmosis' : 'Piroplasmosis test',
+    status: 'pending',
+    detail: es ? 'Exigido en varios destinos según el origen' : 'Required by several destinations depending on origin',
+  };
+
+  const sanitario = {
+    icon: 'vet',
+    label: es ? 'Certificado sanitario oficial' : 'Official health certificate',
+    status: h.healthCert?.status || 'pending',
+    detail: h.healthCert?.status === 'ok'
+      ? (es ? 'Emitido por veterinario oficial' : 'Issued by an official vet')
+      : (es ? 'Debe firmarlo un veterinario oficial' : 'Must be signed by an official vet'),
+  };
+
+  const permiso = (organismo) => ({
+    icon: 'doc',
+    label: `${es ? 'Permiso de importación' : 'Import permit'} · ${organismo}`,
+    status: 'pending',
+    detail: es ? 'Solicitar antes de organizar el transporte' : 'Apply before arranging transport',
+  });
+
+  const cuarentena = (texto) => ({
+    icon: 'vet',
+    label: es ? 'Cuarentena' : 'Quarantine',
+    status: 'alert',
+    detail: texto,
+  });
+
+  /* Movimiento dentro del mismo país: solo hace falta la identificación */
+  if (origen === countryId) {
+    return [
+      chip, documento, ueln, resena,
+      { icon: 'doc', label: es ? 'Movimiento nacional' : 'Domestic movement', status: 'ok',
+        detail: es
+          ? 'Origen y destino coinciden: no hay trámite de exportación'
+          : 'Origin and destination match: no export procedure needed' },
+    ];
+  }
+
+  /* Extras que dependen del corredor, no solo del destino */
+  const extras = [];
+  if (PIROPLASMOSIS_ENDEMICA.includes(origen) && countryId !== 'ES') {
+    extras.push({ ...piroplasmosis, status: 'alert',
+      detail: es
+        ? `Obligatorio: el origen (${origen}) es zona endémica`
+        : `Mandatory: the origin (${origen}) is an endemic area` });
+  }
+  if (countryId === 'US' && CEM_AFECTADOS.includes(origen)) {
+    extras.push({ icon: 'vet', label: es ? 'Metritis contagiosa equina (CEM)' : 'Contagious equine metritis (CEM)',
+      status: 'alert',
+      detail: es
+        ? 'Cuarentena y pruebas específicas para reproductores desde este origen'
+        : 'Quarantine and specific testing for breeding animals from this origin' });
+  }
+  if (EXIGEN_GRIPE_EQUINA.includes(countryId)) {
+    extras.push({ icon: 'syringe', label: es ? 'Vacuna de gripe equina' : 'Equine influenza vaccination',
+      status: 'pending',
+      detail: es ? 'Pauta completa antes de la salida' : 'Full course before departure' });
+  }
+
+  switch (countryId) {
+    case 'ES': return [
+      chip, documento, ueln, resena, ...extras,
+      { ...sanitario, label: es ? 'Certificado sanitario · TRACES' : 'Health certificate · TRACES' },
+      { icon: 'doc', label: es ? 'Registro REGA' : 'REGA registration', status: hecho(sp.rega),
+        detail: sp.rega || (es ? 'Alta en el registro de explotaciones' : 'Registration in the national holdings register') },
+      coggins,
+    ];
+    case 'UK': return [
+      chip, documento, ueln, resena, ...extras,
+      { ...sanitario, label: 'Export Health Certificate (EHC)',
+        detail: es
+          ? 'El AHC de mascotas no sirve para équidos'
+          : 'The pet AHC is not valid for equines' },
+      { icon: 'doc', label: es ? 'Entrada por Puesto de Control Fronterizo' : 'Entry via Border Control Post',
+        status: 'pending',
+        detail: es ? 'La ruta debe pasar por un BCP autorizado' : 'The route must pass through an approved BCP' },
+      coggins,
+    ];
+    case 'US': return [
+      chip, documento, ueln, resena, ...extras,
+      permiso('USDA APHIS'),
+      coggins,
+      { icon: 'syringe', label: es ? 'Muermo y durina' : 'Glanders and dourine', status: 'pending',
+        detail: es ? 'Exigidos según la región de origen' : 'Required depending on the region of origin' },
+      cuarentena(es
+        ? 'En instalación aprobada por el USDA al llegar'
+        : 'At a USDA-approved facility on arrival'),
+      sanitario,
+    ];
+    case 'CA': return [
+      chip, documento, ueln, resena, ...extras,
+      permiso('CFIA'),
+      coggins,
+      { ...sanitario, label: es ? 'Certificado sanitario endosado' : 'Endorsed health certificate' },
+      { icon: 'vet', label: es ? 'Inspección en el punto de entrada' : 'Inspection at the point of entry',
+        status: 'pending',
+        detail: es ? 'A cargo de la agencia canadiense' : 'Carried out by the Canadian agency' },
+    ];
+    case 'AU': return [
+      chip, documento, ueln, resena, ...extras,
+      permiso('DAFF'),
+      coggins,
+      cuarentena(es
+        ? 'Cuarentena previa a la exportación y otra a la llegada'
+        : 'Pre-export quarantine plus post-arrival quarantine'),
+      sanitario,
+    ];
+    default: return [chip, documento, ueln, resena];
+  }
+};
+
 /* ── Build requirements dynamically from pet data ── */
-const buildRequirements = (pet, countryId, locale) => {
+const buildRequirements = (pet, countryId, locale, origen = 'ES') => {
+  /* Los équidos van por su propia normativa, no por la de mascotas */
+  if (pet?.species === 'horse') return buildEquineRequirements(pet, countryId, locale, origen);
+
   const es = locale === 'es';
   const hasMicrochip = !!pet?.microchip?.trim();
   const h = pet?.health || {};
@@ -221,9 +419,9 @@ const exportPDF = (country, reqs, pet, readiness, locale) => {
 };
 
 /* ── Country modal ── */
-const CountryModal = ({ countryId, pet, locale, onClose }) => {
+const CountryModal = ({ countryId, pet, locale, onClose, origen = 'ES' }) => {
   const meta = COUNTRY_META[countryId];
-  const reqs = buildRequirements(pet, countryId, locale);
+  const reqs = buildRequirements(pet, countryId, locale, origen);
   const readiness = calcReadiness(reqs);
   const es = locale === 'es';
 
@@ -351,6 +549,15 @@ const FIELD_LABEL = {
 const GlobalPassport = ({ pet, onUpdatePet }) => {
   const { locale } = useTranslation();
   const [selectedCountry, setSelectedCountry] = useState(null);
+  /* País desde el que viaja el animal. Para los équidos cambia los requisitos,
+     así que se recuerda entre visitas. */
+  const [origen, setOrigen] = useState(() => {
+    try { return localStorage.getItem('aura_origen') || 'ES'; } catch { return 'ES'; }
+  });
+  const cambiarOrigen = (id) => {
+    setOrigen(id);
+    try { localStorage.setItem('aura_origen', id); } catch { /* sin persistencia */ }
+  };
   const [saved, setSaved]                     = useState(false);
   const certInputRef     = useRef(null);
   const passportInputRef = useRef(null);
@@ -409,13 +616,13 @@ const GlobalPassport = ({ pet, onUpdatePet }) => {
   }, [pet, draft]);
 
   /* Memoize all country requirements — left panel uses draftPet for live feedback */
-  const draftReqs = useMemo(() => buildRequirements(draftPet, 'ES', locale), [draftPet, locale]);
+  const draftReqs = useMemo(() => buildRequirements(draftPet, 'ES', locale, origen), [draftPet, locale, origen]);
   const draftReadiness = calcReadiness(draftReqs);
 
   /* Country cards (right panel) still reflect saved pet data */
   const allReqs = useMemo(
-    () => Object.fromEntries(COUNTRY_IDS.map(id => [id, buildRequirements(pet, id, locale)])),
-    [pet, locale],
+    () => Object.fromEntries(COUNTRY_IDS.map(id => [id, buildRequirements(pet, id, locale, origen)])),
+    [pet, locale, origen],
   );
 
   /* ── Save handler ── */
@@ -737,6 +944,55 @@ const GlobalPassport = ({ pet, onUpdatePet }) => {
               textTransform:'uppercase', fontFamily:'var(--font-sans)', color:'var(--aura-text-muted)', fontWeight:600 }}>
               {es?'Destinos Prioritarios':'Priority Destinations'}
             </h3>
+
+            {/* ── País de origen ──────────────────────────────────────────────
+                Para los équidos, lo que se exige depende del corredor completo
+                y no solo del destino: la piroplasmosis, la metritis contagiosa
+                y la gripe equina se piden o no según de dónde salga el animal. */}
+            <div style={{
+              background:'var(--bg-soft)', border:'1px solid var(--border)',
+              borderRadius:'var(--radius)', padding:'1rem 1.2rem', marginBottom:'0.4rem',
+            }}>
+              <label style={{
+                display:'block', fontSize:'0.66rem', letterSpacing:'2.5px',
+                textTransform:'uppercase', color:'var(--gold-deep)', fontWeight:700, marginBottom:'0.6rem',
+              }}>
+                {es ? 'Viaja desde' : 'Travelling from'}
+              </label>
+              <div style={{ display:'flex', gap:'0.45rem', flexWrap:'wrap' }}>
+                {COUNTRY_IDS.map(id => {
+                  const m = COUNTRY_META[id];
+                  const activo = origen === id;
+                  return (
+                    <button
+                      key={id}
+                      type="button"
+                      onClick={() => cambiarOrigen(id)}
+                      aria-pressed={activo}
+                      style={{
+                        display:'flex', alignItems:'center', gap:'0.4rem',
+                        padding:'0.42rem 0.8rem', borderRadius:'var(--radius-pill)',
+                        border: activo ? '1px solid var(--violet)' : '1px solid var(--border)',
+                        background: activo ? 'var(--violet)' : 'transparent',
+                        color: activo ? '#FFFFFF' : 'var(--ink-body)',
+                        fontSize:'0.72rem', fontWeight:600, cursor:'pointer',
+                        fontFamily:'var(--font-sans)', transition:'all 0.2s',
+                      }}
+                    >
+                      <span style={{ fontSize:'0.95rem', lineHeight:1 }}>{m.flag}</span>
+                      {m.code}
+                    </button>
+                  );
+                })}
+              </div>
+              {pet?.species === 'horse' && (
+                <p style={{ margin:'0.75rem 0 0', fontSize:'0.72rem', lineHeight:1.55, color:'var(--ink-muted)' }}>
+                  {es
+                    ? 'Los équidos no viajan bajo el régimen de animales de compañía. Los requisitos cambian según el país de salida, así que confirma siempre con la autoridad del destino.'
+                    : 'Equines do not travel under the pet scheme. Requirements change with the country of departure, so always confirm with the destination authority.'}
+                </p>
+              )}
+            </div>
             {COUNTRY_IDS.map(id => {
               const meta = COUNTRY_META[id];
               const reqs = allReqs[id];
@@ -807,6 +1063,7 @@ const GlobalPassport = ({ pet, onUpdatePet }) => {
       {selectedCountry && (
         <CountryModal
           countryId={selectedCountry}
+          origen={origen}
           pet={pet}
           locale={locale}
           onClose={() => setSelectedCountry(null)}
