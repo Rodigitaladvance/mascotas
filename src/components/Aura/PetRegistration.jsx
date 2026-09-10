@@ -508,7 +508,7 @@ const PetRegistration = ({ onSave, onCancel }) => {
   const { t, locale } = useTranslation();
   const [subTab, setSubTab] = useState('info');
   const [selectedSpecies, setSelectedSpecies] = useState(null);
-  const [basicData, setBasicData] = useState({ name: '', age: '', weight: '', microchip: '', customPhoto: null });
+  const [basicData, setBasicData] = useState({ name: '', age: '', birthDate: '', weight: '', microchip: '', customPhoto: null });
   const [specificData, setSpecificData] = useState({});
   const carouselRef = useRef(null);
   const [canScrollLeft, setCanScrollLeft]   = useState(false);
@@ -540,6 +540,19 @@ const PetRegistration = ({ onSave, onCancel }) => {
 
   const speciesLabel = (sp) => locale === 'es' ? sp.label : sp.labelEn;
 
+  /* Años cumplidos a partir de la fecha de nacimiento. Varias pantallas
+     muestran la edad como número, así que se deriva en vez de pedirla dos veces. */
+  const edadDesde = (fecha) => {
+    if (!fecha) return '';
+    const n = new Date(fecha);
+    if (Number.isNaN(n.getTime())) return '';
+    const hoy = new Date();
+    let años = hoy.getFullYear() - n.getFullYear();
+    const m = hoy.getMonth() - n.getMonth();
+    if (m < 0 || (m === 0 && hoy.getDate() < n.getDate())) años -= 1;
+    return años >= 0 ? String(años) : '';
+  };
+
   const handleSave = () => {
     if (!selectedSpecies || !basicData.name) return;
     const newPet = {
@@ -548,6 +561,7 @@ const PetRegistration = ({ onSave, onCancel }) => {
       avatar: selectedSpecies.emoji,
       customImage: basicData.customPhoto || specificData.customPhoto || null,
       ...basicData,
+      age: edadDesde(basicData.birthDate) || basicData.age,
       specific: specificData,
     };
     setSaved(true);
@@ -786,10 +800,10 @@ const PetRegistration = ({ onSave, onCancel }) => {
               {/* ── Metrics row ── */}
               <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:'0.8rem' }}>
                 <div className="form-group">
-                  <label className="input-label">{locale==='es'?'Edad':'Age'}</label>
-                  <FieldWrap filled={!!basicData.age}>
-                    <input className="aura-input" placeholder={locale==='es'?'Años':'Years'}
-                      value={basicData.age} onChange={e => setBasicData({...basicData, age:e.target.value})} />
+                  <label className="input-label">{locale==='es'?'Fecha de nacimiento':'Date of birth'}</label>
+                  <FieldWrap filled={!!basicData.birthDate}>
+                    <input type="date" className="aura-input" max={new Date().toISOString().slice(0,10)}
+                      value={basicData.birthDate} onChange={e => setBasicData({...basicData, birthDate:e.target.value})} />
                   </FieldWrap>
                 </div>
                 <div className="form-group">

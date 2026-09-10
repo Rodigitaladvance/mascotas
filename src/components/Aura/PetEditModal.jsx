@@ -435,6 +435,7 @@ const PetEditModal = ({ pet, onSave, onDelete, onClose }) => {
   /* Profile fields */
   const [name,      setName]      = useState(pet.name      || '');
   const [age,       setAge]       = useState(pet.age       || '');
+  const [birthDate, setBirthDate] = useState(pet.birthDate || pet.specific?.birthDate || '');
   const [weight,    setWeight]    = useState(pet.weight    || '');
   const [microchip, setMicrochip] = useState(pet.microchip || '');
   const [photo,     setPhoto]     = useState(pet.customImage || null);
@@ -464,7 +465,21 @@ const PetEditModal = ({ pet, onSave, onDelete, onClose }) => {
     const updated = {
       ...pet,
       name: name.trim() || pet.name,
-      age, weight, microchip,
+      age: (() => {
+        /* La edad en años se recalcula desde la fecha, que es el dato que
+           deciden los requisitos de entrada. Si no hay fecha, se respeta lo
+           que hubiera escrito antes. */
+        if (!birthDate) return age;
+        const n = new Date(birthDate);
+        if (Number.isNaN(n.getTime())) return age;
+        const hoy = new Date();
+        let años = hoy.getFullYear() - n.getFullYear();
+        const m = hoy.getMonth() - n.getMonth();
+        if (m < 0 || (m === 0 && hoy.getDate() < n.getDate())) años -= 1;
+        return años >= 0 ? String(años) : age;
+      })(),
+      birthDate,
+      weight, microchip,
       customImage: photo,
       specific: {
         ...pet.specific,
@@ -573,10 +588,10 @@ const PetEditModal = ({ pet, onSave, onDelete, onClose }) => {
               </Field>
 
               <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'1rem' }}>
-                <Field label={es?'Edad':'Age'}>
-                  <input className="aura-input" value={age}
-                    onChange={e => setAge(e.target.value)}
-                    placeholder={es?'Años':'Years'} />
+                <Field label={es?'Fecha de nacimiento':'Date of birth'}>
+                  <input type="date" className="aura-input" value={birthDate}
+                    max={new Date().toISOString().slice(0,10)}
+                    onChange={e => setBirthDate(e.target.value)} />
                 </Field>
                 <Field label={es?'Peso (kg)':'Weight (kg)'}>
                   <input type="number" step="0.1" className="aura-input" value={weight}

@@ -2,6 +2,7 @@ import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { PlaneTakeoff, CheckCircle2, AlertCircle, FileText, X, Shield, Syringe, Stethoscope, FileCheck, Upload, Save } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { assessAirline } from '../../utils/airline';
+import { fuenteOficial, nivelRiesgo, TEXTO_RIESGO, FECHA_REVISION } from '../../utils/fuentes';
 import { useTranslation } from '../../context/LocalizationContext';
 import perroPasaporte from '../../assets/perro-pasaporte.jpg';
 import movilPasaporte from '../../assets/movil-pasaporte.jpg';
@@ -103,15 +104,17 @@ const buildEquineRequirements = (pet, countryId, locale, origen = 'ES') => {
     label: es ? 'Test de Anemia Infecciosa Equina (Coggins)' : 'Equine Infectious Anaemia test (Coggins)',
     status: 'pending',
     detail: es
-      ? 'Resultado negativo, con validez limitada en el tiempo'
-      : 'Negative result, valid for a limited period',
+      ? 'Negativo en AGID (Coggins) o ELISA, en los 6 meses previos a la exportación'
+      : 'Negative AGID (Coggins) or ELISA within the 6 months before export',
   };
 
   const piroplasmosis = {
     icon: 'syringe',
     label: es ? 'Test de piroplasmosis' : 'Piroplasmosis test',
     status: 'pending',
-    detail: es ? 'Exigido en varios destinos según el origen' : 'Required by several destinations depending on origin',
+    detail: es
+      ? 'cELISA negativo. EE. UU. lo exige en los 15 días previos a la salida'
+      : 'Negative cELISA. The US requires it within 15 days before departure',
   };
 
   const sanitario = {
@@ -160,8 +163,8 @@ const buildEquineRequirements = (pet, countryId, locale, origen = 'ES') => {
     extras.push({ icon: 'vet', label: es ? 'Metritis contagiosa equina (CEM)' : 'Contagious equine metritis (CEM)',
       status: 'alert',
       detail: es
-        ? 'Cuarentena y pruebas específicas para reproductores desde este origen'
-        : 'Quarantine and specific testing for breeding animals from this origin' });
+        ? 'Sementales y yeguas que hayan residido o transitado por un país afectado en los últimos 12 meses: pruebas y reserva en instalación de cuarentena CEM aprobada'
+        : 'Stallions and mares that lived in or transited a CEM-affected country in the last 12 months: testing plus a booking at an approved CEM quarantine facility' });
   }
   if (EXIGEN_GRIPE_EQUINA.includes(countryId)) {
     extras.push({ icon: 'syringe', label: es ? 'Vacuna de gripe equina' : 'Equine influenza vaccination',
@@ -193,10 +196,12 @@ const buildEquineRequirements = (pet, countryId, locale, origen = 'ES') => {
       permiso('USDA APHIS'),
       coggins,
       { icon: 'syringe', label: es ? 'Muermo y durina' : 'Glanders and dourine', status: 'pending',
-        detail: es ? 'Exigidos según la región de origen' : 'Required depending on the region of origin' },
+        detail: es
+          ? 'Analítica obligatoria en el panel de entrada, junto con Coggins y piroplasmosis'
+          : 'Mandatory tests in the entry panel, alongside Coggins and piroplasmosis' },
       cuarentena(es
-        ? 'En instalación aprobada por el USDA al llegar'
-        : 'At a USDA-approved facility on arrival'),
+        ? '3, 7 o 60 días en instalación aprobada por el USDA, según el estatus sanitario del país donde residió los 60 días previos. Mínimo 7 días de observación'
+        : '3, 7 or 60 days at a USDA-approved facility, depending on the health status of the country of residence in the previous 60 days. Minimum 7 days of observation'),
       sanitario,
     ];
     case 'CA': return [
@@ -317,18 +322,18 @@ const buildBirdRequirements = (pet, countryId, locale, origen = 'ES') => {
       : (es ? 'Debe firmarlo un veterinario oficial' : 'Must be signed by an official vet'),
   };
 
-  const cuarentena = (dias) => ({
+  const cuarentena = (dias, texto) => ({
     icon: 'vet',
     label: es ? `Cuarentena (${dias})` : `Quarantine (${dias})`,
     status: 'alert',
-    detail: es ? 'En instalación autorizada del destino' : 'At an approved facility in the destination',
+    detail: texto || (es ? 'En instalación autorizada del destino' : 'At an approved facility in the destination'),
   });
 
-  const permiso = (organismo) => ({
+  const permiso = (organismo, texto) => ({
     icon: 'doc',
     label: `${es ? 'Permiso de importación' : 'Import permit'} · ${organismo}`,
     status: 'pending',
-    detail: es ? 'Solicitar con antelación: los plazos son largos' : 'Apply well ahead: lead times are long',
+    detail: texto || (es ? 'Solicitar con antelación: los plazos son largos' : 'Apply well ahead: lead times are long'),
   });
 
   /* Movimiento dentro del mismo país */
@@ -357,10 +362,21 @@ const buildBirdRequirements = (pet, countryId, locale, origen = 'ES') => {
       cuarentena(es ? '30 días' : '30 days'),
     ];
     case 'US': return [
-      anilla, especie, cites, permiso('USDA APHIS'),
+      anilla, especie, cites,
+      { icon: 'doc', label: es ? 'Máximo 5 aves' : 'Five birds maximum', status: 'ok',
+        detail: es
+          ? 'La vía de mascota personal admite hasta 5 aves. A partir de ahí es importación comercial'
+          : 'The personal pet route allows up to 5 birds. Beyond that it is a commercial import' },
+      permiso('USDA APHIS eFile', es
+        ? 'Solicítalo al menos 7 días hábiles antes de volar. Tarda entre 7 y 10 días hábiles y caduca a los 30'
+        : 'Apply at least 7 business days before flying. It takes 7–10 business days and expires after 30'),
       gripeAviar, newcastle, psitacosis,
-      cuarentena(es ? '30 días' : '30 days'),
-      sanitario,
+      cuarentena(es ? '30 días' : '30 days', es
+        ? 'Puede hacerse en casa si el permiso lo autoriza. Se analiza dos veces contra gripe aviar y Newcastle'
+        : 'May be done at home if the permit allows it. Tested twice for avian influenza and Newcastle disease'),
+      { ...sanitario, detail: es
+          ? 'Firmado por un veterinario funcionario del gobierno del país de salida'
+          : 'Signed by a salaried government veterinarian of the country of departure' },
     ];
     case 'CA': return [
       anilla, especie, cites, permiso('CFIA'),
@@ -550,9 +566,18 @@ const buildExoticRequirements = (pet, countryId, locale, origen = 'ES') => {
   switch (countryId) {
     case 'ES': return [especie, cites, identificacion, fueraDelReglamento, sanitario];
     case 'UK': return [especie, cites, identificacion, fueraDelReglamento, permiso('APHA'), sanitario];
-    case 'US': return [especie, cites, identificacion, fueraDelReglamento, permiso('USFWS'),
-      { icon: 'vet', label: es ? 'Declaración de vida silvestre' : 'Wildlife declaration', status: 'pending',
-        detail: es ? 'Entrada solo por puertos designados' : 'Entry only through designated ports' }, sanitario];
+    case 'US': return [especie, cites, identificacion, fueraDelReglamento,
+      { icon: 'doc', label: es ? 'Declaración USFWS · formulario 3-177' : 'USFWS declaration · form 3-177',
+        status: 'pending',
+        detail: es
+          ? 'Toda la fauna silvestre debe declararse. Se presenta en línea en eDecs'
+          : 'All wildlife must be declared. Filed online through eDecs' },
+      { icon: 'vet', label: es ? 'Puerto designado y aviso previo' : 'Designated port and advance notice',
+        status: 'pending',
+        detail: es
+          ? 'Entrada solo por un puerto designado del USFWS, con aviso de llegada 48 horas antes por tratarse de animal vivo'
+          : 'Entry only through a designated USFWS port, with 48 hours’ notice of arrival because the animal is alive' },
+      sanitario];
     case 'CA': return [especie, cites, identificacion, fueraDelReglamento, permiso('CFIA / ECCC'), sanitario];
     case 'AU': return [especie, cites, identificacion,
       { icon: 'doc', label: es ? 'Entrada muy restringida' : 'Entry heavily restricted', status: 'alert',
@@ -599,98 +624,265 @@ const buildRequirements = (pet, countryId, locale, origen = 'ES') => {
   if (pet?.species === 'other') return buildUnknownRequirements(pet, countryId, locale);
 
   const es = locale === 'es';
+  const esPerro = pet?.species === 'dog';
   const hasMicrochip = !!pet?.microchip?.trim();
   const h = pet?.health || {};
+  const sp = pet?.specific || {};
 
-  /* Microchip */
+  const fmt = (d) => new Date(d).toLocaleDateString(es ? 'es-ES' : 'en-GB');
+  const diasDesde = (fecha) => {
+    if (!fecha) return null;
+    const t = new Date(fecha).getTime();
+    if (Number.isNaN(t)) return null;
+    return Math.floor((Date.now() - t) / 86400000);
+  };
+
+  /* ── Microchip ───────────────────────────────────────────────────────────
+     El orden importa: una vacuna antirrábica puesta antes del microchip no
+     vale, y hay que revacunar y volver a esperar. Es un error caro y común. */
   const chip = {
     icon: 'chip',
     label: 'Microchip ISO 11784/11785',
     status: hasMicrochip ? 'ok' : 'pending',
     detail: hasMicrochip
-      ? `${es ? 'Verificado' : 'Verified'} · ${pet.microchip}`
-      : es ? 'Introduce el nº de microchip en el registro' : 'Enter microchip number in registration',
+      ? `${es ? 'Registrado' : 'Recorded'} · ${pet.microchip} — ${es
+          ? 'debe haberse implantado ANTES de la vacuna antirrábica'
+          : 'must have been implanted BEFORE the rabies vaccination'}`
+      : (es
+          ? 'Introduce el nº de microchip. Debe implantarse antes de vacunar de rabia'
+          : 'Enter the microchip number. It must be implanted before the rabies vaccination'),
   };
 
-  /* Rabies vaccine — uses real data from pet.health */
+  /* ── Vacuna antirrábica ──────────────────────────────────────────────── */
   const rv = h.rabiesVaccine || {};
   const rabies = {
     icon: 'syringe',
-    label: es ? 'Vacuna Antirrábica' : 'Rabies Vaccination',
+    label: es ? 'Vacuna antirrábica' : 'Rabies vaccination',
     status: rv.status || 'pending',
     detail: rv.status === 'ok' && rv.expiry
-      ? `${es ? 'Válida hasta' : 'Valid until'} ${new Date(rv.expiry).toLocaleDateString(es ? 'es-ES' : 'en-GB')}`
-      : es ? 'Pendiente — añade en Documentación' : 'Pending — add in Health Docs',
+      ? `${es ? 'Válida hasta' : 'Valid until'} ${fmt(rv.expiry)}`
+      : (es ? 'Pendiente — añádela en Documentación' : 'Pending — add it in Health Docs'),
   };
 
-  /* Physical Passport — linked to uploaded file */
+  /* ── Espera de 21 días ───────────────────────────────────────────────────
+     Tras la primera dosis hay que esperar 21 días completos antes de viajar.
+     Si tenemos la fecha, se cuenta de verdad en vez de recitar la regla. */
+  const diasVacuna = diasDesde(rv.date);
+  const espera21 = {
+    icon: 'syringe',
+    label: es ? 'Espera de 21 días tras la vacuna' : '21-day wait after vaccination',
+    status: diasVacuna === null ? 'pending' : (diasVacuna >= 21 ? 'ok' : 'alert'),
+    detail: diasVacuna === null
+      ? (es
+          ? 'Anota la fecha de la vacuna para calcular cuándo puedes viajar'
+          : 'Record the vaccination date to work out when you can travel')
+      : diasVacuna >= 21
+        ? (es ? `Cumplida: ${diasVacuna} días desde la vacunación` : `Met: ${diasVacuna} days since vaccination`)
+        : (es
+            ? `Faltan ${21 - diasVacuna} días. Solo aplica a la primera dosis o si se dejó caducar`
+            : `${21 - diasVacuna} days to go. Applies to the first dose, or if the vaccine was allowed to lapse`),
+  };
+
+  /* ── Edad mínima ─────────────────────────────────────────────────────────
+     La primera antirrábica no se puede poner antes de las 12 semanas, lo que
+     sitúa el primer viaje posible alrededor de las 15. */
+  const diasEdad = diasDesde(pet?.birthDate || sp.birthDate);
+  const edadMinima = (semanas, etiqueta, motivo) => ({
+    icon: 'vet',
+    label: etiqueta,
+    status: diasEdad === null ? 'pending' : (diasEdad >= semanas * 7 ? 'ok' : 'alert'),
+    detail: diasEdad === null
+      ? (es ? `Añade la fecha de nacimiento. ${motivo}` : `Add the date of birth. ${motivo}`)
+      : diasEdad >= semanas * 7
+        ? (es ? 'Cumple la edad mínima' : 'Meets the minimum age')
+        : motivo,
+  });
+
+  /* ── Documentos ──────────────────────────────────────────────────────── */
   const pp = h.physicalPassport || {};
   const euPassport = {
     icon: 'doc',
-    label: es ? 'Pasaporte Físico' : 'Physical Passport',
+    label: es ? 'Pasaporte europeo' : 'EU pet passport',
     status: pp.status || 'pending',
     detail: pp.status === 'ok' && pp.fileName
-      ? `${es ? 'Documento custodiado' : 'Document on file'}: ${pp.fileName.length > 30 ? pp.fileName.slice(0,28)+'…' : pp.fileName}`
-      : es ? 'Vincula el pasaporte físico para completar' : 'Link physical passport to complete',
+      ? `${es ? 'Documento custodiado' : 'Document on file'}: ${pp.fileName.length > 30 ? pp.fileName.slice(0, 28) + '…' : pp.fileName}`
+      : (es
+          ? 'Lo emite cualquier veterinario autorizado. Cubre perros, gatos y hurones'
+          : 'Issued by any authorised vet. Covers dogs, cats and ferrets'),
   };
 
-  /* Health cert — real data */
   const hc = h.healthCert || {};
   const healthCert = {
     icon: 'vet',
-    label: es ? 'Certificado Sanitario' : 'Health Certificate',
+    label: es ? 'Certificado sanitario' : 'Health certificate',
     status: hc.status || 'pending',
     detail: hc.status === 'ok'
-      ? es ? 'Certificado emitido' : 'Certificate issued'
+      ? (es ? 'Certificado emitido' : 'Certificate issued')
       : hc.notes || (es ? 'Firma veterinaria pendiente' : 'Pending vet signature'),
   };
 
-  const titreTest = {
-    icon: 'syringe',
-    label: 'Rabies Titre Test (RNATT)',
-    status: 'pending',
-    detail: es ? 'Requiere análisis Titer ≥ 0.5 IU/mL' : 'Requires Titer ≥ 0.5 IU/mL analysis',
-  };
-
-  const tapeworm = {
+  /* ── Antiparasitario contra Echinococcus ─────────────────────────────────
+     Solo perros, y solo hacia territorios libres del parásito. */
+  const tenia = {
     icon: 'vet',
-    label: es ? 'Tratamiento Antiparásitos' : 'Tapeworm Treatment',
+    label: es ? 'Tratamiento contra la tenia (Echinococcus)' : 'Tapeworm treatment (Echinococcus)',
     status: 'pending',
-    detail: es ? 'Administrar 1–5 días antes de la entrada' : 'Administer 1–5 days before entry',
+    detail: es
+      ? 'Solo perros. Debe administrarlo un veterinario entre 24 y 120 horas antes de la llegada'
+      : 'Dogs only. A vet must administer it between 24 and 120 hours before arrival',
   };
 
   switch (countryId) {
-    case 'ES': return [chip, rabies, euPassport, healthCert];
+    /* ── España / Unión Europea ─────────────────────────────────────────── */
+    case 'ES': return [
+      chip,
+      rabies,
+      espera21,
+      edadMinima(12, es ? 'Edad mínima para vacunar' : 'Minimum age to vaccinate',
+        es ? 'La primera antirrábica no puede ponerse antes de las 12 semanas'
+           : 'The first rabies vaccination cannot be given before 12 weeks'),
+      euPassport,
+      { icon: 'doc', label: es ? 'Antiparasitario: solo ciertos destinos' : 'Tapeworm: only certain destinations',
+        status: 'ok',
+        detail: es
+          ? 'Dentro de la UE solo lo exigen Finlandia, Irlanda, Malta, Noruega e Irlanda del Norte, y solo a perros'
+          : 'Within the EU only Finland, Ireland, Malta, Norway and Northern Ireland require it, and only for dogs' },
+    ];
+
+    /* ── Reino Unido ────────────────────────────────────────────────────── */
     case 'UK': return [
       chip,
       rabies,
-      { ...healthCert, label: 'Animal Health Certificate (AHC)' },
-      tapeworm,
+      espera21,
+      { ...healthCert,
+        label: es ? 'Documento de viaje (AHC o pasaporte)' : 'Travel document (AHC or passport)',
+        detail: hc.status === 'ok'
+          ? healthCert.detail
+          : (es
+              ? 'Desde la UE sirve el pasaporte europeo; desde fuera hace falta un Animal Health Certificate'
+              : 'From the EU the pet passport works; from outside an Animal Health Certificate is needed') },
+      ...(esPerro ? [tenia] : [{
+        icon: 'ok', label: es ? 'Antiparasitario no aplicable' : 'Tapeworm treatment not applicable',
+        status: 'ok',
+        detail: es ? 'El tratamiento contra la tenia solo se exige a perros' : 'Tapeworm treatment is required for dogs only',
+      }]),
+      { icon: 'vet', label: es ? 'Consecuencia de incumplir' : 'Consequence of non-compliance',
+        status: 'alert',
+        detail: es
+          ? 'Si algo falla, el animal puede quedar en cuarentena hasta 4 meses, o ser rechazado si llegas por mar'
+          : 'If anything is missing, the animal may be quarantined for up to 4 months, or refused entry if arriving by sea' },
     ];
-    case 'US': return [
+
+    /* ── Estados Unidos ──────────────────────────────────────────────────
+       Desde el 1 de agosto de 2024 el régimen cambió por completo. Para un
+       perro procedente de país de riesgo bajo o libre de rabia canina —que es
+       el caso de los cinco países de esta aplicación— el único documento
+       exigido por los CDC es el recibo del CDC Dog Import Form. No hace falta
+       certificado de rabia ni certificado sanitario de los CDC. */
+    case 'US': return esPerro ? [
+      { icon: 'doc', label: 'CDC Dog Import Form', status: 'pending',
+        detail: es
+          ? 'Formulario en línea y gratuito. El recibo es el único documento que exigen los CDC desde origen de riesgo bajo'
+          : 'Free online form. The receipt is the only document the CDC requires from a low-risk origin' },
+      edadMinima(26, es ? 'Edad mínima: 6 meses' : 'Minimum age: 6 months',
+        es ? 'Ningún perro menor de 6 meses puede entrar en EE. UU. No hay excepción ni trámite alternativo'
+           : 'No dog under 6 months may enter the US. There is no exception or alternative procedure'),
+      { ...chip, detail: hasMicrochip
+          ? `${pet.microchip} — ${es ? 'debe leerse con escáner universal' : 'must be readable with a universal scanner'}`
+          : (es ? 'Obligatorio, y legible con escáner universal' : 'Mandatory, and readable with a universal scanner') },
+      { icon: 'doc', label: es ? 'Residencia previa de 6 meses' : 'Six months of prior residence', status: 'pending',
+        detail: es
+          ? 'El perro debe haber estado solo en países de riesgo bajo o libres de rabia canina durante los 6 meses previos'
+          : 'The dog must have been only in low-risk or dog-rabies-free countries for the previous 6 months' },
+      { icon: 'vet', label: es ? 'Buen estado aparente' : 'Healthy appearance', status: 'pending',
+        detail: es ? 'Se comprueba a la llegada' : 'Checked on arrival' },
+    ] : [
+      { icon: 'ok', label: es ? 'Sin requisito federal para gatos' : 'No federal requirement for cats', status: 'ok',
+        detail: es
+          ? 'Los CDC no exigen vacuna antirrábica ni certificado a los gatos'
+          : 'The CDC does not require rabies vaccination or a certificate for cats' },
       chip,
-      { ...rabies, label: 'Rabies Certificate (USDA)',
-        detail: rabies.status === 'ok' ? rabies.detail : (es ? 'Veterinario acreditado USDA' : 'USDA-accredited vet required') },
-      { ...healthCert, label: 'CDC Health Certificate' },
-      { icon: 'vet', label: 'Screwworm Inspection', status: 'pending',
-        detail: es ? 'Requerido desde ciertos orígenes' : 'Required from specific origins' },
+      { ...healthCert, status: 'pending',
+        detail: es
+          ? 'No lo exige el gobierno federal, pero sí muchas aerolíneas y algunos estados. Llévalo'
+          : 'Not required federally, but many airlines and some states ask for it. Take it anyway' },
+      { icon: 'vet', label: es ? 'Buen estado aparente' : 'Healthy appearance', status: 'pending',
+        detail: es ? 'Se comprueba a la llegada' : 'Checked on arrival' },
     ];
+
+    /* ── Canadá ──────────────────────────────────────────────────────────
+       Para una mascota personal no hace falta permiso de importación: eso
+       aplica a las importaciones comerciales de perros menores de 8 meses. */
     case 'CA': return [
+      { ...rabies,
+        label: es ? 'Certificado de vacunación antirrábica' : 'Rabies vaccination certificate',
+        detail: rv.status === 'ok' && rv.expiry
+          ? `${es ? 'Válida hasta' : 'Valid until'} ${fmt(rv.expiry)} — ${es
+              ? 'el certificado debe identificar al animal y detallar la vacuna'
+              : 'the certificate must identify the animal and detail the vaccine'}`
+          : (es
+              ? 'Es el documento principal. Debe identificar al animal y detallar la vacuna'
+              : 'This is the main document. It must identify the animal and detail the vaccine') },
+      chip,
+      { icon: 'ok', label: es ? 'Sin permiso de importación' : 'No import permit needed', status: 'ok',
+        detail: es
+          ? 'Las mascotas personales no lo necesitan: el permiso es para importación comercial de perros menores de 8 meses'
+          : 'Personal pets do not need one: the permit applies to commercial imports of dogs under 8 months' },
+      { icon: 'ok', label: es ? 'Sin cuarentena' : 'No quarantine', status: 'ok',
+        detail: es
+          ? 'Canadá no impone cuarentena a las mascotas personales, vengan de donde vengan'
+          : 'Canada does not quarantine personal pets, whatever their origin' },
+      { icon: 'vet', label: es ? 'Inspección en frontera' : 'Inspection at the border', status: 'pending',
+        detail: es ? 'Un agente comprueba la documentación y el animal a la llegada' : 'An officer checks the paperwork and the animal on arrival' },
+    ];
+
+    /* ── Australia ───────────────────────────────────────────────────────
+       El trayecto más largo y más caro de los cinco. España y Reino Unido
+       están en el Grupo 3, el de requisitos completos. */
+    case 'AU': return [
+      { icon: 'doc', label: es ? 'Permiso de importación · DAFF' : 'Import permit · DAFF', status: 'pending',
+        detail: es
+          ? 'Solicítalo antes que nada: sin él no arranca ningún otro trámite'
+          : 'Apply for this first: nothing else can start without it' },
+      { icon: 'doc', label: es ? 'Residencia previa de 180 días' : '180 days of prior residence', status: 'pending',
+        detail: es
+          ? 'Residencia continuada en un país aprobado durante los 180 días previos a la salida. No es cuarentena: puede vivir contigo'
+          : 'Continuous residence in an approved country for the 180 days before departure. Not quarantine: it can live with you' },
       chip,
       rabies,
-      { icon: 'doc', label: 'CFIA Import Certificate', status: 'pending',
-        detail: es ? 'Certificado de importación requerido' : 'Import certificate required' },
-      { icon: 'vet', label: es ? 'Actualización Política Garrapatas 2025' : 'Tick Policy Update 2025', status: 'alert',
-        detail: es ? 'Verificar país de origen con CFIA' : 'Verify origin country with CFIA' },
+      { icon: 'syringe', label: 'RNATT', status: 'pending',
+        detail: es
+          ? 'Análisis de anticuerpos antirrábicos, al menos 3–4 semanas después de la vacunación. Válido 365 días desde la extracción'
+          : 'Rabies antibody titre test, at least 3–4 weeks after vaccination. Valid for 365 days from sampling' },
+      { icon: 'vet', label: es ? 'Comprobación de identidad' : 'Identity check', status: 'pending',
+        detail: es
+          ? 'Opcional pero muy recomendable: reduce la cuarentena de 30 a 10 días. Debe hacerla un veterinario oficial ANTES del RNATT'
+          : 'Optional but strongly advised: cuts quarantine from 30 to 10 days. An official vet must do it BEFORE the RNATT' },
+      ...(esPerro ? [
+        { icon: 'syringe', label: 'Brucella canis', status: 'pending',
+          detail: es
+            ? 'Resultado negativo, con muestra tomada en los 45 días previos a la salida'
+            : 'Negative result, sample taken within 45 days before departure' },
+        { icon: 'syringe', label: 'Leishmania infantum', status: 'pending',
+          detail: es
+            ? 'Dentro de los 45 días previos. Especialmente relevante saliendo de España, donde es endémica'
+            : 'Within 45 days before departure. Particularly relevant from Spain, where it is endemic' },
+      ] : []),
+      { icon: 'vet', label: es ? 'Parásitos internos' : 'Internal parasites', status: 'pending',
+        detail: es
+          ? 'Dos tratamientos en los 45 días previos, separados al menos 14 días. El segundo, dentro de los 5 días anteriores a la salida'
+          : 'Two treatments within 45 days, at least 14 days apart. The second within 5 days before departure' },
+      { icon: 'vet', label: es ? 'Parásitos externos' : 'External parasites', status: 'pending',
+        detail: es
+          ? 'Desde 30 días antes, con producto que mate por contacto. Los orales tipo NexGard o Bravecto NO se aceptan'
+          : 'From 30 days before, with a contact-kill product. Oral products such as NexGard or Bravecto are NOT accepted' },
+      { ...healthCert, label: es ? 'Certificado sanitario oficial' : 'Government health certificate' },
+      { icon: 'vet', label: es ? 'Cuarentena a la llegada' : 'Post-arrival quarantine', status: 'alert',
+        detail: es
+          ? 'Mínimo 30 días en instalación oficial, o 10 si se hizo la comprobación de identidad'
+          : 'Minimum 30 days at the government facility, or 10 if the identity check was done' },
     ];
-    case 'AU': return [
-      chip,
-      titreTest,
-      { icon: 'doc', label: 'Import Permit (DAWE)', status: 'pending',
-        detail: es ? 'Permiso de importación requerido' : 'Import permit required' },
-      { icon: 'vet', label: es ? 'Cuarentena (10 días)' : 'Quarantine (10 days)', status: 'alert',
-        detail: es ? 'Cuarentena obligatoria en instalación aprobada' : 'Mandatory quarantine at approved facility' },
-    ];
+
     default: return [chip, rabies];
   }
 };
@@ -715,7 +907,10 @@ const COUNTRY_META = {
 const COUNTRY_IDS = ['ES', 'UK', 'US', 'CA', 'AU'];
 
 /* ── PDF export ── */
-const exportPDF = (country, reqs, pet, readiness, locale) => {
+const exportPDF = (country, reqs, pet, readiness, locale, countryId = 'ES') => {
+  const { organismo, url: fuenteUrl } = fuenteOficial(pet?.species, countryId);
+  const fechaRevision = new Date(FECHA_REVISION).toLocaleDateString(
+    locale === 'es' ? 'es-ES' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
   const es = locale === 'es';
   const name = pet?.name || 'AURA Member';
   const date = new Date().toLocaleDateString(es ? 'es-ES' : 'en-GB');
@@ -769,7 +964,17 @@ const exportPDF = (country, reqs, pet, readiness, locale) => {
       <tbody>${rows}</tbody>
     </table>
     <div class="footer">
-      AURA Pets · ${es?'Solo informativo — verificar con autoridades oficiales antes del viaje':'Informational only — verify with official authorities before travel'}
+      <p style="margin:0 0 6px;">
+        ${es
+          ? 'AURA Pets prepara y custodia documentación. No emite documentos oficiales ni sustituye a la autoridad competente.'
+          : 'AURA Pets prepares and safeguards documentation. It does not issue official documents or replace the competent authority.'}
+      </p>
+      <p style="margin:0 0 6px;">
+        ${es ? 'Fuente oficial' : 'Official source'}: ${organismo} — ${fuenteUrl}
+      </p>
+      <p style="margin:0;">
+        ${es ? 'Requisitos contrastados el' : 'Requirements last checked on'} ${fechaRevision}
+      </p>
     </div>
   </body></html>`;
 
@@ -861,8 +1066,39 @@ const CountryModal = ({ countryId, pet, locale, onClose, origen = 'ES' }) => {
             </div>
           )}
 
+          {/* ── Nivel de riesgo del trayecto ─────────────────────────────────
+              Un aviso que sale siempre e igual acaba siendo invisible. Este
+              cambia de peso según lo que esté realmente en juego: un movimiento
+              dentro del mismo régimen no merece la misma alarma que un destino
+              con cuarentena y permiso previo. */}
+          {(() => {
+            const nivel = nivelRiesgo(pet?.species, countryId, origen);
+            const V = {
+              verde: { borde:'#2E9C7A', fondo:'rgba(46, 156, 122, 0.07)', texto:'#1F7A5D',
+                       titulo: es ? 'Trámite acotado' : 'Contained procedure' },
+              ambar: { borde:'var(--warn)', fondo:'rgba(240, 167, 60, 0.10)', texto:'#8F5C0C',
+                       titulo: es ? 'Confirma antes de reservar' : 'Confirm before booking' },
+              rojo:  { borde:'var(--danger)', fondo:'rgba(239, 95, 122, 0.08)', texto:'#B3324C',
+                       titulo: es ? 'Trayecto de plazos largos' : 'Long lead times' },
+            }[nivel];
+            return (
+              <div style={{
+                borderLeft:`4px solid ${V.borde}`, background:V.fondo,
+                borderRadius:'0 8px 8px 0', padding:'0.9rem 1.1rem', marginBottom:'1.5rem',
+              }}>
+                <p style={{ margin:'0 0 0.3rem', fontSize:'0.72rem', fontWeight:700,
+                  letterSpacing:'1.5px', textTransform:'uppercase', color:V.texto }}>
+                  {V.titulo}
+                </p>
+                <p style={{ margin:0, fontSize:'0.76rem', lineHeight:1.6, color:'var(--ink-body)' }}>
+                  {TEXTO_RIESGO[nivel][es ? 'es' : 'en']}
+                </p>
+              </div>
+            );
+          })()}
+
           {/* Requirements */}
-          <div style={{ display:'grid', gap:'1rem', marginBottom:'2rem' }}>
+          <div style={{ display:'grid', gap:'1rem', marginBottom:'1.2rem' }}>
             {reqs.map((req, i) => (
               <div key={i} style={{
                 display:'flex', alignItems:'center', gap:'1.2rem',
@@ -884,6 +1120,35 @@ const CountryModal = ({ countryId, pet, locale, onClose, origen = 'ES' }) => {
             ))}
           </div>
 
+          {/* ── Fuente oficial ───────────────────────────────────────────────
+              La pieza que convierte a AURA en guía en vez de en autoridad. El
+              usuario puede comprobar cada requisito por su cuenta, y la fecha
+              dice hasta qué punto el dato está fresco. */}
+          {(() => {
+            const { organismo, url } = fuenteOficial(pet?.species, countryId);
+            return (
+              <div style={{
+                background:'var(--bg-soft)', border:'1px solid var(--border)',
+                borderRadius:'var(--radius)', padding:'0.9rem 1.1rem', marginBottom:'1.5rem',
+              }}>
+                <p style={{ margin:'0 0 0.45rem', fontSize:'0.72rem', lineHeight:1.6, color:'var(--ink-body)' }}>
+                  {es
+                    ? 'AURA prepara y custodia tu documentación, pero no emite documentos oficiales ni sustituye a la autoridad competente. Comprueba los requisitos en la fuente:'
+                    : 'AURA prepares and safeguards your documentation, but does not issue official documents or replace the competent authority. Check the requirements at the source:'}
+                </p>
+                <a href={url} target="_blank" rel="noopener noreferrer"
+                  style={{ fontSize:'0.76rem', fontWeight:700, color:'var(--violet)', textDecoration:'underline' }}>
+                  {organismo} ↗
+                </a>
+                <p style={{ margin:'0.5rem 0 0', fontSize:'0.66rem', color:'var(--ink-muted)' }}>
+                  {es ? 'Listas contrastadas el ' : 'Lists last checked on '}
+                  {new Date(FECHA_REVISION).toLocaleDateString(es ? 'es-ES' : 'en-GB',
+                    { day:'numeric', month:'long', year:'numeric' })}
+                </p>
+              </div>
+            );
+          })()}
+
           {/* Pending notice */}
           {!pet?.microchip && (
             <div style={{ background:'rgba(217, 164, 65, 0.05)', border:'1px dashed rgba(217, 164, 65, 0.3)',
@@ -903,7 +1168,7 @@ const CountryModal = ({ countryId, pet, locale, onClose, origen = 'ES' }) => {
             </button>
             <button className="btn-aura"
               style={{ flex:2, borderColor:'var(--aura-neon-cyan)', color:'var(--aura-neon-cyan)' }}
-              onClick={() => exportPDF(meta, reqs, pet, readiness, locale)}>
+              onClick={() => exportPDF(meta, reqs, pet, readiness, locale, countryId)}>
               {es?'DESCARGAR REQUISITOS PDF':'DOWNLOAD PDF REQUIREMENTS'}
             </button>
           </div>
@@ -1036,7 +1301,7 @@ const GlobalPassport = ({ pet, onUpdatePet }) => {
 
   const handleExportAll = () => {
     const reqs = allReqs['ES'];
-    exportPDF(COUNTRY_META['ES'], reqs, pet, calcReadiness(reqs), locale);
+    exportPDF(COUNTRY_META['ES'], reqs, pet, calcReadiness(reqs), locale, 'ES');
   };
 
   return (

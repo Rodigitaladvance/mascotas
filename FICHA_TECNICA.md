@@ -9,8 +9,8 @@
 
 | | |
 |---|---|
-| **Versión / Version** | 1.4.0 |
-| **Fecha de emisión / Issue date** | 2026-09-10 |
+| **Versión / Version** | 1.5.0 |
+| **Fecha de emisión / Issue date** | 2026-09-11 |
 | **Empresa / Company** | Rodigital Advance |
 | **Clasificación / Classification** | Documento Oficial de Certificación / Official Certification Document |
 | **Producción / Production** | https://rociogf-aura-pets-final.static.hf.space |
@@ -96,9 +96,9 @@ grep -oE 'sk-[A-Za-z0-9-]{20,}|VITE_[A-Z_]+' dist/assets/*.js
 grep -ohE 'https://[a-z0-9.-]+\.[a-z]{2,}' dist/assets/*.js | sort -u
 ```
 
-**ES:** La segunda comprobación debe hacerse sobre **cualquier URL**, no solo sobre llamadas `fetch`. Una etiqueta `<img>` apuntando a un servidor externo genera una petición idéntica y no aparece buscando `fetch(`. El resultado esperado son únicamente las dos conexiones declaradas más abajo; el resto de coincidencias proceden del interior de las librerías —textos de mensajes de error— y no llegan a ejecutarse.
+**ES:** La segunda comprobación debe hacerse sobre **cualquier URL**, no solo sobre llamadas `fetch`. Una etiqueta `<img>` apuntando a un servidor externo genera una petición idéntica y no aparece buscando `fetch(`. El resultado esperado son únicamente las conexiones declaradas más abajo; el resto de coincidencias proceden del interior de las librerías —textos de mensajes de error— y no llegan a ejecutarse.
 
-**EN:** The second check must cover **any URL**, not only `fetch` calls. An `<img>` tag pointing at an external server produces an identical request and does not show up when searching for `fetch(`. The expected result is only the two connections declared below; any other matches come from inside library code as error-message strings and are never executed.
+**EN:** The second check must cover **any URL**, not only `fetch` calls. An `<img>` tag pointing at an external server produces an identical request and does not show up when searching for `fetch(`. The expected result is only the connections declared below; any other matches come from inside library code as error-message strings and are never executed.
 
 **Sin claves de API. Sin servicios de terceros.** La aplicación no depende de ningún proveedor externo para funcionar:
 
@@ -112,12 +112,17 @@ grep -ohE 'https://[a-z0-9.-]+\.[a-z]{2,}' dist/assets/*.js | sort -u
 | Tipografías / Typefaces | Google Fonts (CDN público, sin datos de usuario) / Google Fonts (public CDN, no user data) |
 | Miniaturas de especie / Species thumbnails | Empaquetadas en la aplicación / Bundled with the application |
 
-#### Las dos únicas conexiones externas / The only two external connections
+#### Conexiones externas declaradas / Declared external connections
 
 | Conexión / Connection | Cuándo / When | Qué se transmite / What is transmitted |
 |---|---|---|
 | `fonts.googleapis.com` | Al cargar la aplicación / On application load | Nada del usuario ni del animal / Nothing about the user or the animal |
 | `google.com/maps` | **Solo al pulsar** «buscar veterinario 24 h» en el modo SOS / **Only on pressing** "find a 24 h vet" in SOS mode | Las coordenadas, a petición expresa del usuario y en una pestaña nueva / The coordinates, at the user's explicit request and in a new tab |
+| Organismos oficiales (`cdc.gov`, `gov.uk`, `europa.eu`, `inspection.canada.ca`, `agriculture.gov.au`, `aphis.usda.gov`, `fws.gov`) | **Solo al pulsar** el enlace a la fuente en el Pasaporte Global / **Only on pressing** the source link in the Global Passport | Nada. Es un enlace `<a>` a una página pública que abre en pestaña nueva; no se envía ningún dato del expediente / Nothing. It is an `<a>` link to a public page opening in a new tab; no record data is sent |
+
+**ES:** Los enlaces a organismos oficiales **no generan ninguna petición hasta que el usuario los pulsa**, y cuando lo hace abren una web pública en otra pestaña sin transmitir nada del expediente. Se declaran aquí porque el criterio de esta ficha es enumerar **toda URL externa presente en el artefacto**, se ejecute o no automáticamente.
+
+**EN:** Links to official bodies **generate no request until the user clicks them**, and when clicked they open a public page in another tab without transmitting anything from the record. They are declared here because this sheet's criterion is to enumerate **every external URL present in the artefact**, whether or not it executes automatically.
 
 **ES:** Ninguna de las dos transporta datos del expediente. La segunda es una acción deliberada del usuario en una situación de emergencia, no una petición automática de la aplicación, y se declara aquí por transparencia.
 
@@ -328,6 +333,32 @@ Compliance aligned with GDPR. Animal health data is processed exclusively on the
 **ES:** AURA Pets prepara y custodia documentación; **no emite documentos oficiales ni sustituye la consulta a la autoridad competente**. Los requisitos sanitarios cambian con frecuencia y su verificación corresponde al organismo del país de destino. La aplicación muestra esta advertencia al usuario en las especies cuyo régimen es más variable.
 
 **EN:** AURA Pets prepares and safeguards documentation; **it does not issue official documents nor replace consulting the competent authority**. Sanitary requirements change frequently and their verification rests with the destination country's body. The application displays this warning to the user for the species whose regime varies most.
+
+#### Trazabilidad de los requisitos / Requirement traceability
+
+**ES:** Cada bloque de requisitos se muestra acompañado del **enlace directo al organismo competente** y de la **fecha en que la lista se contrastó** contra esa fuente. La aplicación no afirma un requisito: lo atribuye y permite comprobarlo. Los enlaces y la fecha viajan también en el PDF exportado, que es el documento que el usuario acaba presentando.
+
+La fecha de contraste vive en una sola constante, `FECHA_REVISION` en `src/utils/fuentes.js`, y la norma de mantenimiento es que **toda modificación de un requisito obliga a actualizarla**. Una fecha antigua es una señal honesta de que el dato conviene reconfirmarlo; una fecha falsa sería peor que no mostrar ninguna.
+
+El registro completo de la última revisión —qué se comprobó, contra qué fuente, qué se corrigió y qué queda pendiente— está en `REVISION_NORMATIVA.md`.
+
+**EN:** Every requirement block is shown alongside a **direct link to the competent authority** and the **date the list was checked** against that source. The application does not assert a requirement: it attributes it and lets the reader verify it. Links and date also travel in the exported PDF, which is the document the user ends up presenting.
+
+The check date lives in a single constant, `FECHA_REVISION` in `src/utils/fuentes.js`, and the maintenance rule is that **any change to a requirement obliges updating it**. A stale date is an honest signal that the data is worth reconfirming; a false date would be worse than showing none.
+
+The full record of the last review — what was checked, against which source, what was corrected and what remains open — is in `REVISION_NORMATIVA.md`.
+
+#### Niveles de aviso / Warning tiers
+
+**ES:** Un aviso que aparece siempre e igual deja de leerse. La interfaz gradúa la advertencia según lo que esté realmente en juego, mediante `nivelRiesgo()`:
+
+| Nivel | Cuándo | Tratamiento |
+|---|---|---|
+| **Verde** | Origen y destino coinciden, o régimen único y estable | Aviso breve; se recuerda confirmar fechas |
+| **Ámbar** | Perro o gato hacia un tercer país | Aviso visible: los requisitos los fija el destino y cambian sin previo aviso |
+| **Rojo** | Cualquier destino con cuarentena o permiso previo (Australia), y toda especie fuera del régimen de animales de compañía | Advertencia destacada: plazos de meses, no comprar billetes sin confirmar |
+
+**EN:** A warning that always appears in the same form stops being read. The interface grades the warning to what is actually at stake, through `nivelRiesgo()`: **green** for movements under a single stable regime, **amber** for dogs and cats entering a third country, and **red** for any destination involving quarantine or a prior permit, and for every species outside the pet travel scheme.
 
 **ES:** Motor de reglas que cruza el expediente médico real de la mascota con los requisitos sanitarios oficiales del país de destino. Devuelve: porcentaje de cumplimiento, lista de requisitos cumplidos y pendientes, detalle de cada requisito, y exportación en PDF del informe completo.
 
@@ -558,8 +589,8 @@ It is declared that the application **AURA Pets — Global Health Passport** has
 | | |
 |---|---|
 | **Empresa / Company** | Rodigital Advance |
-| **Versión / Version** | 1.4.0 |
-| **Fecha de emisión / Issue date** | 2026-09-10 |
+| **Versión / Version** | 1.5.0 |
+| **Fecha de emisión / Issue date** | 2026-09-11 |
 | **Válido hasta / Valid until** | 2027-09-10 |
 
 *Este documento es de carácter oficial y ha sido generado para auditoría de certificación.*  
