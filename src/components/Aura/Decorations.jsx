@@ -1,3 +1,5 @@
+import PawPrint from './PawPrint';
+
 /**
  * Adornos de AURA Pets.
  *
@@ -89,4 +91,52 @@ export const Blob = ({ size = 160, color = '#A5E3DC', style, className }) => (
       ...style,
     }}
   />
+);
+
+/* ── Huellas de fondo ────────────────────────────────────────────────────────
+   El mismo puñado de huellas pastel que decora el registro, empaquetado para
+   poder repetirlo sin copiar posiciones a mano por cada pantalla.
+
+   Van detrás del contenido (zIndex 0) y no capturan el ratón, así que se pueden
+   soltar dentro de cualquier tarjeta sin que estorben a lo que hay encima. El
+   contenedor necesita `position: relative`; si no, se irían a la esquina de la
+   página.
+
+   `variante` cambia el reparto para que dos tarjetas seguidas no salgan
+   calcadas. Es decoración, no información: se marcan como ocultas para quien
+   navegue con lector de pantalla.
+──────────────────────────────────────────────────────────────────────────── */
+const REPARTOS = {
+  a: [
+    { size: 40, top: '10%',    right: '3%', color: '#C9BDF2', opacity: 0.45, rot: 24 },
+    { size: 26, bottom: '14%', left: '3%',  color: '#A5E3DC', opacity: 0.50, rot: -18 },
+    { size: 20, top: '46%',    left: '1%',  color: '#BFE0F5', opacity: 0.40, rot: 8 },
+  ],
+  b: [
+    { size: 34, top: '8%',     left: '4%',  color: '#A5E3DC', opacity: 0.42, rot: -26 },
+    { size: 22, bottom: '10%', right: '5%', color: '#C9BDF2', opacity: 0.48, rot: 14 },
+    { size: 18, top: '52%',    right: '2%', color: '#F5C9D8', opacity: 0.38, rot: -8 },
+  ],
+  c: [
+    { size: 30, bottom: '12%', left: '6%',  color: '#BFE0F5', opacity: 0.44, rot: 18 },
+    { size: 24, top: '12%',    right: '6%', color: '#F5C9D8', opacity: 0.40, rot: -22 },
+  ],
+};
+
+export const PawScatter = ({ variante = 'a' }) => (
+  <>
+    {(REPARTOS[variante] || REPARTOS.a).map((h, i) => (
+      <PawPrint
+        key={i}
+        size={h.size}
+        aria-hidden="true"
+        style={{
+          position: 'absolute',
+          top: h.top, left: h.left, right: h.right, bottom: h.bottom,
+          color: h.color, opacity: h.opacity, transform: `rotate(${h.rot}deg)`,
+          pointerEvents: 'none', zIndex: 0,
+        }}
+      />
+    ))}
+  </>
 );

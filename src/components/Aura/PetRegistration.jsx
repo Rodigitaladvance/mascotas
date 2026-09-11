@@ -11,6 +11,7 @@ import fotoGato    from '../../assets/especies/gato.jpg';
 import fotoCaballo from '../../assets/especies/caballo.jpg';
 import fotoAve     from '../../assets/especies/ave.jpg';
 import fotoConejo  from '../../assets/especies/conejo.jpg';
+import fotoHuron   from '../../assets/especies/huron.jpg';
 import fotoLagarto from '../../assets/especies/lagarto.jpg';
 
 /* Huellas y manchas para las tarjetas del alta. Posiciones fijas para que
@@ -31,6 +32,7 @@ const REG_PAWS = [
 const SPECIES = [
   { id: 'dog',     label: 'Perro',            labelEn: 'Dog',              emoji: '🐕', img: fotoPerro   },
   { id: 'cat',     label: 'Gato',             labelEn: 'Cat',              emoji: '🐈', img: fotoGato    },
+  { id: 'ferret',  label: 'Hurón',            labelEn: 'Ferret',           emoji: '🦡', img: fotoHuron   },
   { id: 'horse',   label: 'Caballo',          labelEn: 'Horse',            emoji: '🐴', img: fotoCaballo },
   { id: 'bird',    label: 'Ave',              labelEn: 'Bird',             emoji: '🦜', img: fotoAve     },
   { id: 'rabbit',  label: 'Conejo',           labelEn: 'Rabbit',           emoji: '🐇', img: fotoConejo  },

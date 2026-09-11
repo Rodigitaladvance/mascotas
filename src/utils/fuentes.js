@@ -62,7 +62,7 @@ const OTROS = {
 };
 
 const POR_ESPECIE = {
-  dog: COMPANIA, cat: COMPANIA,
+  dog: COMPANIA, cat: COMPANIA, ferret: COMPANIA,
   horse: EQUINOS,
   bird: AVES,
   rabbit: OTROS, exotic: OTROS, other: OTROS,
@@ -91,7 +91,7 @@ export const fuenteOficial = (species, countryId) => {
 export const nivelRiesgo = (species, countryId, origen = 'ES') => {
   if (origen === countryId) return 'verde';
 
-  const esCompania = species === 'dog' || species === 'cat';
+  const esCompania = species === 'dog' || species === 'cat' || species === 'ferret';
 
   /* Australia impone cuarentena y permiso previo a todo lo vivo. */
   if (countryId === 'AU') return 'rojo';

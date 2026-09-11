@@ -41,7 +41,7 @@ const BRAQUICEFALAS = [
 ];
 
 /** Especies que la mayoría de compañías no transportan. */
-const ESPECIES_POCO_ACEPTADAS = ['bird', 'rabbit', 'exotic', 'other'];
+const ESPECIES_POCO_ACEPTADAS = ['bird', 'rabbit', 'ferret', 'exotic', 'other'];
 
 const normalizar = (texto) =>
   (texto || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');

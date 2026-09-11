@@ -3,6 +3,7 @@ import { PlaneTakeoff, CheckCircle2, AlertCircle, FileText, X, Shield, Syringe, 
 import { motion, AnimatePresence } from 'framer-motion';
 import { assessAirline } from '../../utils/airline';
 import { fuenteOficial, nivelRiesgo, TEXTO_RIESGO, FECHA_REVISION } from '../../utils/fuentes';
+import { PawScatter } from './Decorations';
 import { useTranslation } from '../../context/LocalizationContext';
 import perroPasaporte from '../../assets/perro-pasaporte.jpg';
 import movilPasaporte from '../../assets/movil-pasaporte.jpg';
@@ -617,6 +618,57 @@ const buildUnknownRequirements = (pet, countryId, locale) => {
   ];
 };
 
+/* ── Hurones en los dos destinos que se salen de la norma ────────────────────
+   En la Unión Europea y en Reino Unido el hurón va exactamente igual que un
+   perro o un gato: el reglamento europeo cubre las tres especies. Canadá también
+   lo admite con el certificado de vacunación antirrábica.
+
+   Estados Unidos y Australia son otra historia, y en direcciones opuestas: allí
+   el gobierno federal no le pide nada y el problema está en el estado de
+   destino; allá sencillamente no entra.
+──────────────────────────────────────────────────────────────────────────── */
+const buildFerretRequirements = (pet, countryId, locale) => {
+  const es = locale === 'es';
+  const h = pet?.health || {};
+  const hasMicrochip = !!pet?.microchip?.trim();
+
+  if (countryId === 'AU') {
+    return [
+      { icon: 'doc', info: true, label: es ? 'Entrada no permitida' : 'Entry not permitted', status: 'alert',
+        detail: es
+          ? 'Australia no admite hurones como mascota, venga de donde venga. Confírmalo en BICON antes de dar cualquier paso.'
+          : 'Australia does not admit pet ferrets, whatever the origin. Confirm in BICON before taking any step.' },
+    ];
+  }
+
+  /* Estados Unidos */
+  return [
+    { icon: 'ok', info: true, label: es ? 'Sin requisitos federales' : 'No federal requirements', status: 'ok',
+      detail: es
+        ? 'El USDA APHIS no impone condiciones sanitarias a los hurones de compañía'
+        : 'USDA APHIS sets no animal health conditions for pet ferrets' },
+    { icon: 'doc', id: 'estado-destino', manual: true,
+      label: es ? 'Comprueba el estado de destino' : 'Check the destination state', status: 'pending',
+      detail: es
+        ? 'Aquí manda el estado, no el gobierno federal: California los prohíbe y la ciudad de Nueva York también. Compruébalo antes de comprar el billete.'
+        : 'The state decides here, not the federal government: California bans them, and so does New York City. Check before buying the ticket.' },
+    { icon: 'chip', label: 'Microchip ISO 11784/11785', status: hasMicrochip ? 'ok' : 'pending',
+      detail: hasMicrochip
+        ? pet.microchip
+        : (es ? 'No lo exige el gobierno federal, pero sí varios estados y las aerolíneas' : 'Not required federally, but several states and airlines ask for it') },
+    { icon: 'syringe', label: es ? 'Vacuna antirrábica' : 'Rabies vaccination',
+      status: h.rabiesVaccine?.status || 'pending',
+      detail: es
+        ? 'La exige la mayoría de estados aunque no la pida el gobierno federal'
+        : 'Most states require it even though the federal government does not' },
+    { icon: 'vet', label: es ? 'Certificado sanitario' : 'Health certificate',
+      status: h.healthCert?.status || 'pending',
+      detail: es
+        ? 'Lo piden muchas aerolíneas y varios estados. Llévalo'
+        : 'Many airlines and several states ask for it. Take it' },
+  ];
+};
+
 /* ── Build requirements dynamically from pet data ── */
 const buildRequirements = (pet, countryId, locale, origen = 'ES') => {
   /* Los équidos van por su propia normativa, no por la de mascotas */
@@ -625,6 +677,11 @@ const buildRequirements = (pet, countryId, locale, origen = 'ES') => {
   if (pet?.species === 'rabbit') return buildRabbitRequirements(pet, countryId, locale, origen);
   if (pet?.species === 'exotic') return buildExoticRequirements(pet, countryId, locale, origen);
   if (pet?.species === 'other') return buildUnknownRequirements(pet, countryId, locale);
+  /* El hurón comparte el régimen europeo con perros y gatos, así que pasa por
+     la lista común; solo Estados Unidos y Australia lo tratan aparte. */
+  if (pet?.species === 'ferret' && (countryId === 'US' || countryId === 'AU')) {
+    return buildFerretRequirements(pet, countryId, locale);
+  }
 
   const es = locale === 'es';
   const esPerro = pet?.species === 'dog';
@@ -1468,7 +1525,8 @@ const GlobalPassport = ({ pet, onUpdatePet }) => {
         <div className="passport-layout">
 
           {/* ── Left – editable passport form ── */}
-          <div className="aura-card" style={{ padding:'2.5rem' }}>
+          <div className="aura-card aura-card--bloom" style={{ padding:'2.5rem', position:'relative' }}>
+            <PawScatter variante="a" />
             {/* Readiness header — updates live as form is filled */}
             <div style={{ display:'flex', alignItems:'center', gap:'1.5rem', marginBottom:'2.5rem' }}>
               <div style={{ width:56, height:56, borderRadius:'50%', background:'var(--aura-gold)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>

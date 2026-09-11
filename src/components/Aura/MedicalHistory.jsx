@@ -4,6 +4,7 @@ import { X, Plus, Download, Calendar, Shield, Activity, Award, FileText, Eye } f
 import { jsPDF } from 'jspdf';
 import { storage } from '../../utils/storage';
 import { useAuth } from '../../context/AuthContext';
+import { PawScatter } from './Decorations';
 
 // ─── Storage ──────────────────────────────────────────────────────────────────
 // El historial clínico se guarda cifrado dentro de la bóveda del usuario.
@@ -542,6 +543,10 @@ const MedicalHistory = ({ pet, onClose }) => {
         transition={{ duration: 0.22 }}
         style={{ position: 'fixed', inset: 0, zIndex: 2000, background: '#FEFBF4', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
       >
+        {/* Las huellas van sobre el fondo de la pantalla completa, no dentro de
+            una tarjeta: aquí el contenido se desplaza y quedarían cortadas. */}
+        <PawScatter variante="c" />
+
         {/* Header */}
         <div style={{ padding: '1.4rem 2rem', borderBottom: '1px solid rgba(217, 164, 65, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
           <div>

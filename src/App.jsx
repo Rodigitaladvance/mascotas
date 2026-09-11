@@ -12,6 +12,7 @@ import PrivacyVault from './components/Aura/PrivacyVault';
 import PetRegistration from './components/Aura/PetRegistration';
 import RecuperarAcceso from './components/Aura/RecuperarAcceso';
 import { storage } from './utils/storage';
+import { PawScatter } from './components/Aura/Decorations';
 import {
   LogOut, LayoutDashboard, ShieldAlert, ShieldCheck,
   Settings, PlusCircle, Globe, AlertTriangle, X,
@@ -396,7 +397,8 @@ const AppContent = () => {
             } />
             <Route path="/settings" element={
               <motion.div {...TAB_VARIANTS}>
-                <div className="aura-card" style={{ maxWidth: 540, margin: '3rem auto' }}>
+                <div className="aura-card aura-card--bloom" style={{ maxWidth: 540, margin: '3rem auto', position: 'relative' }}>
+                  <PawScatter variante="b" />
                   <h2 style={{ fontSize: '2rem', marginBottom: '3rem' }}>{t('common.settings')}</h2>
                   <div style={{ display: 'grid', gap: '3rem' }}>
                     <div>

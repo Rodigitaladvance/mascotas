@@ -69,6 +69,11 @@ const PROTOCOLS = {
     { label: 'Gripe equina',            days: 182,     match: ['gripe', 'influenza', 'equina'] },
     { label: 'Desparasitación',         days: 90,      match: ['desparasit', 'lombric', 'deworm'] },
   ],
+  ferret: [
+    { label: 'Rabia',                   days: ANUAL,   match: ['rabia', 'rabic', 'rabies'] },
+    { label: 'Moquillo',                days: ANUAL,   match: ['moquillo', 'distemper', 'polivalente'] },
+    { label: 'Desparasitación',         days: 90,      match: ['desparasit', 'lombric', 'deworm', 'pulga', 'flea'] },
+  ],
   rabbit: [
     { label: 'Mixomatosis',             days: ANUAL,   match: ['mixomatosis', 'myxomatosis'] },
     { label: 'Enfermedad hemorrágica',  days: ANUAL,   match: ['hemorrag', 'rhd', 'vhd'] },

@@ -5,6 +5,7 @@ import { useTranslation } from '../../context/LocalizationContext';
 import { useAuth } from '../../context/AuthContext';
 import { storage } from '../../utils/storage';
 import jsPDF from 'jspdf';
+import { PawScatter } from './Decorations';
 
 /* ── JSON download helper ── */
 /**
@@ -678,7 +679,8 @@ const PrivacyVault = () => {
       <div className="vault-layout">
         <div style={{ display: 'grid', gap: '2rem' }}>
           {/* Shield card */}
-          <div className="aura-card" style={{ padding: '2.5rem' }}>
+          <div className="aura-card aura-card--bloom" style={{ padding: '2.5rem', position: 'relative' }}>
+            <PawScatter variante="b" />
             <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'start', flexWrap: 'wrap' }}>
               <div style={{ padding: '1rem', background: 'rgba(67, 191, 199, 0.05)', borderRadius: '50%', flexShrink: 0 }}>
                 <ShieldCheck color="var(--aura-neon-cyan)" size={28} />
