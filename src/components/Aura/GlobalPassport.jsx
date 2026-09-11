@@ -7,6 +7,7 @@ import { PawScatter } from './Decorations';
 import { useTranslation } from '../../context/LocalizationContext';
 import perroPasaporte from '../../assets/perro-pasaporte.jpg';
 import movilPasaporte from '../../assets/movil-pasaporte.jpg';
+import huronPasaporte from '../../assets/huron.jpg';
 
 /* ── Icon helper ── */
 const ReqIcon = ({ type, color }) => {
@@ -1470,6 +1471,9 @@ const GlobalPassport = ({ pet, onUpdatePet }) => {
             { src: movilPasaporte, alt: es
                 ? 'Un gato apoyando las patas sobre un móvil que muestra el pasaporte en AURA Pets'
                 : 'A cat resting its paws on a phone showing the passport in AURA Pets' },
+            { src: huronPasaporte, alt: es
+                ? 'Un hurón con una maleta y un pasaporte para mascotas'
+                : 'A ferret with a suitcase and a pet passport' },
           ].map((im, i) => (
             <div key={i} style={{
               borderRadius: 'var(--radius-lg)',
