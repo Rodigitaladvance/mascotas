@@ -25,29 +25,54 @@ const VACCINE_INTERVALS = {
    que reconocer la vacuna en el historial: el usuario escribe el nombre a
    mano, así que "Antirrábica", "rabia" o "rabies" deben valer lo mismo.
    ══════════════════════════════════════════════════════════════════════════ */
+/* ── Calendarios de referencia ───────────────────────────────────────────────
+   Contrastados el 11 de septiembre de 2026 con las guías de vacunación de la
+   WSAVA (2024) para perros y gatos.
+
+   Dos ideas que gobiernan esta tabla:
+
+   1. Estos intervalos son solo el recurso de última hora. Si el veterinario
+      anotó la fecha de la próxima dosis, manda esa. Un calendario genérico no
+      puede saber qué producto se usó ni qué exige la comunidad autónoma.
+
+   2. Las vacunas centrales de perro y gato NO son anuales. La WSAVA
+      recomienda expresamente abandonar la revacunación anual: tras la pauta
+      inicial y el refuerzo del año, los estudios serológicos respaldan el
+      refuerzo trienal. Marcar como "vencida" a los doce meses empujaba a
+      vacunar de más, que es justo lo que las guías tratan de evitar.
+
+   Las marcadas como opcionales no son obligatorias para todos los animales:
+   solo se vigilan si consta alguna dosis, y si no, quedan fuera del cálculo en
+   vez de restar. La leucemia felina es el caso claro: la WSAVA la considera no
+   esencial en gatos adultos sin acceso al exterior, así que penalizar a un gato
+   de interior por no tenerla sería sencillamente incorrecto.
+──────────────────────────────────────────────────────────────────────────── */
+const ANUAL = 365;
+const TRIENAL = 1095;
+
 const PROTOCOLS = {
   dog: [
-    { label: 'Rabia',                   days: 365, match: ['rabia', 'rabic', 'rabies'] },
-    { label: 'Polivalente',             days: 365, match: ['polivalente', 'hexavalente', 'pentavalente', 'moquillo', 'parvo', 'distemper'] },
-    { label: 'Desparasitación interna', days: 90,  match: ['interna', 'lombric', 'deworm', 'endoparas'] },
-    { label: 'Desparasitación externa', days: 30,  match: ['externa', 'pulga', 'garrapata', 'flea', 'tick', 'ectoparas'] },
+    { label: 'Rabia',                   days: ANUAL,   match: ['rabia', 'rabic', 'rabies'] },
+    { label: 'Polivalente',             days: TRIENAL, match: ['polivalente', 'hexavalente', 'pentavalente', 'moquillo', 'parvo', 'distemper'] },
+    { label: 'Desparasitación interna', days: 90,      match: ['interna', 'lombric', 'deworm', 'endoparas'] },
+    { label: 'Desparasitación externa', days: 30,      match: ['externa', 'pulga', 'garrapata', 'flea', 'tick', 'ectoparas'] },
   ],
   cat: [
-    { label: 'Rabia',                   days: 365, match: ['rabia', 'rabic', 'rabies'] },
-    { label: 'Trivalente',              days: 365, match: ['trivalente', 'triple', 'panleucopenia', 'calicivirus', 'rinotraqueitis'] },
-    { label: 'Leucemia felina',         days: 365, match: ['leucemia', 'leucosis', 'felv'] },
-    { label: 'Desparasitación interna', days: 90,  match: ['interna', 'lombric', 'deworm', 'endoparas'] },
-    { label: 'Desparasitación externa', days: 30,  match: ['externa', 'pulga', 'garrapata', 'flea', 'tick', 'ectoparas'] },
+    { label: 'Rabia',                   days: ANUAL,   match: ['rabia', 'rabic', 'rabies'] },
+    { label: 'Trivalente',              days: TRIENAL, match: ['trivalente', 'triple', 'panleucopenia', 'calicivirus', 'rinotraqueitis'] },
+    { label: 'Leucemia felina',         days: ANUAL,   match: ['leucemia', 'leucosis', 'felv'], opcional: true },
+    { label: 'Desparasitación interna', days: 90,      match: ['interna', 'lombric', 'deworm', 'endoparas'] },
+    { label: 'Desparasitación externa', days: 30,      match: ['externa', 'pulga', 'garrapata', 'flea', 'tick', 'ectoparas'] },
   ],
   horse: [
-    { label: 'Tétanos',                 days: 365, match: ['tetano', 'tetanus'] },
-    { label: 'Gripe equina',            days: 182, match: ['gripe', 'influenza', 'equina'] },
-    { label: 'Desparasitación',         days: 90,  match: ['desparasit', 'lombric', 'deworm'] },
+    { label: 'Tétanos',                 days: ANUAL,   match: ['tetano', 'tetanus'] },
+    { label: 'Gripe equina',            days: 182,     match: ['gripe', 'influenza', 'equina'] },
+    { label: 'Desparasitación',         days: 90,      match: ['desparasit', 'lombric', 'deworm'] },
   ],
   rabbit: [
-    { label: 'Mixomatosis',             days: 365, match: ['mixomatosis', 'myxomatosis'] },
-    { label: 'Enfermedad hemorrágica',  days: 365, match: ['hemorrag', 'rhd', 'vhd'] },
-    { label: 'Desparasitación',         days: 90,  match: ['desparasit', 'lombric', 'deworm'] },
+    { label: 'Mixomatosis',             days: ANUAL,   match: ['mixomatosis', 'myxomatosis'] },
+    { label: 'Enfermedad hemorrágica',  days: ANUAL,   match: ['hemorrag', 'rhd', 'vhd'] },
+    { label: 'Desparasitación',         days: 90,      match: ['desparasit', 'lombric', 'deworm'] },
   ],
   // Aves y "otra especie" no tienen calendario vacunal estándar: se omiten a
   // propósito en lugar de inventar uno.
@@ -89,9 +114,18 @@ export const assessProtection = (pet, history) => {
   const ahora = new Date();
   let puntos = 0;
 
-  const items = protocolo.map(({ label, days, match }) => {
+  /* Las opcionales sin ninguna dosis registrada no cuentan: no son un olvido
+     del dueño, es que ese animal no las necesita. */
+  let exigibles = 0;
+
+  const items = protocolo.map(({ label, days, match, opcional }) => {
     const propias = dosis.filter(d => match.some(m => d.nombre.includes(m)));
-    if (propias.length === 0) return { label, estado: 'ausente' };
+    if (propias.length === 0) {
+      if (opcional) return { label, estado: 'no-aplica', opcional: true };
+      exigibles += 1;
+      return { label, estado: 'ausente' };
+    }
+    exigibles += 1;
 
     // La dosis más reciente manda
     const ultima = propias.reduce((a, b) => (b.fecha > a.fecha ? b : a));
@@ -107,8 +141,12 @@ export const assessProtection = (pet, history) => {
     return { label, estado: 'vencida', vence };
   });
 
+  /* Si todo lo del calendario era opcional y no hay nada registrado, no se
+     puede afirmar nada: mejor no dar número que dar uno inventado. */
+  if (exigibles === 0) return { score: null, reason: 'sin-datos', items };
+
   return {
-    score: Math.round((puntos / protocolo.length) * 100),
+    score: Math.round((puntos / exigibles) * 100),
     reason: null,
     items,
   };

@@ -1,9 +1,10 @@
 # Revisión de requisitos frente a fuentes oficiales
 
 **Fecha de la revisión:** 11 de septiembre de 2026
-**Alcance:** perros, gatos, équidos, aves y reptiles en los cinco países de la
-app (ES, UK, US, CA, AU).
-**Estado:** las 20 correcciones están aplicadas en el código.
+**Alcance:** requisitos de entrada para perros, gatos, équidos, aves, conejos y
+reptiles en los cinco países de la app (ES, UK, US, CA, AU), más los protocolos
+de vacunación que calculan el nivel de protección.
+**Estado:** las 22 correcciones están aplicadas en el código.
 
 Este documento es el registro de qué se comprobó, contra qué fuente y qué se
 corrigió. Sirve como respaldo de las listas: cualquiera puede seguir los enlaces
@@ -227,10 +228,53 @@ El texto de la app se queda como estaba.
 
 ---
 
+## Protocolos de vacunación
+
+Contrastados con las **guías de vacunación de la WSAVA (2024)**, que son la
+referencia internacional para perros y gatos.
+
+### 21. Las vacunas centrales no son anuales
+
+La polivalente del perro y la trivalente del gato estaban puestas a 365 días.
+La WSAVA recomienda **expresamente abandonar la revacunación anual**: tras la
+pauta inicial y el refuerzo del año, los estudios serológicos respaldan el
+**refuerzo trienal**.
+
+Marcar como vencida a los doce meses empujaba a vacunar de más, que es justo lo
+que las guías tratan de evitar. Corregido a 1.095 días.
+
+### 22. La leucemia felina no es obligatoria para todos los gatos
+
+Estaba tratada como vacuna esencial. La WSAVA la considera **no esencial en
+gatos adultos sin acceso al exterior**: solo la recomienda en cachorros y en
+gatos que salen o conviven con otros que salen.
+
+Un gato de interior correctamente no vacunado perdía un 20 % de puntuación por
+algo que no necesita. Ahora las vacunas opcionales solo se vigilan si consta
+alguna dosis; si no hay ninguna, quedan fuera del cálculo en vez de restar.
+
+### Lo que se mantiene
+
+- La antirrábica sigue a un año, que es el criterio conservador y el que aplica
+  en la mayor parte de España. El intervalo real depende del producto y de la
+  comunidad autónoma
+- Tétanos equino anual y gripe equina cada 6 meses
+- Mixomatosis y enfermedad hemorrágica del conejo, anuales
+- Desparasitación interna trimestral y externa mensual
+
+Y sobre todo se mantiene lo más importante del diseño: **si el veterinario anotó
+la fecha de la próxima dosis, manda esa**. Los intervalos de la tabla son solo
+el recurso de última hora, porque un calendario genérico no puede saber qué
+producto se usó.
+
+| Ámbito | Organismo | Fuente |
+|---|---|---|
+| Vacunación de perros y gatos | WSAVA | https://wsava.org/global-guidelines/vaccination-guidelines/ |
+
+---
+
 ## Sigue pendiente
 
-- Los protocolos de vacunación de `src/utils/intelligence.js`, que siguen
-  basados en conocimiento general
 - Aves y conejos hacia Canadá y Reino Unido, contrastados solo parcialmente
 - Los plazos de cuarentena de aves en Reino Unido y Canadá
 
