@@ -7,12 +7,28 @@ import { storage } from '../../utils/storage';
 import jsPDF from 'jspdf';
 
 /* ── JSON download helper ── */
+/**
+ * Descarga un objeto como fichero JSON.
+ *
+ * Dos detalles que parecen menores y rompen la descarga entera:
+ *
+ *   1. El enlace tiene que estar en el documento. Varios navegadores ignoran
+ *      click() sobre un elemento que nunca se insertó en la página.
+ *   2. La URL del blob no puede liberarse en la misma vuelta. La descarga
+ *      arranca de forma asíncrona, así que revocarla justo después del clic
+ *      deja al navegador sin nada que leer: el fichero llega vacío o no se
+ *      abre. Se libera más tarde, cuando ya se ha leído.
+ */
 const downloadJSON = (data, filename) => {
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const url  = URL.createObjectURL(blob);
-  const a    = Object.assign(document.createElement('a'), { href: url, download: filename });
+  const a    = Object.assign(document.createElement('a'), {
+    href: url, download: filename, rel: 'noopener',
+  });
+  document.body.appendChild(a);
   a.click();
-  URL.revokeObjectURL(url);
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 5000);
 };
 
 /* ── Premium jsPDF medical record ── */
@@ -777,8 +793,20 @@ const PrivacyVault = () => {
                     <span style={{ display: 'block' }}>
                       {es ? 'Portabilidad de Datos (JSON)' : 'Data Portability (JSON)'}
                     </span>
+                    {/* El artículo 20 obliga a entregar los datos en un formato que
+                        otra máquina pueda leer, no en uno cómodo de leer para una
+                        persona. Conviene decirlo: quien abre el fichero esperando
+                        su expediente se encuentra una pared de texto técnico. */}
                     <span style={{ fontSize: '0.65rem', color: 'var(--aura-text-muted)', letterSpacing: '1px' }}>
                       {es ? 'Copia completa · GDPR Art. 20' : 'Full copy · GDPR Art. 20'}
+                    </span>
+                    <span style={{
+                      display: 'block', marginTop: 4, fontSize: '0.66rem', lineHeight: 1.5,
+                      color: 'var(--aura-text-muted)', letterSpacing: 0, whiteSpace: 'normal',
+                    }}>
+                      {es
+                        ? 'Formato técnico, para trasladar tus datos a otro servicio. Si quieres leerlos tú, usa el PDF de arriba.'
+                        : 'A technical format, for moving your data to another service. To read it yourself, use the PDF above.'}
                     </span>
                   </div>
                 </div>

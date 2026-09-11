@@ -100,7 +100,7 @@ const buildEquineRequirements = (pet, countryId, locale, origen = 'ES') => {
   };
 
   const coggins = {
-    icon: 'syringe',
+    icon: 'syringe', id: 'coggins', manual: true,
     label: es ? 'Test de Anemia Infecciosa Equina (Coggins)' : 'Equine Infectious Anaemia test (Coggins)',
     status: 'pending',
     detail: es
@@ -109,7 +109,7 @@ const buildEquineRequirements = (pet, countryId, locale, origen = 'ES') => {
   };
 
   const piroplasmosis = {
-    icon: 'syringe',
+    icon: 'syringe', id: 'piroplasmosis', manual: true,
     label: es ? 'Test de piroplasmosis' : 'Piroplasmosis test',
     status: 'pending',
     detail: es
@@ -127,14 +127,14 @@ const buildEquineRequirements = (pet, countryId, locale, origen = 'ES') => {
   };
 
   const permiso = (organismo) => ({
-    icon: 'doc',
+    icon: 'doc', id: 'permiso', manual: true,
     label: `${es ? 'Permiso de importación' : 'Import permit'} · ${organismo}`,
     status: 'pending',
     detail: es ? 'Solicitar antes de organizar el transporte' : 'Apply before arranging transport',
   });
 
   const cuarentena = (texto) => ({
-    icon: 'vet',
+    icon: 'vet', id: 'cuarentena', manual: true,
     label: es ? 'Cuarentena' : 'Quarantine',
     status: 'alert',
     detail: texto,
@@ -144,7 +144,7 @@ const buildEquineRequirements = (pet, countryId, locale, origen = 'ES') => {
   if (origen === countryId) {
     return [
       chip, documento, ueln, resena,
-      { icon: 'doc', label: es ? 'Movimiento nacional' : 'Domestic movement', status: 'ok',
+      { icon: 'doc', info: true, label: es ? 'Movimiento nacional' : 'Domestic movement', status: 'ok',
         detail: es
           ? 'Origen y destino coinciden: no hay trámite de exportación'
           : 'Origin and destination match: no export procedure needed' },
@@ -160,14 +160,14 @@ const buildEquineRequirements = (pet, countryId, locale, origen = 'ES') => {
         : `Mandatory: the origin (${origen}) is an endemic area` });
   }
   if (countryId === 'US' && CEM_AFECTADOS.includes(origen)) {
-    extras.push({ icon: 'vet', label: es ? 'Metritis contagiosa equina (CEM)' : 'Contagious equine metritis (CEM)',
+    extras.push({ icon: 'vet', id: 'cem', manual: true, label: es ? 'Metritis contagiosa equina (CEM)' : 'Contagious equine metritis (CEM)',
       status: 'alert',
       detail: es
         ? 'Sementales y yeguas que hayan residido o transitado por un país afectado en los últimos 12 meses: pruebas y reserva en instalación de cuarentena CEM aprobada'
         : 'Stallions and mares that lived in or transited a CEM-affected country in the last 12 months: testing plus a booking at an approved CEM quarantine facility' });
   }
   if (EXIGEN_GRIPE_EQUINA.includes(countryId)) {
-    extras.push({ icon: 'syringe', label: es ? 'Vacuna de gripe equina' : 'Equine influenza vaccination',
+    extras.push({ icon: 'syringe', id: 'gripe-equina', manual: true, label: es ? 'Vacuna de gripe equina' : 'Equine influenza vaccination',
       status: 'pending',
       detail: es ? 'Pauta completa antes de la salida' : 'Full course before departure' });
   }
@@ -186,7 +186,7 @@ const buildEquineRequirements = (pet, countryId, locale, origen = 'ES') => {
         detail: es
           ? 'El AHC de mascotas no sirve para équidos'
           : 'The pet AHC is not valid for equines' },
-      { icon: 'doc', label: es ? 'Entrada por Puesto de Control Fronterizo' : 'Entry via Border Control Post',
+      { icon: 'doc', id: 'bcp', manual: true, label: es ? 'Entrada por Puesto de Control Fronterizo' : 'Entry via Border Control Post',
         status: 'pending',
         detail: es ? 'La ruta debe pasar por un BCP autorizado' : 'The route must pass through an approved BCP' },
       coggins,
@@ -195,7 +195,7 @@ const buildEquineRequirements = (pet, countryId, locale, origen = 'ES') => {
       chip, documento, ueln, resena, ...extras,
       permiso('USDA APHIS'),
       coggins,
-      { icon: 'syringe', label: es ? 'Muermo y durina' : 'Glanders and dourine', status: 'pending',
+      { icon: 'syringe', id: 'muermo-durina', manual: true, label: es ? 'Muermo y durina' : 'Glanders and dourine', status: 'pending',
         detail: es
           ? 'Analítica obligatoria en el panel de entrada, junto con Coggins y piroplasmosis'
           : 'Mandatory tests in the entry panel, alongside Coggins and piroplasmosis' },
@@ -209,7 +209,7 @@ const buildEquineRequirements = (pet, countryId, locale, origen = 'ES') => {
       permiso('CFIA'),
       coggins,
       { ...sanitario, label: es ? 'Certificado sanitario endosado' : 'Endorsed health certificate' },
-      { icon: 'vet', label: es ? 'Inspección en el punto de entrada' : 'Inspection at the point of entry',
+      { icon: 'vet', info: true, label: es ? 'Inspección en el punto de entrada' : 'Inspection at the point of entry',
         status: 'pending',
         detail: es ? 'A cargo de la agencia canadiense' : 'Carried out by the Canadian agency' },
     ];
@@ -291,7 +291,7 @@ const buildBirdRequirements = (pet, countryId, locale, origen = 'ES') => {
         };
 
   const gripeAviar = {
-    icon: 'syringe',
+    icon: 'syringe', id: 'gripe-aviar', manual: true,
     label: es ? 'Gripe aviar' : 'Avian influenza',
     status: 'pending',
     detail: es
@@ -300,14 +300,14 @@ const buildBirdRequirements = (pet, countryId, locale, origen = 'ES') => {
   };
 
   const newcastle = {
-    icon: 'syringe',
+    icon: 'syringe', id: 'newcastle', manual: true,
     label: es ? 'Enfermedad de Newcastle' : 'Newcastle disease',
     status: 'pending',
     detail: es ? 'Vacunación o prueba según el país de salida' : 'Vaccination or testing depending on country of departure',
   };
 
   const psitacosis = {
-    icon: 'vet',
+    icon: 'vet', id: 'psitacosis', manual: true,
     label: es ? 'Clamidiosis (psitacosis)' : 'Chlamydiosis (psittacosis)',
     status: 'pending',
     detail: es ? 'Exigida a psitácidas en varios destinos' : 'Required for parrots by several destinations',
@@ -323,14 +323,14 @@ const buildBirdRequirements = (pet, countryId, locale, origen = 'ES') => {
   };
 
   const cuarentena = (dias, texto) => ({
-    icon: 'vet',
+    icon: 'vet', id: 'cuarentena', manual: true,
     label: es ? `Cuarentena (${dias})` : `Quarantine (${dias})`,
     status: 'alert',
     detail: texto || (es ? 'En instalación autorizada del destino' : 'At an approved facility in the destination'),
   });
 
   const permiso = (organismo, texto) => ({
-    icon: 'doc',
+    icon: 'doc', id: 'permiso', manual: true,
     label: `${es ? 'Permiso de importación' : 'Import permit'} · ${organismo}`,
     status: 'pending',
     detail: texto || (es ? 'Solicitar con antelación: los plazos son largos' : 'Apply well ahead: lead times are long'),
@@ -343,7 +343,7 @@ const buildBirdRequirements = (pet, countryId, locale, origen = 'ES') => {
       { ...cites, detail: enCites
           ? (es ? 'Documenta la tenencia legal aunque no cruces frontera' : 'Documents lawful keeping even without crossing a border')
           : cites.detail },
-      { icon: 'doc', label: es ? 'Movimiento nacional' : 'Domestic movement', status: 'ok',
+      { icon: 'doc', info: true, label: es ? 'Movimiento nacional' : 'Domestic movement', status: 'ok',
         detail: es ? 'Sin trámite de exportación' : 'No export procedure needed' },
     ];
   }
@@ -356,14 +356,14 @@ const buildBirdRequirements = (pet, countryId, locale, origen = 'ES') => {
     case 'UK': return [
       anilla, especie, cites, gripeAviar, newcastle,
       { ...sanitario, label: 'Export Health Certificate (EHC)' },
-      { icon: 'doc', label: es ? 'Entrada por Puesto de Control Fronterizo' : 'Entry via Border Control Post',
+      { icon: 'doc', id: 'bcp', manual: true, label: es ? 'Entrada por Puesto de Control Fronterizo' : 'Entry via Border Control Post',
         status: 'pending',
         detail: es ? 'Las aves no pueden entrar por la vía de mascotas' : 'Birds cannot use the pet travel route' },
       cuarentena(es ? '30 días' : '30 days'),
     ];
     case 'US': return [
       anilla, especie, cites,
-      { icon: 'doc', label: es ? 'Máximo 5 aves' : 'Five birds maximum', status: 'ok',
+      { icon: 'doc', info: true, label: es ? 'Máximo 5 aves' : 'Five birds maximum', status: 'ok',
         detail: es
           ? 'La vía de mascota personal admite hasta 5 aves. A partir de ahí es importación comercial'
           : 'The personal pet route allows up to 5 birds. Beyond that it is a commercial import' },
@@ -388,7 +388,7 @@ const buildBirdRequirements = (pet, countryId, locale, origen = 'ES') => {
       anilla, especie, cites, permiso('DAFF'),
       gripeAviar, newcastle, psitacosis,
       cuarentena(es ? 'previa y posterior' : 'pre-export and post-arrival'),
-      { icon: 'vet', label: es ? 'Restricciones de especie' : 'Species restrictions', status: 'alert',
+      { icon: 'vet', info: true, label: es ? 'Restricciones de especie' : 'Species restrictions', status: 'alert',
         detail: es
           ? 'Australia solo admite aves de un listado muy corto: confírmalo antes de nada'
           : 'Australia admits only a very short list of birds: confirm before anything else' },
@@ -440,6 +440,7 @@ const buildRabbitRequirements = (pet, countryId, locale, origen = 'ES') => {
 
   const fueraDelReglamento = {
     icon: 'doc',
+    info: true,
     label: es ? 'Fuera del régimen de mascotas' : 'Outside the pet travel scheme',
     status: 'alert',
     detail: es
@@ -449,7 +450,7 @@ const buildRabbitRequirements = (pet, countryId, locale, origen = 'ES') => {
 
   if (origen === countryId) {
     return [identificacion, mixomatosis, rhd,
-      { icon: 'doc', label: es ? 'Movimiento nacional' : 'Domestic movement', status: 'ok',
+      { icon: 'doc', info: true, label: es ? 'Movimiento nacional' : 'Domestic movement', status: 'ok',
         detail: es ? 'Sin trámite de exportación' : 'No export procedure needed' }];
   }
 
@@ -457,7 +458,7 @@ const buildRabbitRequirements = (pet, countryId, locale, origen = 'ES') => {
     case 'ES': return [identificacion, fueraDelReglamento, mixomatosis, rhd, sanitario];
     case 'UK': return [
       identificacion, fueraDelReglamento, mixomatosis, rhd,
-      { icon: 'doc', label: es ? 'Licencia de importación' : 'Import licence', status: 'pending',
+      { icon: 'doc', id: 'licencia-uk', manual: true, label: es ? 'Licencia de importación' : 'Import licence', status: 'pending',
         detail: es
           ? 'Los conejos entran como “otros mamíferos”, con licencia previa'
           : 'Rabbits enter as “other mammals”, under prior licence' },
@@ -465,19 +466,19 @@ const buildRabbitRequirements = (pet, countryId, locale, origen = 'ES') => {
     ];
     case 'US': return [
       identificacion, fueraDelReglamento, mixomatosis, rhd,
-      { icon: 'vet', label: es ? 'Inspección en el punto de entrada' : 'Inspection at the point of entry',
+      { icon: 'vet', info: true, label: es ? 'Inspección en el punto de entrada' : 'Inspection at the point of entry',
         status: 'pending', detail: es ? 'Sin requisito de vacuna antirrábica' : 'No rabies vaccination requirement' },
       sanitario,
     ];
     case 'CA': return [
       identificacion, fueraDelReglamento, mixomatosis, rhd,
-      { icon: 'doc', label: es ? 'Permiso de importación · CFIA' : 'Import permit · CFIA', status: 'pending',
+      { icon: 'doc', id: 'permiso-ca', manual: true, label: es ? 'Permiso de importación · CFIA' : 'Import permit · CFIA', status: 'pending',
         detail: es ? 'Requisitos según el país de salida' : 'Requirements depend on the country of departure' },
       sanitario,
     ];
     case 'AU': return [
       identificacion,
-      { icon: 'doc', label: es ? 'Entrada prohibida' : 'Entry prohibited', status: 'alert',
+      { icon: 'doc', info: true, label: es ? 'Entrada prohibida' : 'Entry prohibited', status: 'alert',
         detail: es
           ? 'Australia no admite conejos salvo procedentes de Nueva Zelanda. Este viaje no es viable.'
           : 'Australia does not admit rabbits except from New Zealand. This trip is not viable.' },
@@ -545,6 +546,7 @@ const buildExoticRequirements = (pet, countryId, locale, origen = 'ES') => {
 
   const fueraDelReglamento = {
     icon: 'doc',
+    info: true,
     label: es ? 'Fuera del régimen de mascotas' : 'Outside the pet travel scheme',
     status: 'alert',
     detail: es
@@ -554,12 +556,12 @@ const buildExoticRequirements = (pet, countryId, locale, origen = 'ES') => {
 
   if (origen === countryId) {
     return [especie, cites, identificacion,
-      { icon: 'doc', label: es ? 'Movimiento nacional' : 'Domestic movement', status: 'ok',
+      { icon: 'doc', info: true, label: es ? 'Movimiento nacional' : 'Domestic movement', status: 'ok',
         detail: es ? 'Sin trámite de exportación' : 'No export procedure needed' }];
   }
 
   const permiso = (org) => ({
-    icon: 'doc', label: `${es ? 'Permiso de importación' : 'Import permit'} · ${org}`, status: 'pending',
+    icon: 'doc', id: 'permiso', manual: true, label: `${es ? 'Permiso de importación' : 'Import permit'} · ${org}`, status: 'pending',
     detail: es ? 'Trámite específico por especie' : 'Species-specific procedure',
   });
 
@@ -567,12 +569,12 @@ const buildExoticRequirements = (pet, countryId, locale, origen = 'ES') => {
     case 'ES': return [especie, cites, identificacion, fueraDelReglamento, sanitario];
     case 'UK': return [especie, cites, identificacion, fueraDelReglamento, permiso('APHA'), sanitario];
     case 'US': return [especie, cites, identificacion, fueraDelReglamento,
-      { icon: 'doc', label: es ? 'Declaración USFWS · formulario 3-177' : 'USFWS declaration · form 3-177',
+      { icon: 'doc', id: 'declaracion-3177', manual: true, label: es ? 'Declaración USFWS · formulario 3-177' : 'USFWS declaration · form 3-177',
         status: 'pending',
         detail: es
           ? 'Toda la fauna silvestre debe declararse. Se presenta en línea en eDecs'
           : 'All wildlife must be declared. Filed online through eDecs' },
-      { icon: 'vet', label: es ? 'Puerto designado y aviso previo' : 'Designated port and advance notice',
+      { icon: 'vet', id: 'puerto-designado', manual: true, label: es ? 'Puerto designado y aviso previo' : 'Designated port and advance notice',
         status: 'pending',
         detail: es
           ? 'Entrada solo por un puerto designado del USFWS, con aviso de llegada 48 horas antes por tratarse de animal vivo'
@@ -580,7 +582,7 @@ const buildExoticRequirements = (pet, countryId, locale, origen = 'ES') => {
       sanitario];
     case 'CA': return [especie, cites, identificacion, fueraDelReglamento, permiso('CFIA / ECCC'), sanitario];
     case 'AU': return [especie, cites, identificacion,
-      { icon: 'doc', label: es ? 'Entrada muy restringida' : 'Entry heavily restricted', status: 'alert',
+      { icon: 'doc', info: true, label: es ? 'Entrada muy restringida' : 'Entry heavily restricted', status: 'alert',
         detail: es
           ? 'Australia prohíbe la entrada de casi todos los reptiles como mascota. Confírmalo antes de cualquier gestión.'
           : 'Australia bans almost all reptiles as pets. Confirm before taking any step.' }];
@@ -605,6 +607,7 @@ const buildUnknownRequirements = (pet, countryId, locale) => {
     },
     {
       icon: 'vet',
+      info: true,
       label: es ? 'Consulta obligatoria' : 'Mandatory enquiry',
       status: 'alert',
       detail: es
@@ -724,7 +727,7 @@ const buildRequirements = (pet, countryId, locale, origen = 'ES') => {
   /* ── Antiparasitario contra Echinococcus ─────────────────────────────────
      Solo perros, y solo hacia territorios libres del parásito. */
   const tenia = {
-    icon: 'vet',
+    icon: 'vet', id: 'tenia', manual: true,
     label: es ? 'Tratamiento contra la tenia (Echinococcus)' : 'Tapeworm treatment (Echinococcus)',
     status: 'pending',
     detail: es
@@ -742,7 +745,7 @@ const buildRequirements = (pet, countryId, locale, origen = 'ES') => {
         es ? 'La primera antirrábica no puede ponerse antes de las 12 semanas'
            : 'The first rabies vaccination cannot be given before 12 weeks'),
       euPassport,
-      { icon: 'doc', label: es ? 'Antiparasitario: solo ciertos destinos' : 'Tapeworm: only certain destinations',
+      { icon: 'doc', info: true, label: es ? 'Antiparasitario: solo ciertos destinos' : 'Tapeworm: only certain destinations',
         status: 'ok',
         detail: es
           ? 'Dentro de la UE solo lo exigen Finlandia, Irlanda, Malta, Noruega e Irlanda del Norte, y solo a perros'
@@ -762,11 +765,11 @@ const buildRequirements = (pet, countryId, locale, origen = 'ES') => {
               ? 'Desde la UE sirve el pasaporte europeo; desde fuera hace falta un Animal Health Certificate'
               : 'From the EU the pet passport works; from outside an Animal Health Certificate is needed') },
       ...(esPerro ? [tenia] : [{
-        icon: 'ok', label: es ? 'Antiparasitario no aplicable' : 'Tapeworm treatment not applicable',
+        icon: 'ok', info: true, label: es ? 'Antiparasitario no aplicable' : 'Tapeworm treatment not applicable',
         status: 'ok',
         detail: es ? 'El tratamiento contra la tenia solo se exige a perros' : 'Tapeworm treatment is required for dogs only',
       }]),
-      { icon: 'vet', label: es ? 'Consecuencia de incumplir' : 'Consequence of non-compliance',
+      { icon: 'vet', info: true, label: es ? 'Consecuencia de incumplir' : 'Consequence of non-compliance',
         status: 'alert',
         detail: es
           ? 'Si algo falla, el animal puede quedar en cuarentena hasta 4 meses, o ser rechazado si llegas por mar'
@@ -780,7 +783,7 @@ const buildRequirements = (pet, countryId, locale, origen = 'ES') => {
        exigido por los CDC es el recibo del CDC Dog Import Form. No hace falta
        certificado de rabia ni certificado sanitario de los CDC. */
     case 'US': return esPerro ? [
-      { icon: 'doc', label: 'CDC Dog Import Form', status: 'pending',
+      { icon: 'doc', id: 'cdc-form', manual: true, label: 'CDC Dog Import Form', status: 'pending',
         detail: es
           ? 'Formulario en línea y gratuito. El recibo es el único documento que exigen los CDC desde origen de riesgo bajo'
           : 'Free online form. The receipt is the only document the CDC requires from a low-risk origin' },
@@ -790,14 +793,14 @@ const buildRequirements = (pet, countryId, locale, origen = 'ES') => {
       { ...chip, detail: hasMicrochip
           ? `${pet.microchip} — ${es ? 'debe leerse con escáner universal' : 'must be readable with a universal scanner'}`
           : (es ? 'Obligatorio, y legible con escáner universal' : 'Mandatory, and readable with a universal scanner') },
-      { icon: 'doc', label: es ? 'Residencia previa de 6 meses' : 'Six months of prior residence', status: 'pending',
+      { icon: 'doc', id: 'residencia-6m', manual: true, label: es ? 'Residencia previa de 6 meses' : 'Six months of prior residence', status: 'pending',
         detail: es
           ? 'El perro debe haber estado solo en países de riesgo bajo o libres de rabia canina durante los 6 meses previos'
           : 'The dog must have been only in low-risk or dog-rabies-free countries for the previous 6 months' },
-      { icon: 'vet', label: es ? 'Buen estado aparente' : 'Healthy appearance', status: 'pending',
+      { icon: 'vet', info: true, label: es ? 'Buen estado aparente' : 'Healthy appearance', status: 'pending',
         detail: es ? 'Se comprueba a la llegada' : 'Checked on arrival' },
     ] : [
-      { icon: 'ok', label: es ? 'Sin requisito federal para gatos' : 'No federal requirement for cats', status: 'ok',
+      { icon: 'ok', info: true, label: es ? 'Sin requisito federal para gatos' : 'No federal requirement for cats', status: 'ok',
         detail: es
           ? 'Los CDC no exigen vacuna antirrábica ni certificado a los gatos'
           : 'The CDC does not require rabies vaccination or a certificate for cats' },
@@ -806,7 +809,7 @@ const buildRequirements = (pet, countryId, locale, origen = 'ES') => {
         detail: es
           ? 'No lo exige el gobierno federal, pero sí muchas aerolíneas y algunos estados. Llévalo'
           : 'Not required federally, but many airlines and some states ask for it. Take it anyway' },
-      { icon: 'vet', label: es ? 'Buen estado aparente' : 'Healthy appearance', status: 'pending',
+      { icon: 'vet', info: true, label: es ? 'Buen estado aparente' : 'Healthy appearance', status: 'pending',
         detail: es ? 'Se comprueba a la llegada' : 'Checked on arrival' },
     ];
 
@@ -824,15 +827,15 @@ const buildRequirements = (pet, countryId, locale, origen = 'ES') => {
               ? 'Es el documento principal. Debe identificar al animal y detallar la vacuna'
               : 'This is the main document. It must identify the animal and detail the vaccine') },
       chip,
-      { icon: 'ok', label: es ? 'Sin permiso de importación' : 'No import permit needed', status: 'ok',
+      { icon: 'ok', info: true, label: es ? 'Sin permiso de importación' : 'No import permit needed', status: 'ok',
         detail: es
           ? 'Las mascotas personales no lo necesitan: el permiso es para importación comercial de perros menores de 8 meses'
           : 'Personal pets do not need one: the permit applies to commercial imports of dogs under 8 months' },
-      { icon: 'ok', label: es ? 'Sin cuarentena' : 'No quarantine', status: 'ok',
+      { icon: 'ok', info: true, label: es ? 'Sin cuarentena' : 'No quarantine', status: 'ok',
         detail: es
           ? 'Canadá no impone cuarentena a las mascotas personales, vengan de donde vengan'
           : 'Canada does not quarantine personal pets, whatever their origin' },
-      { icon: 'vet', label: es ? 'Inspección en frontera' : 'Inspection at the border', status: 'pending',
+      { icon: 'vet', info: true, label: es ? 'Inspección en frontera' : 'Inspection at the border', status: 'pending',
         detail: es ? 'Un agente comprueba la documentación y el animal a la llegada' : 'An officer checks the paperwork and the animal on arrival' },
     ];
 
@@ -840,44 +843,44 @@ const buildRequirements = (pet, countryId, locale, origen = 'ES') => {
        El trayecto más largo y más caro de los cinco. España y Reino Unido
        están en el Grupo 3, el de requisitos completos. */
     case 'AU': return [
-      { icon: 'doc', label: es ? 'Permiso de importación · DAFF' : 'Import permit · DAFF', status: 'pending',
+      { icon: 'doc', id: 'permiso-daff', manual: true, label: es ? 'Permiso de importación · DAFF' : 'Import permit · DAFF', status: 'pending',
         detail: es
           ? 'Solicítalo antes que nada: sin él no arranca ningún otro trámite'
           : 'Apply for this first: nothing else can start without it' },
-      { icon: 'doc', label: es ? 'Residencia previa de 180 días' : '180 days of prior residence', status: 'pending',
+      { icon: 'doc', id: 'residencia-180', manual: true, label: es ? 'Residencia previa de 180 días' : '180 days of prior residence', status: 'pending',
         detail: es
           ? 'Residencia continuada en un país aprobado durante los 180 días previos a la salida. No es cuarentena: puede vivir contigo'
           : 'Continuous residence in an approved country for the 180 days before departure. Not quarantine: it can live with you' },
       chip,
       rabies,
-      { icon: 'syringe', label: 'RNATT', status: 'pending',
+      { icon: 'syringe', id: 'rnatt', manual: true, label: 'RNATT', status: 'pending',
         detail: es
           ? 'Análisis de anticuerpos antirrábicos, al menos 3–4 semanas después de la vacunación. Válido 365 días desde la extracción'
           : 'Rabies antibody titre test, at least 3–4 weeks after vaccination. Valid for 365 days from sampling' },
-      { icon: 'vet', label: es ? 'Comprobación de identidad' : 'Identity check', status: 'pending',
+      { icon: 'vet', id: 'identity-check', manual: true, label: es ? 'Comprobación de identidad' : 'Identity check', status: 'pending',
         detail: es
           ? 'Opcional pero muy recomendable: reduce la cuarentena de 30 a 10 días. Debe hacerla un veterinario oficial ANTES del RNATT'
           : 'Optional but strongly advised: cuts quarantine from 30 to 10 days. An official vet must do it BEFORE the RNATT' },
       ...(esPerro ? [
-        { icon: 'syringe', label: 'Brucella canis', status: 'pending',
+        { icon: 'syringe', id: 'brucella', manual: true, label: 'Brucella canis', status: 'pending',
           detail: es
             ? 'Resultado negativo, con muestra tomada en los 45 días previos a la salida'
             : 'Negative result, sample taken within 45 days before departure' },
-        { icon: 'syringe', label: 'Leishmania infantum', status: 'pending',
+        { icon: 'syringe', id: 'leishmania', manual: true, label: 'Leishmania infantum', status: 'pending',
           detail: es
             ? 'Dentro de los 45 días previos. Especialmente relevante saliendo de España, donde es endémica'
             : 'Within 45 days before departure. Particularly relevant from Spain, where it is endemic' },
       ] : []),
-      { icon: 'vet', label: es ? 'Parásitos internos' : 'Internal parasites', status: 'pending',
+      { icon: 'vet', id: 'parasitos-internos', manual: true, label: es ? 'Parásitos internos' : 'Internal parasites', status: 'pending',
         detail: es
           ? 'Dos tratamientos en los 45 días previos, separados al menos 14 días. El segundo, dentro de los 5 días anteriores a la salida'
           : 'Two treatments within 45 days, at least 14 days apart. The second within 5 days before departure' },
-      { icon: 'vet', label: es ? 'Parásitos externos' : 'External parasites', status: 'pending',
+      { icon: 'vet', id: 'parasitos-externos', manual: true, label: es ? 'Parásitos externos' : 'External parasites', status: 'pending',
         detail: es
           ? 'Desde 30 días antes, con producto que mate por contacto. Los orales tipo NexGard o Bravecto NO se aceptan'
           : 'From 30 days before, with a contact-kill product. Oral products such as NexGard or Bravecto are NOT accepted' },
       { ...healthCert, label: es ? 'Certificado sanitario oficial' : 'Government health certificate' },
-      { icon: 'vet', label: es ? 'Cuarentena a la llegada' : 'Post-arrival quarantine', status: 'alert',
+      { icon: 'vet', id: 'cuarentena', manual: true, label: es ? 'Cuarentena a la llegada' : 'Post-arrival quarantine', status: 'alert',
         detail: es
           ? 'Mínimo 30 días en instalación oficial, o 10 si se hizo la comprobación de identidad'
           : 'Minimum 30 days at the government facility, or 10 if the identity check was done' },
@@ -887,22 +890,39 @@ const buildRequirements = (pet, countryId, locale, origen = 'ES') => {
   }
 };
 
+/**
+ * Marca como cumplidos los trámites externos que el usuario ya ha hecho.
+ * @param {Array}  reqs    lista construida por el motor
+ * @param {object} marcas  { [id]: true } para este país
+ */
+const aplicarMarcas = (reqs, marcas = {}) =>
+  reqs.map(r => (r.manual && marcas[r.id] ? { ...r, status: 'ok', hecho: true } : r));
+
 const calcReadiness = (reqs) => {
-  if (!reqs.length) return 0;
-  const weights = { ok: 1, pending: 0.3, alert: 0 };
-  const score = reqs.reduce((s, r) => s + (weights[r.status] ?? 0), 0);
-  return Math.round((score / reqs.length) * 100);
+  /* Las filas marcadas como informativas describen el régimen del destino
+     —que no hay cuarentena, que el antiparasitario no aplica— y no son algo
+     que el usuario tenga que conseguir. Quedan fuera del porcentaje. */
+  const exigibles = reqs.filter(r => !r.info);
+  if (!exigibles.length) return 0;
+  const hechos = exigibles.filter(r => r.status === 'ok').length;
+  return Math.round((hechos / exigibles.length) * 100);
 };
 
 /* ── Country metadata ── */
 const COUNTRY_META = {
-  ES: { name: 'España',          code: 'ESP', flag: '🇪🇸', note: null },
-  UK: { name: 'United Kingdom',  code: 'GBR', flag: '🇬🇧', note: null },
-  US: { name: 'United States',   code: 'USA', flag: '🇺🇸', note: null },
-  CA: { name: 'Canada',          code: 'CAN', flag: '🇨🇦',
-        note: 'Recent Tick Policy Update — verify with CFIA before travel.' },
-  AU: { name: 'Australia',       code: 'AUS', flag: '🇦🇺',
-        note: 'Requiere Neutralisation Antibody Test (RNATT) y cuarentena aprobada.' },
+  ES: { name: 'España',         nameEn: 'Spain',          corto: 'España',      cortoEn: 'Spain',   code: 'ESP', note: null },
+  UK: { name: 'Reino Unido',    nameEn: 'United Kingdom', corto: 'Reino Unido', cortoEn: 'UK',      code: 'GBR', note: null },
+  US: { name: 'Estados Unidos', nameEn: 'United States',  corto: 'EE. UU.',     cortoEn: 'USA',     code: 'USA',
+        note: {
+          es: 'Desde agosto de 2024 ningún perro menor de 6 meses puede entrar, sin excepciones.',
+          en: 'Since August 2024 no dog under 6 months may enter, without exception.',
+        } },
+  CA: { name: 'Canadá',         nameEn: 'Canada',         corto: 'Canadá',      cortoEn: 'Canada',  code: 'CAN', note: null },
+  AU: { name: 'Australia',      nameEn: 'Australia',      corto: 'Australia',   cortoEn: 'Australia', code: 'AUS',
+        note: {
+          es: 'Exige permiso previo, análisis de anticuerpos (RNATT), 180 días de residencia en país aprobado y cuarentena a la llegada. Cuenta en meses, no en semanas.',
+          en: 'Requires a prior permit, a rabies antibody test (RNATT), 180 days of residence in an approved country and quarantine on arrival. Plan in months, not weeks.',
+        } },
 };
 const COUNTRY_IDS = ['ES', 'UK', 'US', 'CA', 'AU'];
 
@@ -943,8 +963,8 @@ const exportPDF = (country, reqs, pet, readiness, locale, countryId = 'ES') => {
       @media print{body{padding:20px;}button{display:none;}}
     </style>
   </head><body>
-    <h1>${country.flag} AURA Pets</h1>
-    <p class="sub">${es?'Pasaporte Sanitario Global':'Global Sanitary Passport'} — ${country.code}</p>
+    <h1>AURA Pets</h1>
+    <p class="sub">${es?'Pasaporte Sanitario Global':'Global Sanitary Passport'} — ${es ? country.name : country.nameEn} (${country.code})</p>
     <div class="meta">
       <div class="meta-item"><label>${es?'Miembro':'Member'}</label><span>${name}</span></div>
       <div class="meta-item"><label>${es?'Destino':'Destination'}</label><span>${country.name}</span></div>
@@ -954,7 +974,7 @@ const exportPDF = (country, reqs, pet, readiness, locale, countryId = 'ES') => {
       </div>
       <div class="meta-item"><label>${es?'Generado':'Generated'}</label><span>${date}</span></div>
     </div>
-    ${country.note ? `<div class="note">⚠ ${country.note}</div>` : ''}
+    ${country.note ? `<div class="note">⚠ ${typeof country.note === 'string' ? country.note : country.note[es ? 'es' : 'en']}</div>` : ''}
     <table>
       <thead><tr>
         <th>${es?'Requisito':'Requirement'}</th>
@@ -998,9 +1018,9 @@ const exportPDF = (country, reqs, pet, readiness, locale, countryId = 'ES') => {
 };
 
 /* ── Country modal ── */
-const CountryModal = ({ countryId, pet, locale, onClose, origen = 'ES' }) => {
+const CountryModal = ({ countryId, pet, locale, onClose, origen = 'ES', marcas = {}, onMarcar }) => {
   const meta = COUNTRY_META[countryId];
-  const reqs = buildRequirements(pet, countryId, locale, origen);
+  const reqs = aplicarMarcas(buildRequirements(pet, countryId, locale, origen), marcas);
   const readiness = calcReadiness(reqs);
   const es = locale === 'es';
 
@@ -1027,11 +1047,17 @@ const CountryModal = ({ countryId, pet, locale, onClose, origen = 'ES' }) => {
           <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:'2rem' }}>
             <div style={{ flex:1 }}>
               <div style={{ display:'flex', alignItems:'center', gap:'1rem', marginBottom:'0.8rem' }}>
-                <span style={{ fontSize:'2.5rem' }}>{meta.flag}</span>
+                <span style={{
+                  fontSize:'0.78rem', fontWeight:800, letterSpacing:'1.5px',
+                  padding:'0.5rem 0.7rem', borderRadius:'var(--radius)',
+                  background:'var(--violet)', color:'#FFFFFF', flexShrink:0,
+                }}>
+                  {meta.code}
+                </span>
                 <div>
-                  <h2 style={{ fontSize:'1.8rem', margin:0 }}>{meta.name}</h2>
+                  <h2 style={{ fontSize:'1.8rem', margin:0 }}>{es ? meta.name : meta.nameEn}</h2>
                   <span style={{ fontSize:'0.65rem', letterSpacing:'3px', color:'var(--aura-text-muted)' }}>
-                    {es?'PASAPORTE SANITARIO':'SANITARY PASSPORT'} — {meta.code}
+                    {es?'PASAPORTE SANITARIO':'SANITARY PASSPORT'}
                   </span>
                 </div>
               </div>
@@ -1062,7 +1088,9 @@ const CountryModal = ({ countryId, pet, locale, onClose, origen = 'ES' }) => {
           {meta.note && (
             <div style={{ background:'rgba(217, 164, 65, 0.06)', border:'1px solid rgba(217, 164, 65, 0.25)',
               borderRadius:4, padding:'1rem 1.2rem', marginBottom:'2rem' }}>
-              <p style={{ margin:0, fontSize:'0.8rem', color:'var(--aura-gold)', lineHeight:1.6 }}>⚠ {meta.note}</p>
+              <p style={{ margin:0, fontSize:'0.8rem', color:'var(--aura-gold)', lineHeight:1.6 }}>
+                ⚠ {typeof meta.note === 'string' ? meta.note : meta.note[es ? 'es' : 'en']}
+              </p>
             </div>
           )}
 
@@ -1099,26 +1127,64 @@ const CountryModal = ({ countryId, pet, locale, onClose, origen = 'ES' }) => {
 
           {/* Requirements */}
           <div style={{ display:'grid', gap:'1rem', marginBottom:'1.2rem' }}>
-            {reqs.map((req, i) => (
-              <div key={i} style={{
+            {reqs.map((req, i) => {
+              /* Un trámite externo se puede marcar a mano: la aplicación no
+                 puede comprobar si ya pediste el permiso o te hicieron la
+                 analítica, pero tú sí lo sabes. */
+              const pulsable = !!(req.manual && onMarcar);
+              const Fila = pulsable ? 'button' : 'div';
+              return (
+              <Fila
+                key={req.id || i}
+                type={pulsable ? 'button' : undefined}
+                onClick={pulsable ? () => onMarcar(countryId, req.id, !req.hecho) : undefined}
+                aria-pressed={pulsable ? !!req.hecho : undefined}
+                style={{
                 display:'flex', alignItems:'center', gap:'1.2rem',
                 padding:'1.2rem 1.4rem',
                 background:'#FFFFFF',
                 border:'1px solid var(--aura-border)',
-                borderLeft:`3px solid ${STATUS_COLOR[req.status]}`,
+                borderLeft:`3px solid ${req.info ? 'var(--border-strong)' : STATUS_COLOR[req.status]}`,
                 borderRadius:4,
+                width:'100%', textAlign:'left', font:'inherit',
+                cursor: pulsable ? 'pointer' : 'default',
               }}>
-                <ReqIcon type={req.icon} color={STATUS_COLOR[req.status]} />
-                <div style={{ flex:1 }}>
-                  <p style={{ margin:'0 0 3px', fontSize:'0.85rem', fontWeight:600 }}>{req.label}</p>
-                  <p style={{ margin:0, fontSize:'0.72rem', color:'var(--aura-text-muted)' }}>{req.detail}</p>
-                </div>
-                <span style={{ fontSize:'0.6rem', letterSpacing:'1.5px', color:STATUS_COLOR[req.status], fontWeight:700, whiteSpace:'nowrap' }}>
-                  {statusLabel(req.status, locale)}
+                {pulsable ? (
+                  <span aria-hidden="true" style={{
+                    flexShrink:0, width:20, height:20, borderRadius:6,
+                    border: req.hecho ? '2px solid var(--ok, #2E9C7A)' : '2px solid var(--border-strong)',
+                    background: req.hecho ? 'var(--ok, #2E9C7A)' : 'transparent',
+                    color:'#FFFFFF', display:'flex', alignItems:'center', justifyContent:'center',
+                    fontSize:'0.7rem', fontWeight:900, lineHeight:1,
+                  }}>
+                    {req.hecho ? '✓' : ''}
+                  </span>
+                ) : (
+                  <ReqIcon type={req.icon} color={req.info ? 'var(--ink-muted)' : STATUS_COLOR[req.status]} />
+                )}
+                <span style={{ flex:1, display:'block' }}>
+                  <span style={{ display:'block', marginBottom:3, fontSize:'0.85rem', fontWeight:600 }}>{req.label}</span>
+                  <span style={{ display:'block', fontSize:'0.72rem', color:'var(--aura-text-muted)' }}>{req.detail}</span>
                 </span>
-              </div>
-            ))}
+                <span style={{ fontSize:'0.6rem', letterSpacing:'1.5px',
+                  color: req.info ? 'var(--ink-muted)' : STATUS_COLOR[req.status],
+                  fontWeight:700, whiteSpace:'nowrap' }}>
+                  {req.info
+                    ? 'INFO'
+                    : req.manual && !req.hecho
+                      ? (es ? 'MARCAR' : 'MARK')
+                      : statusLabel(req.status, locale)}
+                </span>
+              </Fila>
+              );
+            })}
           </div>
+
+          <p style={{ margin:'-0.6rem 0 1.2rem', fontSize:'0.7rem', color:'var(--ink-muted)', lineHeight:1.55 }}>
+            {es
+              ? 'Los trámites que se gestionan fuera de la aplicación puedes marcarlos tú al completarlos. AURA no puede comprobarlos por su cuenta.'
+              : 'You can tick off the steps handled outside the app once you complete them. AURA cannot verify those on its own.'}
+          </p>
 
           {/* ── Fuente oficial ───────────────────────────────────────────────
               La pieza que convierte a AURA en guía en vez de en autoridad. El
@@ -1255,14 +1321,36 @@ const GlobalPassport = ({ pet, onUpdatePet }) => {
   }, [pet, draft]);
 
   /* Memoize all country requirements — left panel uses draftPet for live feedback */
-  const draftReqs = useMemo(() => buildRequirements(draftPet, 'ES', locale, origen), [draftPet, locale, origen]);
+  const draftReqs = useMemo(
+    () => aplicarMarcas(buildRequirements(draftPet, 'ES', locale, origen), pet?.travelChecks?.ES || {}),
+    [draftPet, locale, origen, pet],
+  );
   const draftReadiness = calcReadiness(draftReqs);
 
   /* Country cards (right panel) still reflect saved pet data */
   const allReqs = useMemo(
-    () => Object.fromEntries(COUNTRY_IDS.map(id => [id, buildRequirements(pet, id, locale, origen)])),
+    () => Object.fromEntries(COUNTRY_IDS.map(id => [
+      id,
+      aplicarMarcas(buildRequirements(pet, id, locale, origen), pet?.travelChecks?.[id] || {}),
+    ])),
     [pet, locale, origen],
   );
+
+  /* ── Trámites marcados a mano ─────────────────────────────────────────────
+     Se guardan por país dentro de la ficha del animal, así que viajan con el
+     resto del expediente y quedan cifrados igual que todo lo demás. */
+  const marcarTramite = (pais, id, hecho) => {
+    if (!onUpdatePet || !id) return;
+    const previo = pet?.travelChecks || {};
+    const delPais = { ...(previo[pais] || {}) };
+    if (hecho) delPais[id] = true; else delete delPais[id];
+    onUpdatePet({ ...pet, travelChecks: { ...previo, [pais]: delPais } });
+  };
+
+  /* Lo de la aerolínea no depende del país de destino sino de la compañía, así
+     que se guarda bajo su propia clave en vez de por país. */
+  const marcasAerolinea = pet?.travelChecks?.aerolinea || {};
+  const marcarAerolinea = (id, hecho) => marcarTramite('aerolinea', id, hecho);
 
   /* ── Save handler ── */
   const handleSave = () => {
@@ -1642,8 +1730,7 @@ const GlobalPassport = ({ pet, onUpdatePet }) => {
                         fontFamily:'var(--font-sans)', transition:'all 0.2s',
                       }}
                     >
-                      <span style={{ fontSize:'0.95rem', lineHeight:1 }}>{m.flag}</span>
-                      {m.code}
+                      {es ? m.corto : m.cortoEn}
                     </button>
                   );
                 })}
@@ -1709,19 +1796,39 @@ const GlobalPassport = ({ pet, onUpdatePet }) => {
                   }}>
                     {es ? 'Confirma con la compañía' : 'Confirm with the airline'}
                   </p>
-                  <ul style={{ margin:0, padding:0, listStyle:'none', display:'grid', gap:'0.45rem' }}>
-                    {comprobaciones.map((c, i) => (
-                      <li key={i} style={{
-                        display:'flex', gap:'0.6rem', alignItems:'flex-start',
-                        fontSize:'0.75rem', lineHeight:1.55, color:'var(--ink-body)',
-                      }}>
-                        <span aria-hidden="true" style={{
-                          flexShrink:0, width:14, height:14, marginTop:3,
-                          border:'1.5px solid var(--border-strong)', borderRadius:4,
-                        }} />
-                        {c}
-                      </li>
-                    ))}
+                  <ul style={{ margin:0, padding:0, listStyle:'none', display:'grid', gap:'0.2rem' }}>
+                    {comprobaciones.map((c) => {
+                      const hecho = !!marcasAerolinea[c.id];
+                      return (
+                        <li key={c.id}>
+                          <button
+                            type="button"
+                            onClick={() => marcarAerolinea(c.id, !hecho)}
+                            aria-pressed={hecho}
+                            style={{
+                              display:'flex', gap:'0.6rem', alignItems:'flex-start',
+                              width:'100%', textAlign:'left', font:'inherit', cursor:'pointer',
+                              background:'none', border:'none', padding:'0.3rem 0.2rem',
+                              borderRadius:6,
+                              fontSize:'0.75rem', lineHeight:1.55,
+                              color: hecho ? 'var(--ink-muted)' : 'var(--ink-body)',
+                              textDecoration: hecho ? 'line-through' : 'none',
+                            }}
+                          >
+                            <span aria-hidden="true" style={{
+                              flexShrink:0, width:16, height:16, marginTop:2, borderRadius:5,
+                              border: hecho ? '2px solid var(--ok)' : '1.5px solid var(--border-strong)',
+                              background: hecho ? 'var(--ok)' : 'transparent',
+                              color:'#FFFFFF', display:'flex', alignItems:'center',
+                              justifyContent:'center', fontSize:'0.6rem', fontWeight:900, lineHeight:1,
+                            }}>
+                              {hecho ? '✓' : ''}
+                            </span>
+                            {c.texto}
+                          </button>
+                        </li>
+                      );
+                    })}
                   </ul>
                 </div>
               );
@@ -1747,7 +1854,14 @@ const GlobalPassport = ({ pet, onUpdatePet }) => {
                   }}
                 >
                   <div style={{ display:'flex', alignItems:'center', gap:'1.2rem' }}>
-                    <span style={{ fontSize:'1.5rem' }}>{meta.flag}</span>
+                    <span style={{
+                      fontSize:'0.68rem', fontWeight:800, letterSpacing:'1px',
+                      padding:'0.4rem 0.55rem', borderRadius:'var(--radius-sm, 8px)',
+                      background:'var(--bg-soft)', border:'1px solid var(--border)',
+                      color:'var(--ink)', flexShrink:0,
+                    }}>
+                      {meta.code}
+                    </span>
                     <div>
                       <h4 style={{ margin:'0 0 2px', fontSize:'0.95rem', fontWeight:600 }}>
                         <span
@@ -1759,10 +1873,10 @@ const GlobalPassport = ({ pet, onUpdatePet }) => {
                           onMouseEnter={e => { e.currentTarget.style.color = '#D9A441'; }}
                           onMouseLeave={e => { e.currentTarget.style.color = 'var(--aura-text)'; }}
                         >
-                          {meta.name}
+                          {es ? meta.name : meta.nameEn}
                         </span>
                       </h4>
-                      {meta.note && <p style={{ margin:0, fontSize:'0.68rem', color:'var(--aura-gold)' }}>⚠ {meta.note.split('.')[0]}</p>}
+                      {meta.note && <p style={{ margin:0, fontSize:'0.68rem', color:'var(--aura-gold)' }}>⚠ {(typeof meta.note === 'string' ? meta.note : meta.note[es ? 'es' : 'en']).split('.')[0]}.</p>}
                     </div>
                   </div>
                   <div style={{ display:'flex', alignItems:'center', gap:'1rem' }}>
@@ -1800,6 +1914,8 @@ const GlobalPassport = ({ pet, onUpdatePet }) => {
           origen={origen}
           pet={pet}
           locale={locale}
+          marcas={pet?.travelChecks?.[selectedCountry] || {}}
+          onMarcar={marcarTramite}
           onClose={() => setSelectedCountry(null)}
         />
       )}

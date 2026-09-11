@@ -110,30 +110,35 @@ export const assessAirline = (pet, locale = 'es') => {
     });
   }
 
-  /* ── Lo que hay que confirmar siempre ── */
-  const comprobaciones = es
-    ? [
-        'Medidas máximas del transportín, en cabina y en bodega',
-        'Peso máximo admitido, con el transportín incluido',
-        'Si viaja en cabina, en bodega o como carga',
-        'Restricciones de raza',
-        'Embargo por temperatura: muchas compañías no vuelan animales en verano ni en pleno invierno',
-        'Plazo mínimo de reserva: suele exigirse con días o semanas de antelación',
-        'Cuántos animales admite el vuelo y cuántos por pasajero',
-        'Tarifa y forma de pago',
-        'Si hay escalas: cada tramo puede ser de otra compañía, con otras reglas',
-      ]
-    : [
-        'Maximum carrier dimensions, in cabin and in hold',
-        'Maximum accepted weight, carrier included',
-        'Whether it travels in the cabin, in the hold or as cargo',
-        'Breed restrictions',
-        'Temperature embargo: many airlines will not fly animals in summer or deep winter',
-        'Minimum booking notice: often required days or weeks ahead',
-        'How many animals the flight accepts, and how many per passenger',
-        'Fee and how it is paid',
-        'If there are connections: each leg may be a different airline with different rules',
-    ];
+  /* ── Lo que hay que confirmar siempre ──────────────────────────────────────
+     Cada punto lleva identificador propio para poder recordar cuáles ya has
+     confirmado. No puede derivarse del texto: el texto está traducido y al
+     cambiar de idioma se perderían las marcas. */
+  const COMPROBACIONES = [
+    ['medidas',     'Medidas máximas del transportín, en cabina y en bodega',
+                    'Maximum carrier dimensions, in cabin and in hold'],
+    ['peso',        'Peso máximo admitido, con el transportín incluido',
+                    'Maximum accepted weight, carrier included'],
+    ['ubicacion',   'Si viaja en cabina, en bodega o como carga',
+                    'Whether it travels in the cabin, in the hold or as cargo'],
+    ['raza',        'Restricciones de raza',
+                    'Breed restrictions'],
+    ['temperatura', 'Embargo por temperatura: muchas compañías no vuelan animales en verano ni en pleno invierno',
+                    'Temperature embargo: many airlines will not fly animals in summer or deep winter'],
+    ['reserva',     'Plazo mínimo de reserva: suele exigirse con días o semanas de antelación',
+                    'Minimum booking notice: often required days or weeks ahead'],
+    ['cupo',        'Cuántos animales admite el vuelo y cuántos por pasajero',
+                    'How many animals the flight accepts, and how many per passenger'],
+    ['tarifa',      'Tarifa y forma de pago',
+                    'Fee and how it is paid'],
+    ['escalas',     'Si hay escalas: cada tramo puede ser de otra compañía, con otras reglas',
+                    'If there are connections: each leg may be a different airline with different rules'],
+  ];
+
+  const comprobaciones = COMPROBACIONES.map(([id, textoEs, textoEn]) => ({
+    id,
+    texto: es ? textoEs : textoEn,
+  }));
 
   return { avisos, comprobaciones };
 };
