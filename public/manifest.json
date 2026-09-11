@@ -5,20 +5,14 @@
   "start_url": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#0A0F1E",
-  "theme_color": "#0A0F1E",
+  "background_color": "#F4F1FA",
+  "theme_color": "#F4F1FA",
   "lang": "es",
   "icons": [
     {
       "src": "/favicon.png",
-      "sizes": "any",
+      "sizes": "180x180",
       "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "/favicon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
       "purpose": "any"
     }
   ],

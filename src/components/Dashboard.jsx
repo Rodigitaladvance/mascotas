@@ -174,7 +174,7 @@ const Dashboard = ({ pets, onSelectPet, onAddPet }) => {
               </ResponsiveContainer>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
                 <span className="text-5xl font-black text-[#D4AF37]">{globalProtection}%</span>
-                <span className="text-[10px] text-white/40 font-bold mt-1">BIOMETRÍA OK</span>
+                <span className="text-[10px] text-white/40 font-bold mt-1">CIFRADO ACTIVO</span>
               </div>
             </div>
             <p className="text-xs text-white/40 text-center mt-4">

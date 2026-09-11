@@ -3,7 +3,7 @@ import { Routes, Route, useNavigate, useLocation, Navigate } from 'react-router-
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { useTranslation } from './context/LocalizationContext';
 import Auth from './components/Auth';
-import logo from './assets/logo-aura-pets.png';
+import logo from './assets/logo-aura.png';
 import Dashboard from './components/Aura/Dashboard';
 import GlobalPassport from './components/Aura/GlobalPassport';
 import SOSMode from './components/Aura/SOSMode';
@@ -12,11 +12,13 @@ import PrivacyVault from './components/Aura/PrivacyVault';
 import PetRegistration from './components/Aura/PetRegistration';
 import RecuperarAcceso from './components/Aura/RecuperarAcceso';
 import { storage } from './utils/storage';
+import { PawScatter } from './components/Aura/Decorations';
 import {
   LogOut, LayoutDashboard, ShieldAlert, ShieldCheck,
-  Settings, PlusCircle, Globe,
+  Settings, PlusCircle, Globe, AlertTriangle, X,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import PawPrint from './components/Aura/PawPrint';
 
 /* ── Desktop tab definitions ── */
 const NAV_TABS = [
@@ -46,7 +48,7 @@ const TAB_VARIANTS = {
 const LangToggle = () => {
   const { locale, setManualConfig } = useTranslation();
   return (
-    <div style={{ display: 'flex', gap: '2px', background: 'rgba(255,255,255,0.04)', borderRadius: 4, padding: '2px' }}>
+    <div style={{ display: 'flex', gap: '2px', background: '#FFFFFF', borderRadius: 4, padding: '2px' }}>
       {['es', 'en'].map(l => (
         <button key={l} onClick={() => setManualConfig(l)}
           style={{
@@ -72,7 +74,7 @@ const SessionModal = ({ locale, onRenew, onLogout }) => {
       initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
       style={{
         position: 'fixed', inset: 0, zIndex: 3000,
-        background: 'rgba(0,0,0,0.88)', backdropFilter: 'blur(16px)',
+        background: 'rgba(42, 45, 124, 0.42)', backdropFilter: 'blur(16px)',
         display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem',
       }}
     >
@@ -89,7 +91,7 @@ const SessionModal = ({ locale, onRenew, onLogout }) => {
           width: 64, height: 64, borderRadius: '50%',
           border: '2px solid var(--aura-gold)', margin: '0 auto 2rem',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          boxShadow: '0 0 24px rgba(212,175,55,0.3)',
+          boxShadow: '0 0 24px rgba(217, 164, 65, 0.3)',
         }}>
           <ShieldAlert size={28} color="var(--aura-gold)" />
         </div>
@@ -110,7 +112,7 @@ const SessionModal = ({ locale, onRenew, onLogout }) => {
           </button>
           <button
             className="btn-aura"
-            style={{ flex: 2, borderColor: 'var(--aura-gold)', background: 'rgba(212,175,55,0.1)', color: 'var(--aura-gold)' }}
+            style={{ flex: 2, borderColor: 'var(--aura-gold)', background: 'rgba(217, 164, 65, 0.1)', color: 'var(--aura-gold)' }}
             onClick={onRenew}>
             {es ? '✓ CONTINUAR SESIÓN' : '✓ CONTINUE SESSION'}
           </button>
@@ -124,7 +126,7 @@ const SessionModal = ({ locale, onRenew, onLogout }) => {
    Inner App — requires providers
 ════════════════════════════════ */
 const AppContent = () => {
-  const { user, logout, renewSession, sessionWarning } = useAuth();
+  const { user, logout, renewSession, sessionWarning, vaultReady } = useAuth();
   const { t, locale, setManualConfig, currency } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
@@ -133,42 +135,62 @@ const AppContent = () => {
   const [activePetId, setActivePetId] = useState(null);
   const [isSOS, setIsSOS]         = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [saveError, setSaveError] = useState(null);
 
   /* Derive active pet — falls back to first pet if activePetId is null or stale */
   const activePet = pets.find(p => p.id === activePetId) || pets[0] || null;
 
   useEffect(() => {
-    if (user) {
+    // Espera a que la bóveda esté abierta: antes de eso el expediente aún no
+    // está descifrado y se leería vacío.
+    if (user && vaultReady) {
       const isFirstTime = localStorage.getItem(`aura_onboarding_${user.id}`) === null;
       if (isFirstTime) setShowOnboarding(true);
       setPets(storage.getPets(user.id));
     }
-  }, [user]);
+  }, [user, vaultReady]);
 
   const handleOnboardingComplete = () => {
     localStorage.setItem(`aura_onboarding_${user.id}`, 'done');
     setShowOnboarding(false);
   };
 
-  const handleAddPet = (newPet) => {
+  const handleAddPet = async (newPet) => {
     const petWithMeta = {
       ...newPet,
       id: Date.now(),
       userId: user.id,
       emergencyConfig: { active: true, medicalAlerts: '', contacts: [{ name: 'Dueño', phone: '' }] },
     };
-    storage.savePet(user.id, petWithMeta);
+    // Solo se refleja en pantalla si el cifrado y la escritura han ido bien:
+    // antes, un fallo de cuota dejaba la mascota visible pero sin guardar.
+    try {
+      await storage.savePet(user.id, petWithMeta);
+    } catch (err) {
+      setSaveError(err.message);
+      return;
+    }
     setPets(prev => [...prev, petWithMeta]);
     setTimeout(() => navigate('/dashboard'), 1200); // delay only the nav for the success animation
   };
 
-  const handleUpdatePet = (updatedPet) => {
-    storage.updatePet(user.id, updatedPet.id, () => updatedPet);
+  const handleUpdatePet = async (updatedPet) => {
+    try {
+      await storage.updatePet(user.id, updatedPet.id, () => updatedPet);
+    } catch (err) {
+      setSaveError(err.message);
+      return;
+    }
     setPets(prev => prev.map(p => p.id === updatedPet.id ? updatedPet : p));
   };
 
-  const handleDeletePet = (petId) => {
-    storage.deletePet(user.id, petId);
+  const handleDeletePet = async (petId) => {
+    try {
+      await storage.deletePet(user.id, petId);
+    } catch (err) {
+      setSaveError(err.message);
+      return;
+    }
     setPets(prev => {
       const remaining = prev.filter(p => p.id !== petId);
       if (activePetId === petId) setActivePetId(remaining[0]?.id ?? null);
@@ -178,6 +200,26 @@ const AppContent = () => {
 
   /* ── Auth / Onboarding gates ── */
   if (location.pathname === '/recuperar-acceso') return <RecuperarAcceso />;
+  // Mientras se descifra el expediente no se muestra nada: evita el parpadeo de
+  // un panel vacío antes de que los datos estén disponibles.
+  if (!vaultReady) {
+    return (
+      <div style={{
+        minHeight: '100vh', display: 'flex', flexDirection: 'column',
+        alignItems: 'center', justifyContent: 'center', gap: '1.4rem',
+        background: 'var(--aura-black)', color: 'var(--aura-gold)',
+        fontSize: '0.78rem', letterSpacing: '3px', textTransform: 'uppercase',
+      }}>
+        <motion.div
+          animate={{ scale: [1, 1.12, 1], opacity: [0.45, 0.9, 0.45] }}
+          transition={{ repeat: Infinity, duration: 1.6, ease: 'easeInOut' }}
+        >
+          <PawPrint size={40} />
+        </motion.div>
+        {locale === 'es' ? 'Descifrando expediente…' : 'Decrypting records…'}
+      </div>
+    );
+  }
   if (!user) return <Auth />;
   if (showOnboarding) return <Onboarding onComplete={handleOnboardingComplete} />;
   if (isSOS) return <SOSMode pet={activePet} pets={pets} onActivePetChange={setActivePetId} onExit={() => setIsSOS(false)} />;
@@ -187,6 +229,46 @@ const AppContent = () => {
   /* ── Main layout ── */
   return (
     <>
+      {/* ── Aviso de fallo al guardar — antes esto fallaba en silencio ── */}
+      <AnimatePresence>
+        {saveError && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            role="alert"
+            style={{
+              position: 'fixed', top: 0, left: 0, right: 0, zIndex: 5000,
+              display: 'flex', alignItems: 'center', gap: '0.9rem',
+              padding: '1rem 1.2rem',
+              paddingTop: 'max(1rem, env(safe-area-inset-top))',
+              background: '#FDECEF',
+              borderBottom: '1px solid var(--aura-neon-pink, #EF5F7A)',
+              boxShadow: '0 8px 32px rgba(42, 45, 124, 0.28)',
+            }}
+          >
+            <AlertTriangle size={18} color="var(--aura-neon-pink, #EF5F7A)" style={{ flexShrink: 0 }} />
+            <p style={{
+              margin: 0, flex: 1, fontSize: '0.82rem', lineHeight: 1.5,
+              color: '#7A1F33',
+            }}>
+              {saveError}
+            </p>
+            <button
+              onClick={() => setSaveError(null)}
+              aria-label={locale === 'es' ? 'Cerrar aviso' : 'Dismiss'}
+              style={{
+                background: 'transparent', border: 'none', cursor: 'pointer',
+                color: '#7A1F33', padding: '0.3rem', flexShrink: 0,
+                display: 'flex', alignItems: 'center',
+              }}
+            >
+              <X size={18} />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* ── Session expiry modal ── */}
       <AnimatePresence>
         {sessionWarning && (
@@ -204,7 +286,7 @@ const AppContent = () => {
           <img src={logo} alt="AURA Pets" className="aura-pulse-logo"
                style={{ height: 42, borderRadius: '50%', objectFit: 'contain',
                         border: '1px solid var(--aura-gold-muted)',
-                        filter: 'drop-shadow(0 0 10px rgba(212,175,55,0.35))' }}
+                        filter: 'drop-shadow(0 0 10px rgba(217, 164, 65, 0.35))' }}
                alt="AURA Pets Global" />
           <div style={{ width: 1, height: 24, background: 'var(--aura-border)' }} />
           <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -219,20 +301,20 @@ const AppContent = () => {
             return (
               <button key={id} onClick={() => navigate(path)}
                 style={{
-                  background: isActive ? '#3D1A6B' : 'transparent',
-                  border: isActive ? '1px solid #F0D060' : '1px solid transparent',
-                  borderRadius: 6,
-                  color: isActive ? '#F0D060' : '#C8B8F8',
-                  textShadow: isActive ? '0 0 8px rgba(240,208,96,0.5)' : 'none',
-                  boxShadow: isActive ? '0 0 12px rgba(61,26,107,0.8), inset 0 0 8px rgba(212,175,55,0.06)' : 'none',
+                  background: isActive ? 'var(--violet)' : 'transparent',
+                  border: '1px solid transparent',
+                  borderRadius: 14,
+                  color: isActive ? '#FFFFFF' : 'var(--ink-muted)',
+                  
+                  boxShadow: isActive ? '0 6px 16px -6px rgba(139, 92, 246, 0.55)' : 'none',
                   padding: '0.45rem 0.75rem',
                   cursor: 'pointer',
                   display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3px',
                   transition: 'all 0.22s',
                   fontFamily: 'var(--font-sans)',
                 }}
-                onMouseEnter={e => { if (!isActive) e.currentTarget.style.color = '#EDE8FF'; }}
-                onMouseLeave={e => { if (!isActive) e.currentTarget.style.color = '#C8B8F8'; }}
+                onMouseEnter={e => { if (!isActive) { e.currentTarget.style.background = 'var(--bg-soft)'; e.currentTarget.style.color = 'var(--violet)'; } }}
+                onMouseLeave={e => { if (!isActive) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--ink-muted)'; } }}
               >
                 <Icon size={20} />
                 <span style={{ fontSize: '9px', letterSpacing: '0.8px', fontWeight: 600, lineHeight: 1 }}>
@@ -247,7 +329,7 @@ const AppContent = () => {
             style={{
               background: 'rgba(226,75,74,0.1)',
               border: '1px solid rgba(226,75,74,0.5)',
-              borderRadius: 6,
+              borderRadius: 14,
               color: 'var(--aura-neon-pink)',
               padding: '0.45rem 0.75rem',
               cursor: 'pointer',
@@ -272,13 +354,13 @@ const AppContent = () => {
           {/* Logout */}
           <button onClick={logout}
             style={{
-              background: 'transparent', border: '1px solid transparent', borderRadius: 6,
-              color: '#9F77DD', padding: '0.45rem 0.6rem', cursor: 'pointer',
+              background: 'transparent', border: '1px solid transparent', borderRadius: 14,
+              color: '#8B5CF6', padding: '0.45rem 0.6rem', cursor: 'pointer',
               display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3px',
               transition: 'all 0.22s', opacity: 0.7, fontFamily: 'var(--font-sans)',
             }}
             onMouseEnter={e => { e.currentTarget.style.opacity = '1'; e.currentTarget.style.color = '#C8C8E8'; }}
-            onMouseLeave={e => { e.currentTarget.style.opacity = '0.7'; e.currentTarget.style.color = '#9F77DD'; }}
+            onMouseLeave={e => { e.currentTarget.style.opacity = '0.7'; e.currentTarget.style.color = '#8B5CF6'; }}
           >
             <LogOut size={20} />
             <span style={{ fontSize: '9px', letterSpacing: '0.8px', fontWeight: 600, lineHeight: 1 }}>SALIR</span>
@@ -315,7 +397,8 @@ const AppContent = () => {
             } />
             <Route path="/settings" element={
               <motion.div {...TAB_VARIANTS}>
-                <div className="aura-card" style={{ maxWidth: 540, margin: '3rem auto' }}>
+                <div className="aura-card aura-card--bloom" style={{ maxWidth: 540, margin: '3rem auto', position: 'relative' }}>
+                  <PawScatter variante="b" />
                   <h2 style={{ fontSize: '2rem', marginBottom: '3rem' }}>{t('common.settings')}</h2>
                   <div style={{ display: 'grid', gap: '3rem' }}>
                     <div>
@@ -345,7 +428,7 @@ const AppContent = () => {
                       <p style={{ fontSize: '0.68rem', letterSpacing: '2.5px', opacity: 0.5, marginBottom: '1.2rem', textTransform: 'uppercase' }}>
                         {locale === 'es' ? 'Sesión' : 'Session'}
                       </p>
-                      <button className="btn-aura" style={{ width: '100%', borderColor: 'rgba(255,255,255,0.15)', color: 'var(--aura-text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.6rem' }}
+                      <button className="btn-aura" style={{ width: '100%', borderColor: '#FAF7FE', color: 'var(--aura-text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.6rem' }}
                         onClick={logout}>
                         <LogOut size={15} />
                         {locale === 'es' ? 'CERRAR SESIÓN' : 'SIGN OUT'}

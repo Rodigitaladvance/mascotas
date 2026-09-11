@@ -1,52 +1,11 @@
 import { createPortal } from 'react-dom';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-
-// ─── Queries Pexels — mascotas domésticas ────────────────────────────────────
-const QUERIES = [
-  'cute puppy dog home',
-  'cute kitten cat playing',
-  'parrot colorful bird pet',
-  'bunny rabbit cute pet',
-  'hamster guinea pig cute',
-];
-
-// ─── Hook: obtiene un video HD por cada query en paralelo ─────────────────────
-const usePexelsVideos = () => {
-  const [urls, setUrls] = useState([]);
-
-  useEffect(() => {
-    Promise.all(
-      QUERIES.map((q) =>
-        fetch(
-          `https://api.pexels.com/videos/search?query=${encodeURIComponent(q)}&per_page=1`,
-          { headers: { Authorization: import.meta.env.VITE_PEXELS_KEY } }
-        )
-          .then((r) => r.json())
-          .then((data) => {
-            const files = data.videos?.[0]?.video_files;
-            return (files?.find((f) => f.quality === 'hd') || files?.[0])?.link ?? null;
-          })
-          .catch(() => null)
-      )
-    ).then((results) => setUrls(results.filter(Boolean)));
-  }, []);
-
-  return urls;
-};
+import gatoYPerro from '../assets/gato-y-perro.png';
 
 // ─── Portal Modal ─────────────────────────────────────────────────────────────
 export const IntroVideoModal = ({ isOpen, onContinue }) => {
-  const [idx, setIdx] = useState(0);
   const [btnHovered, setBtnHovered] = useState(false);
-  const videos = usePexelsVideos();
-
-  // Rota entre los 5 videos cada 5 segundos
-  useEffect(() => {
-    if (videos.length < 2) return;
-    const id = setInterval(() => setIdx((i) => (i + 1) % videos.length), 5000);
-    return () => clearInterval(id);
-  }, [videos.length]);
 
   if (!isOpen) return null;
 
@@ -62,103 +21,71 @@ export const IntroVideoModal = ({ isOpen, onContinue }) => {
           position: 'fixed',
           inset: 0,
           zIndex: 9999,
-          background: '#04000a',
+          background: '#FEFBF4',
         }}
       >
         <style>{`
           @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Inter:wght@300;400&display=swap');
           @keyframes aura-nebula {
-            0%   { opacity: 0.55; transform: scale(1)    rotate(0deg);   }
-            50%  { opacity: 0.80; transform: scale(1.08) rotate(2deg);   }
-            100% { opacity: 0.55; transform: scale(1)    rotate(0deg);   }
+            0%   { opacity: 0.70; transform: scale(1)    translate(0, 0)         rotate(0deg); }
+            50%  { opacity: 1.00; transform: scale(1.14) translate(4vw, 2.5vw)   rotate(6deg); }
+            100% { opacity: 0.70; transform: scale(1)    translate(0, 0)         rotate(0deg); }
           }
           @keyframes aura-nebula2 {
-            0%   { opacity: 0.40; transform: scale(1.05) rotate(0deg);   }
-            50%  { opacity: 0.65; transform: scale(1)    rotate(-3deg);  }
-            100% { opacity: 0.40; transform: scale(1.05) rotate(0deg);   }
+            0%   { opacity: 0.55; transform: scale(1.08) translate(0, 0)         rotate(0deg);  }
+            50%  { opacity: 0.90; transform: scale(1)    translate(-3vw, -2vw)   rotate(-7deg); }
+            100% { opacity: 0.55; transform: scale(1.08) translate(0, 0)         rotate(0deg);  }
+          }
+          @media (prefers-reduced-motion: reduce) {
+            .aura-nebula-layer { animation: none !important; }
           }
         `}</style>
 
-        {/* ── Fondo premium animado — siempre visible aunque fallen los videos ── */}
-        <div style={{
-          position: 'absolute', inset: 0, zIndex: 0, overflow: 'hidden',
-        }}>
-          {/* Nebulosa púrpura top-left */}
-          <div style={{
-            position: 'absolute',
-            width: '80vw', height: '80vw',
-            top: '-20vw', left: '-20vw',
-            background: 'radial-gradient(ellipse, rgba(100,20,200,0.55) 0%, rgba(60,10,140,0.25) 45%, transparent 70%)',
-            borderRadius: '50%',
-            animation: 'aura-nebula 9s ease-in-out infinite',
-          }} />
-          {/* Aurora cyan bottom-right */}
-          <div style={{
-            position: 'absolute',
-            width: '70vw', height: '70vw',
-            bottom: '-20vw', right: '-15vw',
-            background: 'radial-gradient(ellipse, rgba(0,180,220,0.30) 0%, rgba(0,100,180,0.12) 50%, transparent 72%)',
-            borderRadius: '50%',
-            animation: 'aura-nebula2 12s ease-in-out infinite',
-          }} />
-          {/* Centro oscuro */}
-          <div style={{
-            position: 'absolute', inset: 0,
-            background: 'radial-gradient(ellipse 70% 60% at 50% 50%, #0e0020 0%, #060010 60%, transparent 100%)',
-          }} />
-        </div>
-
-        {/* ── Videos de Pexels — se superponen si cargan ── */}
-        {videos.map((url, i) => (
-          <video
-            key={url}
-            autoPlay
-            muted
-            loop
-            playsInline
-            src={url}
+        {/* ── Fondo AURA generado en el dispositivo — sin red, sin terceros ── */}
+        <div style={{ position: 'absolute', inset: 0, zIndex: 0, overflow: 'hidden' }}>
+          {/* Nebulosa púrpura, esquina superior izquierda */}
+          <div
+            className="aura-nebula-layer"
             style={{
               position: 'absolute',
-              inset: 0,
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
-              zIndex: 1,
-              opacity: i === idx ? 0.72 : 0,
-              transition: 'opacity 1.2s ease',
+              width: '80vw', height: '80vw',
+              top: '-20vw', left: '-20vw',
+              background: 'radial-gradient(circle, rgba(201,189,242,0.85) 0%, rgba(201,189,242,0.42) 42%, rgba(201,189,242,0.14) 66%, transparent 80%)',
+              borderRadius: '50%',
+              animation: 'aura-nebula 9s ease-in-out infinite',
             }}
           />
-        ))}
-
-        {/* ── Overlay oscuro suave ── */}
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            background: 'rgba(0,0,0,0.30)',
-            zIndex: 2,
-            pointerEvents: 'none',
-          }}
-        />
-
-        {/* ── Tinte púrpura para unificar con la webapp ── */}
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            background: 'rgba(8,0,20,0.22)',
-            zIndex: 2,
-            pointerEvents: 'none',
-          }}
-        />
+          {/* Aurora cyan, esquina inferior derecha */}
+          <div
+            className="aura-nebula-layer"
+            style={{
+              position: 'absolute',
+              width: '75vw', height: '75vw',
+              bottom: '-22vw', right: '-18vw',
+              background: 'radial-gradient(circle, rgba(165,227,220,0.90) 0%, rgba(165,227,220,0.45) 44%, rgba(165,227,220,0.14) 68%, transparent 82%)',
+              borderRadius: '50%',
+              animation: 'aura-nebula2 12s ease-in-out infinite',
+            }}
+          />
+          {/* Viñeta: oscurece los BORDES, no el centro. La versión anterior
+              pintaba un óvalo opaco justo encima de las nebulosas y las
+              ocultaba por completo. */}
+          <div
+            style={{
+              position: 'absolute', inset: 0,
+              background: 'radial-gradient(ellipse 88% 78% at 50% 45%, transparent 28%, rgba(254,251,244,0.35) 72%, rgba(254,251,244,0.7) 100%)',
+              pointerEvents: 'none',
+            }}
+          />
+        </div>
 
         {/* ── Gradient inferior para legibilidad del botón ── */}
         <div
           style={{
             position: 'absolute',
             inset: 0,
-            background: 'linear-gradient(to top, rgba(4,0,10,0.85) 0%, rgba(4,0,10,0.20) 40%, transparent 65%)',
-            zIndex: 3,
+            background: 'linear-gradient(to top, rgba(254,251,244,0.85) 0%, transparent 45%)',
+            zIndex: 2,
             pointerEvents: 'none',
           }}
         />
@@ -168,7 +95,7 @@ export const IntroVideoModal = ({ isOpen, onContinue }) => {
           style={{
             position: 'absolute',
             inset: 0,
-            zIndex: 4,
+            zIndex: 3,
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between',
@@ -191,10 +118,10 @@ export const IntroVideoModal = ({ isOpen, onContinue }) => {
                 fontFamily: "'Playfair Display', Georgia, serif",
                 fontSize: '52px',
                 fontWeight: 900,
-                color: '#fff',
+                color: '#2A2D7C',
                 letterSpacing: -2,
                 lineHeight: 1,
-                textShadow: '0 2px 32px rgba(0,0,0,0.9)',
+                textShadow: 'none',
               }}
             >
               AURA
@@ -205,12 +132,12 @@ export const IntroVideoModal = ({ isOpen, onContinue }) => {
               style={{
                 fontFamily: "'Playfair Display', Georgia, serif",
                 fontSize: '38px',
-                fontWeight: 400,
-                color: '#B5D4F4',
+                fontWeight: 600,
+                color: '#D9A441',
                 letterSpacing: 14,
                 lineHeight: 1,
                 marginTop: 6,
-                textShadow: '0 2px 16px rgba(0,0,0,0.9)',
+                textShadow: 'none',
               }}
             >
               PETS
@@ -221,7 +148,7 @@ export const IntroVideoModal = ({ isOpen, onContinue }) => {
               style={{
                 width: 60,
                 height: 1,
-                background: '#B5D4F4',
+                background: 'linear-gradient(90deg, #A5E3DC, #C9BDF2, #FCE1A8)',
                 margin: '20px auto 16px',
                 opacity: 0.7,
               }}
@@ -233,10 +160,10 @@ export const IntroVideoModal = ({ isOpen, onContinue }) => {
                 fontFamily: "'Inter', sans-serif",
                 fontSize: '11px',
                 fontWeight: 300,
-                color: '#B5D4F4',
+                color: '#7B7DA3',
                 letterSpacing: '0.3em',
                 textTransform: 'uppercase',
-                textShadow: '0 1px 8px rgba(0,0,0,0.9)',
+                textShadow: 'none',
                 opacity: 0.85,
               }}
             >
@@ -244,8 +171,22 @@ export const IntroVideoModal = ({ isOpen, onContinue }) => {
             </div>
           </motion.div>
 
-          {/* ── Espacio central vacío — el animal ocupa este área ── */}
-          <div style={{ flex: 1 }} />
+          {/* ── El animal ocupa el area central reservada ── */}
+          <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 0 }}>
+            <motion.img
+              src={gatoYPerro}
+              alt="Un perro y un gato con sus medallas AURA"
+              initial={{ opacity: 0, y: 18 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1.1, delay: 0.4, ease: 'easeOut' }}
+              style={{
+                maxWidth: 'min(420px, 78vw)',
+                maxHeight: '100%',
+                width: 'auto', height: 'auto', objectFit: 'contain',
+                filter: 'drop-shadow(0 16px 32px rgba(42, 45, 124, 0.20))',
+              }}
+            />
+          </div>
 
           {/* ── Botón ENTRAR — parte inferior ── */}
           <div style={{ textAlign: 'center' }}>
@@ -255,17 +196,19 @@ export const IntroVideoModal = ({ isOpen, onContinue }) => {
               onMouseLeave={() => setBtnHovered(false)}
               style={{
                 padding: '14px 60px',
-                background: btnHovered ? '#B5D4F4' : 'transparent',
-                border: '1px solid #B5D4F4',
+                background: 'linear-gradient(100deg, #8B5CF6 0%, #EC5C8D 55%, #F97B4F 100%)',
+                border: 'none',
                 borderRadius: 50,
                 fontFamily: "'Inter', sans-serif",
                 fontSize: 13,
                 fontWeight: 400,
-                color: btnHovered ? '#0A0F1E' : '#B5D4F4',
+                color: '#FFFFFF',
                 letterSpacing: '0.2em',
                 textTransform: 'uppercase',
                 cursor: 'pointer',
-                transition: 'background 0.25s ease, color 0.25s ease',
+                boxShadow: btnHovered ? '0 10px 28px -8px rgba(236,92,141,0.65)' : '0 6px 18px -8px rgba(236,92,141,0.45)',
+                transform: btnHovered ? 'translateY(-1px)' : 'none',
+                transition: 'box-shadow 0.25s ease, transform 0.25s ease',
                 whiteSpace: 'nowrap',
               }}
             >

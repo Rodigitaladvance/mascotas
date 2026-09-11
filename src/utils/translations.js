@@ -11,14 +11,14 @@ export const translations = {
       logout: "Cerrar Sesión Segura",
       active: "ACTIVO",
       compliance: "Protocolo Vital",
-      identity: "Identidad Biométrica"
+      identity: "Identificación"
     },
     auth: {
       title: "AURA",
       subtitle: "Pets",
       slogan: "Excelencia Sanitaria Global",
       loginTitle: "Acceso a Expedientes",
-      registerTitle: "Crear Registro Biométrico",
+      registerTitle: "Crea tu cuenta",
       emailLabel: "DIRECCIÓN DE ENLACE",
       passLabel: "CLAVE DE SEGURIDAD",
       btnEnter: "ACCEDER AL EXPEDIENTE",
@@ -28,11 +28,11 @@ export const translations = {
       secureMsg: "Tus datos están protegidos con encriptación AES-256. Solo tú tienes la llave."
     },
     onboarding: {
-      welcome: "Bienvenido al Ecosistema AURA",
-      shieldTitle: "Escudo AURA",
-      shieldBody: "Tus datos de salud están protegidos con encriptación de grado militar AES-256. Solo tú tienes la llave de su privacidad.",
-      introBody: "Gestión sanitaria de élite para miembros de alta distinción biológica.",
-      btnStart: "INICIAR CONFIGURACIÓN"
+      welcome: "Bienvenido a Aura Pets",
+      shieldTitle: "Tus datos son solo tuyos",
+      shieldBody: "Todo se guarda cifrado en este dispositivo, con una clave que nace de tu contraseña. Sin servidores y sin copias: nadie más puede leerlo, ni siquiera nosotros.",
+      introBody: "El expediente médico de tu mascota, siempre contigo. Vacunas, visitas al veterinario y el pasaporte para viajar, todo en un mismo sitio.",
+      btnStart: "EMPEZAR"
     },
     dashboard: {
       executiveTitle: "Estado de Salud",
@@ -94,14 +94,14 @@ export const translations = {
       logout: "Secure Logout",
       active: "ACTIVE",
       compliance: "Vital Protocol",
-      identity: "Biometric Identity"
+      identity: "Identification"
     },
     auth: {
       title: "AURA",
       subtitle: "Pets",
       slogan: "Global Sanitary Excellence",
       loginTitle: "Medical Records Access",
-      registerTitle: "Create Biometric Record",
+      registerTitle: "Create your account",
       emailLabel: "LINK ADDRESS",
       passLabel: "SECURITY KEY",
       btnEnter: "ACCESS RECORDS",
@@ -111,11 +111,11 @@ export const translations = {
       secureMsg: "Your data is protected with AES-256 encryption. Only you hold the key."
     },
     onboarding: {
-      welcome: "Welcome to the AURA Ecosystem",
-      shieldTitle: "AURA Shield",
-      shieldBody: "Your health data is protected with military-grade AES-256 encryption. Only you hold the key to your privacy.",
-      introBody: "Elite health management for members of high biological distinction.",
-      btnStart: "START CONFIGURATION"
+      welcome: "Welcome to Aura Pets",
+      shieldTitle: "Your data stays yours",
+      shieldBody: "Everything is stored encrypted on this device, under a key derived from your password. No servers, no copies: nobody else can read it, not even us.",
+      introBody: "Your pet's medical record, always with you. Vaccinations, vet visits and the travel passport, all in one place.",
+      btnStart: "GET STARTED"
     },
     dashboard: {
       executiveTitle: "Health Status",

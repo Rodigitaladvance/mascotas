@@ -2,9 +2,14 @@ import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Plus, Download, Calendar, Shield, Activity, Award, FileText, Eye } from 'lucide-react';
 import { jsPDF } from 'jspdf';
+import { storage } from '../../utils/storage';
+import { useAuth } from '../../context/AuthContext';
+import { PawScatter } from './Decorations';
+import { sugerirProximaDosis } from '../../utils/intelligence';
 
 // ─── Storage ──────────────────────────────────────────────────────────────────
-const storageKey = (petId) => `aura_medical_${petId}`;
+// El historial clínico se guarda cifrado dentro de la bóveda del usuario.
+// Antes vivía suelto en localStorage, en claro y sin separar por cuenta.
 const EMPTY_DATA = { visits: [], vaccines: [], medications: [], analyses: [] };
 
 const EMPTY_VISIT    = { date: '', clinic: '', vet: '', reason: '', diagnosis: '', treatment: '', cost: '' };
@@ -29,17 +34,18 @@ const ADD_LABELS = {
 const MAX_FILE_BYTES = 3 * 1024 * 1024; // 3 MB antes de base64
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-const loadData = (petId) => {
-  try { return JSON.parse(localStorage.getItem(storageKey(petId))) || EMPTY_DATA; }
+const loadData = (userId, petId) => {
+  if (!userId) return EMPTY_DATA;
+  try { return storage.getHistory(userId, petId, EMPTY_DATA) || EMPTY_DATA; }
   catch { return EMPTY_DATA; }
 };
 
 const vaccineStatus = (nextDose) => {
   if (!nextDose) return null;
   const days = Math.ceil((new Date(nextDose) - new Date()) / 86400000);
-  if (days < 0)   return { label: 'Vencida', bg: 'rgba(255,0,110,0.15)',  color: '#ff006e', border: 'rgba(255,0,110,0.4)'  };
-  if (days <= 30) return { label: `${days}d`, bg: 'rgba(255,170,0,0.15)', color: '#ffaa00', border: 'rgba(255,170,0,0.4)'  };
-  return               { label: 'Al día',   bg: 'rgba(0,245,255,0.1)',   color: '#00f5ff', border: 'rgba(0,245,255,0.3)' };
+  if (days < 0)   return { label: 'Vencida', bg: 'rgba(236, 92, 141, 0.15)',  color: '#EC5C8D', border: 'rgba(236, 92, 141, 0.4)'  };
+  if (days <= 30) return { label: `${days}d`, bg: 'rgba(255,170,0,0.15)', color: '#D98A1F', border: 'rgba(255,170,0,0.4)'  };
+  return               { label: 'Al día',   bg: 'rgba(67, 191, 199, 0.1)',   color: '#43BFC7', border: 'rgba(67, 191, 199, 0.3)' };
 };
 
 const isActiveMed = (m) => !m.endDate || new Date(m.endDate) >= new Date();
@@ -123,8 +129,10 @@ const Field = ({ label, as, ...props }) => (
 
 // ─── Component ────────────────────────────────────────────────────────────────
 const MedicalHistory = ({ pet, onClose }) => {
+  const { user } = useAuth();
   const [tab, setTab]             = useState('visits');
-  const [data, setData]           = useState(() => loadData(pet.id));
+  const [data, setData]           = useState(() => loadData(user?.id, pet.id));
+  const [saveError, setSaveError]  = useState('');
   const [showForm, setShowForm]   = useState(false);
   const [form, setForm]           = useState(EMPTY_VISIT);
   const [docPreview, setDocPreview] = useState(null);   // { dataUrl, type, name }
@@ -136,9 +144,20 @@ const MedicalHistory = ({ pet, onClose }) => {
   const cameraInputRef = useRef(null);
 
   // ── Persistence ───────────────────────────────────────────────────────────
-  const persist = (newData) => {
+  /** Devuelve true si el historial quedó guardado y cifrado en disco. */
+  const persist = async (newData) => {
+    if (!user) return false;
+    // La pantalla solo se actualiza si el guardado cifrado ha ido bien: antes
+    // un fallo de espacio dejaba el dato visible pero sin escribir en disco.
+    try {
+      await storage.saveHistory(user.id, pet.id, newData);
+    } catch (err) {
+      setSaveError(err.message);
+      return false;
+    }
     setData(newData);
-    localStorage.setItem(storageKey(pet.id), JSON.stringify(newData));
+    setSaveError('');
+    return true;
   };
 
   const f = (key) => (e) => setForm((p) => ({ ...p, [key]: e.target.value }));
@@ -157,10 +176,14 @@ const MedicalHistory = ({ pet, onClose }) => {
     setFileError('');
   };
 
-  const submit = () => {
-    const item = { id: Date.now(), ...form };
+  const submit = async () => {
+    const { nextDoseSugerida, ...campos } = form;   // marca interna, no se guarda
+    const item = { id: Date.now(), ...campos };
     if (tab === 'analyses' && docPreview) item.document = docPreview;
-    persist({ ...data, [tab]: [item, ...data[tab]] });
+    const ok = await persist({ ...data, [tab]: [item, ...data[tab]] });
+    // Si el guardado falla, el formulario sigue abierto con lo escrito para
+    // que el usuario pueda reintentar en lugar de perderlo.
+    if (!ok) return;
     setShowForm(false);
     setDocPreview(null);
   };
@@ -195,11 +218,11 @@ const MedicalHistory = ({ pet, onClose }) => {
   const activeMeds = data.medications.filter(isActiveMed).length;
 
   // ── Shared styles ─────────────────────────────────────────────────────────
-  const formWrap  = { background: 'rgba(212,175,55,0.05)', border: '1px solid rgba(212,175,55,0.25)', borderRadius: 10, padding: '1.4rem', marginBottom: '1rem', display: 'grid', gap: '1rem' };
+  const formWrap  = { background: 'rgba(217, 164, 65, 0.05)', border: '1px solid rgba(217, 164, 65, 0.25)', borderRadius: 10, padding: '1.4rem', marginBottom: '1rem', display: 'grid', gap: '1rem' };
   const grid2     = { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' };
-  const cardStyle = { background: 'rgba(10,5,20,0.88)', border: '1px solid rgba(212,175,55,0.16)', borderRadius: 8, padding: '1.2rem' };
+  const cardStyle = { background: '#FFFFFF', border: '1px solid var(--border)', borderRadius: 10, padding: '1.2rem', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(42,45,124,0.06))' };
   const mutedLabel = { margin: '0 0 3px', fontSize: '0.62rem', letterSpacing: '2px', color: 'var(--aura-text-muted)', textTransform: 'uppercase' };
-  const deleteBtn  = { background: 'none', border: 'none', color: 'rgba(255,255,255,0.2)', cursor: 'pointer', padding: 4, lineHeight: 1, flexShrink: 0 };
+  const deleteBtn  = { background: 'none', border: 'none', color: 'var(--ink-muted)', cursor: 'pointer', padding: 4, lineHeight: 1, flexShrink: 0 };
   const empty = (msg) => <p style={{ color: 'var(--aura-text-muted)', fontSize: '0.88rem', padding: '2.5rem 0', textAlign: 'center' }}>{msg}</p>;
 
   // ── Drop zone (solo Análisis) ──────────────────────────────────────────────
@@ -216,12 +239,12 @@ const MedicalHistory = ({ pet, onClose }) => {
           onDrop={onDrop}
           onClick={() => fileInputRef.current?.click()}
           style={{
-            border: '1.5px dashed rgba(212,175,55,0.45)',
+            border: '1.5px dashed rgba(217, 164, 65, 0.45)',
             borderRadius: 8,
             padding: '1.5rem 1rem',
             textAlign: 'center',
             cursor: 'pointer',
-            background: dragOver ? 'rgba(212,175,55,0.1)' : 'rgba(212,175,55,0.04)',
+            background: dragOver ? 'rgba(217, 164, 65, 0.1)' : 'rgba(217, 164, 65, 0.04)',
             transition: 'background 0.2s',
           }}
         >
@@ -232,25 +255,25 @@ const MedicalHistory = ({ pet, onClose }) => {
             <button
               type="button"
               onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click(); }}
-              style={{ padding: '7px 14px', background: 'rgba(212,175,55,0.1)', border: '1px solid rgba(212,175,55,0.35)', borderRadius: 6, color: 'var(--aura-gold)', fontSize: '0.75rem', cursor: 'pointer' }}
+              style={{ padding: '7px 14px', background: 'rgba(217, 164, 65, 0.1)', border: '1px solid rgba(217, 164, 65, 0.35)', borderRadius: 6, color: 'var(--aura-gold)', fontSize: '0.75rem', cursor: 'pointer' }}
             >
               📎 Subir documento
             </button>
             <button
               type="button"
               onClick={(e) => { e.stopPropagation(); cameraInputRef.current?.click(); }}
-              style={{ padding: '7px 14px', background: 'rgba(212,175,55,0.1)', border: '1px solid rgba(212,175,55,0.35)', borderRadius: 6, color: 'var(--aura-gold)', fontSize: '0.75rem', cursor: 'pointer' }}
+              style={{ padding: '7px 14px', background: 'rgba(217, 164, 65, 0.1)', border: '1px solid rgba(217, 164, 65, 0.35)', borderRadius: 6, color: 'var(--aura-gold)', fontSize: '0.75rem', cursor: 'pointer' }}
             >
               📷 Usar cámara
             </button>
           </div>
           {fileError && (
-            <p style={{ margin: '0.7rem 0 0', fontSize: '0.73rem', color: '#ff006e' }}>{fileError}</p>
+            <p style={{ margin: '0.7rem 0 0', fontSize: '0.73rem', color: '#EC5C8D' }}>{fileError}</p>
           )}
         </div>
       ) : (
         /* Preview del documento seleccionado */
-        <div style={{ position: 'relative', border: '1px solid rgba(212,175,55,0.3)', borderRadius: 8, overflow: 'hidden', background: 'rgba(10,5,20,0.85)' }}>
+        <div style={{ position: 'relative', border: '1px solid rgba(217, 164, 65, 0.3)', borderRadius: 8, overflow: 'hidden', background: 'var(--bg-soft)' }}>
           {docPreview.type.startsWith('image/') ? (
             <img
               src={docPreview.dataUrl}
@@ -269,7 +292,7 @@ const MedicalHistory = ({ pet, onClose }) => {
           <button
             type="button"
             onClick={() => setDocPreview(null)}
-            style={{ position: 'absolute', top: 6, right: 6, width: 26, height: 26, borderRadius: '50%', background: 'rgba(0,0,0,0.7)', border: '1px solid rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#fff' }}
+            style={{ position: 'absolute', top: 6, right: 6, width: 26, height: 26, borderRadius: '50%', background: 'rgba(42, 45, 124, 0.28)', border: '1px solid rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#fff' }}
           >
             <X size={13} />
           </button>
@@ -316,13 +339,56 @@ const MedicalHistory = ({ pet, onClose }) => {
     if (tab === 'vaccines') return (
       <div style={formWrap}>
         <div style={grid2}>
-          <Field label="Nombre vacuna" type="text" placeholder="Rabia, polivalente..." value={form.name} onChange={f('name')} />
+          <Field label="Nombre vacuna" type="text" placeholder="Rabia, polivalente..." value={form.name}
+            onChange={(e) => {
+              const nombre = e.target.value;
+              const sug = sugerirProximaDosis(pet?.species, nombre, form.date);
+              setForm(prev => ({
+                ...prev,
+                name: nombre,
+                nextDose: (!prev.nextDose || prev.nextDoseSugerida) ? (sug?.fecha || prev.nextDose) : prev.nextDose,
+                nextDoseSugerida: (!prev.nextDose || prev.nextDoseSugerida) && !!sug?.fecha,
+              }));
+            }} />
           <Field label="Veterinario"   type="text" placeholder="Dr. ..."               value={form.vet}  onChange={f('vet')} />
         </div>
         <div style={grid2}>
-          <Field label="Fecha administración" type="date" value={form.date}     onChange={f('date')} />
-          <Field label="Próxima dosis"        type="date" value={form.nextDose} onChange={f('nextDose')} />
+          <Field label="Fecha administración" type="date" value={form.date}
+            onChange={(e) => {
+              const fecha = e.target.value;
+              const sug = sugerirProximaDosis(pet?.species, form.name, fecha);
+              /* Solo se rellena si el campo está vacío o si lo que hay lo puso
+                 una sugerencia anterior: nunca se pisa una fecha escrita a mano. */
+              setForm(prev => ({
+                ...prev,
+                date: fecha,
+                nextDose: (!prev.nextDose || prev.nextDoseSugerida) ? (sug?.fecha || prev.nextDose) : prev.nextDose,
+                nextDoseSugerida: (!prev.nextDose || prev.nextDoseSugerida) && !!sug?.fecha,
+              }));
+            }} />
+          <Field label="Próxima dosis" type="date" value={form.nextDose}
+            onChange={(e) => setForm(prev => ({ ...prev, nextDose: e.target.value, nextDoseSugerida: false }))} />
         </div>
+
+        {(() => {
+          const sug = sugerirProximaDosis(pet?.species, form.name, form.date);
+          if (!sug || !form.nextDose) return null;
+          const meses = Math.round(sug.dias / 30.4);
+          return (
+            <p style={{
+              margin: '0.6rem 0 0', fontSize: '0.68rem', lineHeight: 1.55,
+              color: 'var(--aura-text-muted)',
+            }}>
+              {form.nextDoseSugerida ? '✨ ' : ''}
+              {sug.etiqueta}: {meses >= 12
+                ? `refuerzo cada ${Math.round(meses / 12)} año${Math.round(meses / 12) > 1 ? 's' : ''}`
+                : `refuerzo cada ${meses} meses`}
+              {form.nextDoseSugerida
+                ? '. Fecha propuesta, cámbiala si tu veterinario indicó otra.'
+                : '.'}
+            </p>
+          );
+        })()}
       </div>
     );
 
@@ -358,12 +424,12 @@ const MedicalHistory = ({ pet, onClose }) => {
   const Visits = () => (
     <div style={{ position: 'relative', paddingLeft: '2rem' }}>
       {data.visits.length > 0 && (
-        <div style={{ position: 'absolute', left: 7, top: 10, bottom: 10, width: 1, background: 'linear-gradient(to bottom, #D4AF37, rgba(212,175,55,0.08))' }} />
+        <div style={{ position: 'absolute', left: 7, top: 10, bottom: 10, width: 1, background: 'linear-gradient(to bottom, #D9A441, rgba(217, 164, 65, 0.08))' }} />
       )}
       {!data.visits.length && empty('Sin visitas registradas')}
       {data.visits.map((v) => (
         <div key={v.id} style={{ position: 'relative', marginBottom: '1.1rem' }}>
-          <div style={{ position: 'absolute', left: -29, top: 14, width: 10, height: 10, borderRadius: '50%', background: '#D4AF37', border: '2px solid #0A0514', boxShadow: '0 0 8px rgba(212,175,55,0.6)' }} />
+          <div style={{ position: 'absolute', left: -29, top: 14, width: 10, height: 10, borderRadius: '50%', background: '#D9A441', border: '2px solid #FEFBF4', boxShadow: '0 0 8px rgba(217, 164, 65, 0.6)' }} />
           <div style={cardStyle}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>
@@ -377,7 +443,7 @@ const MedicalHistory = ({ pet, onClose }) => {
               </div>
             </div>
             {(v.reason || v.diagnosis || v.treatment) && (
-              <div style={{ marginTop: '0.9rem', paddingTop: '0.9rem', borderTop: '1px solid rgba(255,255,255,0.06)', display: 'grid', gap: '0.6rem' }}>
+              <div style={{ marginTop: '0.9rem', paddingTop: '0.9rem', borderTop: '1px solid #FFFFFF', display: 'grid', gap: '0.6rem' }}>
                 {v.reason    && <div><p style={mutedLabel}>Motivo</p>      <p style={{ margin: 0, fontSize: '0.85rem' }}>{v.reason}</p></div>}
                 {v.diagnosis && <div><p style={mutedLabel}>Diagnóstico</p> <p style={{ margin: 0, fontSize: '0.85rem' }}>{v.diagnosis}</p></div>}
                 {v.treatment && <div><p style={mutedLabel}>Tratamiento</p> <p style={{ margin: 0, fontSize: '0.85rem' }}>{v.treatment}</p></div>}
@@ -415,9 +481,9 @@ const MedicalHistory = ({ pet, onClose }) => {
   const Medications = () => (
     <div>
       {activeMeds > 0 && (
-        <div style={{ marginBottom: '1rem', padding: '0.75rem 1.2rem', background: 'rgba(0,245,255,0.05)', border: '1px solid rgba(0,245,255,0.18)', borderRadius: 8, display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-          <div style={{ width: 7, height: 7, borderRadius: '50%', background: '#00f5ff', boxShadow: '0 0 8px #00f5ff', flexShrink: 0 }} />
-          <p style={{ margin: 0, fontSize: '0.78rem', color: '#00f5ff' }}>
+        <div style={{ marginBottom: '1rem', padding: '0.75rem 1.2rem', background: 'rgba(67, 191, 199, 0.05)', border: '1px solid rgba(67, 191, 199, 0.18)', borderRadius: 8, display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+          <div style={{ width: 7, height: 7, borderRadius: '50%', background: '#43BFC7', boxShadow: '0 0 8px #43BFC7', flexShrink: 0 }} />
+          <p style={{ margin: 0, fontSize: '0.78rem', color: '#43BFC7' }}>
             {activeMeds} medicamento{activeMeds > 1 ? 's' : ''} activo{activeMeds > 1 ? 's' : ''}
           </p>
         </div>
@@ -427,10 +493,10 @@ const MedicalHistory = ({ pet, onClose }) => {
         {data.medications.map((m) => {
           const active = isActiveMed(m);
           return (
-            <div key={m.id} style={{ ...cardStyle, border: `1px solid ${active ? 'rgba(93,202,165,0.3)' : 'rgba(212,175,55,0.12)'}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem' }}>
+            <div key={m.id} style={{ ...cardStyle, border: `1px solid ${active ? 'rgba(63, 191, 160, 0.45)' : 'var(--border)'}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem' }}>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: 4 }}>
-                  {active && <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#00f5ff', flexShrink: 0 }} />}
+                  {active && <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#43BFC7', flexShrink: 0 }} />}
                   <p style={{ margin: 0, fontWeight: 600, fontSize: '0.98rem' }}>{m.name}</p>
                 </div>
                 <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--aura-text-muted)' }}>
@@ -458,7 +524,7 @@ const MedicalHistory = ({ pet, onClose }) => {
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
               {a.result && (
-                <span style={{ padding: '4px 10px', borderRadius: 20, fontSize: '0.68rem', fontWeight: 600, background: 'rgba(212,175,55,0.1)', color: 'var(--aura-gold)', border: '1px solid rgba(212,175,55,0.3)' }}>
+                <span style={{ padding: '4px 10px', borderRadius: 20, fontSize: '0.68rem', fontWeight: 600, background: 'rgba(217, 164, 65, 0.1)', color: 'var(--aura-gold)', border: '1px solid rgba(217, 164, 65, 0.3)' }}>
                   {a.result}
                 </span>
               )}
@@ -468,24 +534,24 @@ const MedicalHistory = ({ pet, onClose }) => {
 
           {/* Notas */}
           {a.notes && (
-            <p style={{ margin: '0.75rem 0 0', fontSize: '0.82rem', color: 'var(--aura-text-muted)', borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '0.75rem' }}>
+            <p style={{ margin: '0.75rem 0 0', fontSize: '0.82rem', color: 'var(--aura-text-muted)', borderTop: '1px solid #FFFFFF', paddingTop: '0.75rem' }}>
               {a.notes}
             </p>
           )}
 
           {/* Documento adjunto */}
           {a.document && (
-            <div style={{ marginTop: '0.9rem', paddingTop: '0.9rem', borderTop: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', gap: '0.9rem' }}>
+            <div style={{ marginTop: '0.9rem', paddingTop: '0.9rem', borderTop: '1px solid #FFFFFF', display: 'flex', alignItems: 'center', gap: '0.9rem' }}>
               {/* Miniatura / icono PDF */}
               {a.document.type.startsWith('image/') ? (
                 <img
                   src={a.document.dataUrl}
                   alt="Análisis"
-                  style={{ width: 52, height: 52, objectFit: 'cover', borderRadius: 6, border: '1px solid rgba(212,175,55,0.3)', flexShrink: 0, cursor: 'pointer' }}
+                  style={{ width: 52, height: 52, objectFit: 'cover', borderRadius: 6, border: '1px solid rgba(217, 164, 65, 0.3)', flexShrink: 0, cursor: 'pointer' }}
                   onClick={() => setViewDoc(a.document)}
                 />
               ) : (
-                <div style={{ width: 52, height: 52, background: 'rgba(212,175,55,0.08)', border: '1px solid rgba(212,175,55,0.25)', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <div style={{ width: 52, height: 52, background: 'rgba(217, 164, 65, 0.08)', border: '1px solid rgba(217, 164, 65, 0.25)', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                   <FileText size={22} color="var(--aura-gold)" />
                 </div>
               )}
@@ -497,7 +563,7 @@ const MedicalHistory = ({ pet, onClose }) => {
                 </p>
                 <button
                   onClick={() => setViewDoc(a.document)}
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', padding: '5px 12px', background: 'rgba(212,175,55,0.08)', border: '1px solid rgba(212,175,55,0.3)', borderRadius: 6, color: 'var(--aura-gold)', fontSize: '0.72rem', cursor: 'pointer' }}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', padding: '5px 12px', background: 'rgba(217, 164, 65, 0.08)', border: '1px solid rgba(217, 164, 65, 0.3)', borderRadius: 6, color: 'var(--aura-gold)', fontSize: '0.72rem', cursor: 'pointer' }}
                 >
                   <Eye size={12} /> Ver documento
                 </button>
@@ -520,10 +586,14 @@ const MedicalHistory = ({ pet, onClose }) => {
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         transition={{ duration: 0.22 }}
-        style={{ position: 'fixed', inset: 0, zIndex: 2000, background: '#0A0514', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
+        style={{ position: 'fixed', inset: 0, zIndex: 2000, background: '#FEFBF4', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
       >
+        {/* Las huellas van sobre el fondo de la pantalla completa, no dentro de
+            una tarjeta: aquí el contenido se desplaza y quedarían cortadas. */}
+        <PawScatter variante="c" />
+
         {/* Header */}
-        <div style={{ padding: '1.4rem 2rem', borderBottom: '1px solid rgba(212,175,55,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
+        <div style={{ padding: '1.4rem 2rem', borderBottom: '1px solid rgba(217, 164, 65, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
           <div>
             <p style={{ margin: '0 0 2px', fontSize: '0.6rem', letterSpacing: '3px', color: 'var(--aura-gold)', textTransform: 'uppercase' }}>
               AURA Pets Global · {pet.name}
@@ -536,14 +606,34 @@ const MedicalHistory = ({ pet, onClose }) => {
               <Download size={13} /> PDF
             </button>
             <button onClick={onClose}
-              style={{ width: 34, height: 34, borderRadius: '50%', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--aura-text)' }}>
+              style={{ width: 34, height: 34, borderRadius: '50%', background: '#FFFFFF', border: '1px solid #FAF7FE', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--aura-text)' }}>
               <X size={17} />
             </button>
           </div>
         </div>
 
+        {/* Aviso de fallo al guardar — antes esto fallaba en silencio */}
+        {saveError && (
+          <div role="alert" style={{
+            display: 'flex', alignItems: 'center', gap: '0.7rem', flexShrink: 0,
+            padding: '0.8rem 2rem', background: 'rgba(236, 92, 141, 0.08)',
+            borderBottom: '1px solid rgba(236, 92, 141, 0.35)',
+          }}>
+            <p style={{ margin: 0, flex: 1, fontSize: '0.76rem', lineHeight: 1.5, color: '#C93B5C' }}>
+              {saveError}
+            </p>
+            <button
+              onClick={() => setSaveError('')}
+              aria-label="Cerrar aviso"
+              style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#C93B5C', display: 'flex', padding: '0.2rem' }}
+            >
+              <X size={15} />
+            </button>
+          </div>
+        )}
+
         {/* Tabs */}
-        <div style={{ display: 'flex', borderBottom: '1px solid rgba(212,175,55,0.12)', overflowX: 'auto', flexShrink: 0 }}>
+        <div style={{ display: 'flex', borderBottom: '1px solid rgba(217, 164, 65, 0.12)', overflowX: 'auto', flexShrink: 0 }}>
           {TABS.map(({ id, label, icon: Icon }) => {
             const active = tab === id;
             return (
@@ -601,10 +691,10 @@ const MedicalHistory = ({ pet, onClose }) => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            style={{ position: 'fixed', inset: 0, zIndex: 9000, background: '#0A0514', display: 'flex', flexDirection: 'column' }}
+            style={{ position: 'fixed', inset: 0, zIndex: 9000, background: '#FEFBF4', display: 'flex', flexDirection: 'column' }}
           >
             {/* Barra superior */}
-            <div style={{ padding: '0.9rem 1.5rem', borderBottom: '1px solid rgba(212,175,55,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
+            <div style={{ padding: '0.9rem 1.5rem', borderBottom: '1px solid rgba(217, 164, 65, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
               <p style={{ margin: 0, fontSize: '0.78rem', color: 'var(--aura-text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 {viewDoc.name}
               </p>
@@ -614,13 +704,13 @@ const MedicalHistory = ({ pet, onClose }) => {
                   href={viewDoc.dataUrl}
                   target="_blank"
                   rel="noreferrer"
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', padding: '6px 12px', background: 'rgba(212,175,55,0.08)', border: '1px solid rgba(212,175,55,0.3)', borderRadius: 6, color: 'var(--aura-gold)', fontSize: '0.72rem', textDecoration: 'none' }}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', padding: '6px 12px', background: 'rgba(217, 164, 65, 0.08)', border: '1px solid rgba(217, 164, 65, 0.3)', borderRadius: 6, color: 'var(--aura-gold)', fontSize: '0.72rem', textDecoration: 'none' }}
                 >
                   <Download size={12} /> Abrir
                 </a>
                 <button
                   onClick={() => setViewDoc(null)}
-                  style={{ width: 32, height: 32, borderRadius: '50%', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--aura-text)' }}
+                  style={{ width: 32, height: 32, borderRadius: '50%', background: '#FFFFFF', border: '1px solid #FAF7FE', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--aura-text)' }}
                 >
                   <X size={16} />
                 </button>

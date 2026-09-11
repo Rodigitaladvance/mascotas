@@ -1,58 +1,106 @@
 /* ═══════════════════════════════════════════════════════════════════
-   AURA Pets Global — Premium Design System v4.0
-   Cybersecurity Command Center · Deep Black-Purple · Cyan Orb · Gold
-   Reference: Gemini concept image — dark, dramatic, high contrast
+   AURA Pets Global — Design System v5.0
+   Pastel luminoso · Crema y lavanda · Degradado violeta-coral · Oro
    ═══════════════════════════════════════════════════════════════════ */
 
 /* ─────────────────────────────────────────────
    1. DESIGN TOKENS
 ───────────────────────────────────────────── */
 :root {
-  /* ── Legacy tokens — kept intact for all JSX inline styles ── */
-  --aura-gold:           #D4AF37;
-  --aura-gold-light:     #F9E1A4;
-  --aura-gold-muted:     rgba(212, 175, 55, 0.22);
-  --aura-gold-dim:       rgba(212, 175, 55, 0.07);
-  --aura-black:          #080010;
-  --aura-obsidian:       #04000a;
-  --aura-surface:        rgba(14, 4, 28, 0.92);
-  --aura-card:           rgba(255, 255, 255, 0.04);
-  --aura-purple:         #100020;
-  --aura-purple-mid:     #7B4FBB;
-  --aura-silver:         #C8B8F0;
-  --aura-text:           #FFFFFF;
-  --aura-text-muted:     #9E8CC0;
-  --aura-text-silver:    #C8B8F0;
-  --aura-success:        #5DCAA5;
-  --aura-warning:        #EF9F27;
-  --aura-danger:         #F09595;
-  --aura-neon-cyan:      #00E8FF;
-  --aura-neon-pink:      #E24B4A;
-  --aura-glass:          rgba(14, 4, 28, 0.88);
-  --aura-border:         rgba(120, 80, 200, 0.25);
-  --aura-border-strong:  rgba(212, 175, 55, 0.55);
-  --font-serif:          'Playfair Display', Georgia, serif;
-  --font-sans:           'Inter', system-ui, -apple-system, sans-serif;
-  --shadow-gold:         0 12px 48px rgba(0,0,0,0.9), 0 0 24px rgba(212,175,55,0.20);
-  --shadow-neon:         0 0 24px rgba(0,232,255,0.50), 0 0 48px rgba(0,232,255,0.18);
-  --radius:              8px;
+  /* ── Fondos ── */
+  --bg-page:            #F4F1FA;   /* lavanda muy claro, el lienzo */
+  --bg-cream:           #FEFBF4;   /* crema de las tarjetas grandes */
+  --bg-card-solid:      #FFFFFF;
+  --bg-soft:            #FAF7FE;   /* superficies secundarias */
 
-  /* ── Premium system ── */
-  --bg-void:          #04000a;
-  --bg-deep:          #080010;
-  --bg-surface:       rgba(16, 4, 32, 0.90);
-  --bg-card:          rgba(20, 6, 40, 0.88);
-  --gold-primary:     #d4af37;
-  --gold-bright:      #f0d878;
-  --gold-gradient:    linear-gradient(140deg, #f9e1a4 0%, #d4af37 60%, #a07820 100%);
-  --neon-cyan:        #00e8ff;
-  --neon-lavender:    #7b4fbb;
-  --cyan-glow:        0 0 20px rgba(0,232,255,0.70), 0 0 40px rgba(0,232,255,0.30);
-  --cyan-glow-soft:   0 0 12px rgba(0,232,255,0.40);
-  --glass-bg:         rgba(20, 6, 40, 0.85);
-  --glass-border:     1px solid rgba(100, 60, 180, 0.28);
-  --purple-border:    rgba(100, 60, 180, 0.28);
-  --gold-border:      rgba(212, 175, 55, 0.32);
+  /* ── Tinta ── */
+  --ink:                #2A2D7C;   /* azul marino de los titulares */
+  --ink-strong:         #1E2166;
+  --ink-body:           #4A4C7A;
+  --ink-muted:          #7B7DA3;
+  --ink-soft:           #A9AAC6;
+
+  /* ── Marca ── */
+  --gold:               #D9A441;   /* la palabra "Pets" */
+  --gold-deep:          #B8862C;
+  --violet:             #8B5CF6;
+  --pink:               #EC5C8D;
+  --coral:              #F97B4F;
+  --brand-gradient:     linear-gradient(100deg, #8B5CF6 0%, #EC5C8D 55%, #F97B4F 100%);
+
+  /* ── Pasteles decorativos ── */
+  --pastel-mint:        #A5E3DC;
+  --pastel-lavender:    #C9BDF2;
+  --pastel-peach:       #FCE1A8;
+  --pastel-pink:        #F9C9D8;
+  --pastel-sky:         #BFE0F5;
+
+  /* ── Semánticos ── */
+  --ok:                 #3FBFA0;
+  --warn:               #F0A73C;
+  --danger:             #EF5F7A;
+  --info:               #5BA9E8;
+
+  /* ── Bordes y sombras ── */
+  --border:             rgba(138, 120, 200, 0.20);
+  --border-strong:      rgba(139, 92, 246, 0.42);
+  --shadow-sm:          0 1px 2px rgba(42, 45, 124, 0.05), 0 4px 12px -6px rgba(42, 45, 124, 0.12);
+  --shadow-md:          0 4px 10px -4px rgba(42, 45, 124, 0.10), 0 16px 36px -20px rgba(42, 45, 124, 0.22);
+  --shadow-brand:       0 8px 24px -8px rgba(236, 92, 141, 0.45);
+
+  /* ── Tipografía ── */
+  --font-serif:         'Playfair Display', Georgia, serif;
+  --font-sans:          'Inter', system-ui, -apple-system, sans-serif;
+  --font-script:        'Caveat', 'Segoe Script', cursive;
+  --radius:             16px;
+  --radius-lg:          24px;
+  --radius-pill:        999px;
+
+  /* ═══════════════════════════════════════════════════════════════
+     Tokens heredados — la app tiene 425 usos de estos nombres en los
+     estilos en línea del JSX. En vez de tocarlos uno a uno, aquí se
+     reasignan a la paleta clara: todos cambian a la vez.
+     ═══════════════════════════════════════════════════════════════ */
+  --aura-gold:           var(--gold);
+  --aura-gold-light:     #EBC77A;
+  --aura-gold-muted:     rgba(217, 164, 65, 0.20);
+  --aura-gold-dim:       rgba(217, 164, 65, 0.08);
+  --aura-black:          var(--bg-page);
+  --aura-obsidian:       var(--bg-page);
+  --aura-surface:        var(--bg-cream);
+  --aura-card:           var(--bg-card-solid);
+  --aura-purple:         var(--pastel-lavender);
+  --aura-purple-mid:     var(--violet);
+  --aura-silver:         var(--ink-muted);
+  --aura-text:           var(--ink);
+  --aura-text-muted:     var(--ink-muted);
+  --aura-text-silver:    var(--ink-body);
+  --aura-success:        var(--ok);
+  --aura-warning:        var(--warn);
+  --aura-danger:         var(--danger);
+  --aura-neon-cyan:      #43BFC7;
+  --aura-neon-pink:      var(--pink);
+  --aura-glass:          rgba(255, 255, 255, 0.82);
+  --aura-border:         var(--border);
+  --aura-border-strong:  var(--border-strong);
+  --shadow-gold:         var(--shadow-md);
+  --shadow-neon:         var(--shadow-brand);
+
+  --bg-void:          var(--bg-page);
+  --bg-deep:          var(--bg-page);
+  --bg-surface:       var(--bg-cream);
+  --bg-card:          var(--bg-card-solid);
+  --gold-primary:     var(--gold);
+  --gold-bright:      #EBC77A;
+  --gold-gradient:    linear-gradient(140deg, #EBC77A 0%, #D9A441 60%, #B8862C 100%);
+  --neon-cyan:        #43BFC7;
+  --neon-lavender:    var(--violet);
+  --cyan-glow:        0 0 18px rgba(67, 191, 199, 0.28);
+  --cyan-glow-soft:   0 0 10px rgba(67, 191, 199, 0.18);
+  --glass-bg:         rgba(255, 255, 255, 0.86);
+  --glass-border:     1px solid var(--border);
+  --purple-border:    var(--border);
+  --gold-border:      rgba(217, 164, 65, 0.35);
 }
 
 /* ─────────────────────────────────────────────
@@ -63,7 +111,7 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   scrollbar-width: thin;
-  scrollbar-color: rgba(100,60,180,0.4) transparent;
+  scrollbar-color: var(--border) transparent;
 }
 
 button, [role="button"], a, label[for] {
@@ -88,11 +136,11 @@ html {
 ::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
-  background: rgba(100,60,180,0.40);
+  background: var(--border);
   border-radius: 2px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(0,232,255,0.40);
+  background: rgba(67, 191, 199, 0.40);
 }
 
 /* ─────────────────────────────────────────────
@@ -101,17 +149,19 @@ html {
 body {
   margin: 0;
   padding: 0;
-  /*
-    Base: near-black #04000a
-    Subtle purple nebula top-left
-    Subtle cyan aurora bottom-right
-  */
+  /* Lienzo lavanda muy claro con manchas pastel difusas en las esquinas y
+     huellas dispersas como marca de agua. Sustituye al vacio negro-violeta. */
   background:
-    radial-gradient(ellipse 65% 55% at 15% 8%,  rgba(80, 20, 160, 0.28) 0%, transparent 60%),
-    radial-gradient(ellipse 50% 45% at 88% 92%,  rgba(0, 180, 220, 0.09) 0%, transparent 55%),
-    radial-gradient(ellipse 80% 70% at 50% 50%,  #0e0020 0%, #060010 55%, #04000a 100%);
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='460' height='460' viewBox='0 0 460 460'%3E%3Cg fill='%238B5CF6' fill-opacity='0.055'%3E%3Cg transform='translate(52 68) rotate(-18) scale(1.2)'%3E%3Cellipse cx='16' cy='23' rx='9' ry='7.5'/%3E%3Cellipse cx='6' cy='9' rx='3.4' ry='4.6'/%3E%3Cellipse cx='14' cy='4' rx='3.4' ry='4.8'/%3E%3Cellipse cx='22' cy='5' rx='3.4' ry='4.8'/%3E%3Cellipse cx='29' cy='12' rx='3.2' ry='4.2'/%3E%3C/g%3E%3Cg transform='translate(298 160) rotate(26) scale(0.85)'%3E%3Cellipse cx='16' cy='23' rx='9' ry='7.5'/%3E%3Cellipse cx='6' cy='9' rx='3.4' ry='4.6'/%3E%3Cellipse cx='14' cy='4' rx='3.4' ry='4.8'/%3E%3Cellipse cx='22' cy='5' rx='3.4' ry='4.8'/%3E%3Cellipse cx='29' cy='12' rx='3.2' ry='4.2'/%3E%3C/g%3E%3Cg transform='translate(160 326) rotate(-8) scale(1.45)'%3E%3Cellipse cx='16' cy='23' rx='9' ry='7.5'/%3E%3Cellipse cx='6' cy='9' rx='3.4' ry='4.6'/%3E%3Cellipse cx='14' cy='4' rx='3.4' ry='4.8'/%3E%3Cellipse cx='22' cy='5' rx='3.4' ry='4.8'/%3E%3Cellipse cx='29' cy='12' rx='3.2' ry='4.2'/%3E%3C/g%3E%3Cg transform='translate(378 388) rotate(42) scale(0.7)'%3E%3Cellipse cx='16' cy='23' rx='9' ry='7.5'/%3E%3Cellipse cx='6' cy='9' rx='3.4' ry='4.6'/%3E%3Cellipse cx='14' cy='4' rx='3.4' ry='4.8'/%3E%3Cellipse cx='22' cy='5' rx='3.4' ry='4.8'/%3E%3Cellipse cx='29' cy='12' rx='3.2' ry='4.2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"),
+    radial-gradient(ellipse 46% 38% at 4% 6%,   rgba(165, 227, 220, 0.45) 0%, transparent 62%),
+    radial-gradient(ellipse 40% 34% at 97% 12%, rgba(252, 225, 168, 0.50) 0%, transparent 60%),
+    radial-gradient(ellipse 44% 36% at 2% 92%,  rgba(201, 189, 242, 0.45) 0%, transparent 62%),
+    radial-gradient(ellipse 42% 34% at 98% 88%, rgba(249, 201, 216, 0.42) 0%, transparent 60%),
+    var(--bg-page);
+  background-size: 460px 460px, auto, auto, auto, auto, auto;
+  background-repeat: repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat;
   background-attachment: fixed;
-  color: var(--aura-text);
+  color: var(--ink);
   font-family: var(--font-sans);
   overflow-x: hidden;
   overflow-y: auto;
@@ -120,17 +170,8 @@ body {
 }
 
 /* ── Noise grain overlay — fixed, above everything, non-interactive ── */
-body::after {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: 9998;
-  pointer-events: none;
-  opacity: 0.042;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='250' height='250'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='250' height='250' filter='url(%23n)'/%3E%3C/svg%3E");
-  background-repeat: repeat;
-  background-size: 250px 250px;
-}
+/* El grano de pelicula pertenecia al tema oscuro: sobre crema se ve
+   sucio, asi que se retira. */
 
 #root {
   min-height: 100vh;
@@ -144,28 +185,28 @@ body::after {
 h1 {
   font-family: var(--font-serif);
   font-weight: 700;
-  color: #FFFFFF;
+  color: var(--ink);
   letter-spacing: -0.03em;
   margin: 0;
   line-height: 1.08;
   /* Subtle white glow — makes large titles feel luminous */
-  text-shadow: 0 0 40px rgba(255,255,255,0.12), 0 2px 0 rgba(0,0,0,0.5);
+  text-shadow: none;
 }
 
 h2 {
   font-family: var(--font-serif);
   font-weight: 700;
-  color: #FFFFFF;
+  color: var(--ink);
   letter-spacing: -0.025em;
   margin: 0;
   line-height: 1.15;
-  text-shadow: 0 0 30px rgba(255,255,255,0.10), 0 2px 0 rgba(0,0,0,0.4);
+  text-shadow: none;
 }
 
 h3 {
   font-family: var(--font-serif);
   font-weight: 600;
-  color: rgba(255,255,255,0.92);
+  color: var(--ink);
   letter-spacing: -0.018em;
   margin: 0;
   line-height: 1.25;
@@ -184,7 +225,7 @@ h4, h5, h6 {
   font-weight: 700;
   letter-spacing: 4px;
   text-transform: uppercase;
-  color: rgba(255,255,255,0.35);
+  color: var(--ink-soft);
 }
 
 /* Gold gradient clip — only .luxury-title, safe for inline-styled elements */
@@ -212,21 +253,21 @@ h4, h5, h6 {
   background:
     radial-gradient(ellipse 60% 50% at 25% 15%, rgba(80,20,160,0.30) 0%, transparent 55%),
     radial-gradient(ellipse 50% 45% at 85% 85%, rgba(0,180,220,0.08) 0%, transparent 50%),
-    linear-gradient(180deg, #0a0018 0%, #04000a 100%);
+    linear-gradient(180deg, var(--bg-cream) 0%, var(--bg-page) 100%);
 }
 
 /* ── The auth card — feels like a secure terminal panel ── */
 .auth-container .aura-card {
-  padding: 2.4rem 2.8rem;
-  border-color: rgba(100,60,180,0.42);
-  /* Safety net: never taller than the viewport */
-  max-height: 96vh;
-  overflow-y: auto;
-  box-shadow:
-    0 0 90px  rgba(60,20,140,0.28),
-    0 0 180px rgba(0,232,255,0.05),
-    0 32px 80px rgba(0,0,0,0.92),
-    inset 0 1px 0 rgba(255,255,255,0.09);
+  background: var(--bg-card-solid);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 2.2rem;
+  position: relative;
+  overflow: hidden;
+  transition:
+    transform    0.42s cubic-bezier(0.16,1,0.3,1),
+    box-shadow   0.42s ease;
+  box-shadow: var(--shadow-md);
 }
 
 /* ── Header block ── */
@@ -259,7 +300,7 @@ h4, h5, h6 {
 }
 
 /*
-  Subtitle "Portal de Acceso AURA" / "Crear Registro Biométrico"
+  Subtitle "Accede a tu expediente" / "Crea tu cuenta"
   Inline sets: color, font-size, letter-spacing, text-transform.
   We add: a cool glow so it reads against the dark card.
 */
@@ -280,10 +321,10 @@ h4, h5, h6 {
     90deg,
     transparent,
     rgba(212,175,55,0.85) 35%,
-    rgba(0,232,255,0.55) 70%,
+    rgba(67, 191, 199, 0.55) 70%,
     transparent
   );
-  box-shadow: 0 0 10px rgba(212,175,55,0.40), 0 0 6px rgba(0,232,255,0.25);
+  box-shadow: 0 0 10px rgba(212,175,55,0.40), 0 0 6px rgba(67, 191, 199, 0.25);
 }
 
 /* ── Input groups ── */
@@ -293,27 +334,25 @@ h4, h5, h6 {
 .input-group input,
 .input-group textarea {
   width: 100%;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(100,60,180,0.35);
-  border-radius: var(--radius);
-  color: #FFFFFF;
+  background: var(--bg-card-solid);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  color: var(--ink);
   font-family: var(--font-sans);
   font-size: 0.98rem;
   padding: 1.1rem 1.2rem;
   outline: none;
   transition: border-color 0.3s, box-shadow 0.3s, background 0.3s;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
 }
 .input-group input:focus,
 .input-group textarea:focus {
-  border-color: var(--neon-cyan);
-  background: rgba(0,232,255,0.035);
-  box-shadow: 0 0 0 3px rgba(0,232,255,0.10), var(--cyan-glow-soft);
+  border-color: var(--violet);
+  background: #FFFFFF;
+  box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.14);
 }
 .input-group input::placeholder,
 .input-group textarea::placeholder {
-  color: rgba(180,160,220,0.38);
+  color: var(--ink-soft);
 }
 
 /*
@@ -325,17 +364,16 @@ h4, h5, h6 {
   border-radius: var(--radius) !important;
   font-family: var(--font-sans) !important;
   border: 1px solid rgba(130, 80, 220, 0.65) !important;
-  background: rgba(255,255,255,0.055) !important;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.05) !important;
+  background: var(--bg-card-solid) !important;
+  box-shadow: !important;
   transition: border-color 0.3s, box-shadow 0.3s, background 0.3s !important;
 }
 .auth-container .input-group input:focus {
   border-color: var(--neon-cyan) !important;
-  background: rgba(0,232,255,0.05) !important;
+  background: rgba(67, 191, 199, 0.05) !important;
   box-shadow:
-    0 0 0 3px rgba(0,232,255,0.12),
-    0 0 18px rgba(0,232,255,0.35),
-    inset 0 1px 0 rgba(255,255,255,0.06) !important;
+    0 0 0 3px rgba(67, 191, 199, 0.12),
+    0 0 18px rgba(67, 191, 199, 0.35) !important;
   outline: none !important;
 }
 .auth-container .input-group input::placeholder {
@@ -350,33 +388,26 @@ h4, h5, h6 {
 
 /* ── Submit button — the hero CTA of the login page ── */
 .auth-container form .btn-aura {
-  background: linear-gradient(
-    160deg,
-    rgba(249,225,164,0.22) 0%,
-    rgba(212,175,55,0.16) 100%
-  ) !important;
-  border: 1px solid rgba(212,175,55,0.85) !important;
-  color: var(--gold-bright) !important;
-  letter-spacing: 4px;
-  font-size: 0.75rem !important;
-  font-weight: 700 !important;
-  /* Persistent glow so the button always draws the eye */
-  box-shadow:
-    0 0 28px rgba(212,175,55,0.28),
-    0 0 60px rgba(212,175,55,0.10),
-    inset 0 1px 0 rgba(255,255,255,0.12) !important;
-  text-shadow: 0 0 16px rgba(249,225,164,0.55) !important;
-  transition: all 0.30s cubic-bezier(0.16,1,0.3,1) !important;
+  background: var(--brand-gradient);
+  border: none;
+  color: #FFFFFF;
+  padding: 1rem 2.4rem;
+  font-family: var(--font-sans);
+  text-transform: uppercase;
+  letter-spacing: 2.5px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.25s cubic-bezier(0.16,1,0.3,1), box-shadow 0.25s ease, filter 0.25s ease;
+  position: relative;
+  border-radius: var(--radius-pill);
+  box-shadow: var(--shadow-brand);
+  overflow: hidden;
 }
 .auth-container form .btn-aura:hover {
-  background: var(--gold-gradient) !important;
-  color: #08001a !important;
-  letter-spacing: 5px;
-  text-shadow: none !important;
-  box-shadow:
-    0 0 50px rgba(212,175,55,0.65),
-    0 0 100px rgba(212,175,55,0.22),
-    0 8px 32px rgba(0,0,0,0.80) !important;
+  filter: brightness(1.06) saturate(1.05);
+  letter-spacing: 3.4px;
+  box-shadow: 0 14px 36px -10px rgba(236, 92, 141, 0.65) !important;
   transform: translateY(-2px);
 }
 
@@ -461,39 +492,18 @@ h4, h5, h6 {
    not pure glass, subtle purple border glow.
 ───────────────────────────────────────────── */
 .aura-card {
-  background: rgba(20, 6, 42, 0.90);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(100, 60, 180, 0.28);
-  border-radius: 14px;
-  padding: 2.5rem;
+  background: var(--bg-card-solid);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 2.2rem;
   position: relative;
   overflow: hidden;
-  transition:
-    transform     0.42s cubic-bezier(0.16,1,0.3,1),
-    border-color  0.42s ease,
-    box-shadow    0.42s ease;
-  box-shadow:
-    0 4px 32px rgba(0,0,0,0.75),
-    inset 0 1px 0 rgba(255,255,255,0.06),
-    inset 1px 0 0 rgba(255,255,255,0.02);
+  transition: transform 0.42s cubic-bezier(0.16,1,0.3,1), box-shadow 0.42s ease;
+  box-shadow: var(--shadow-md);
 }
 
 /* Top shimmer edge */
-.aura-card::after {
-  content: '';
-  position: absolute;
-  top: 0; left: 8%; right: 8%;
-  height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(150, 100, 255, 0.45) 35%,
-    rgba(0, 232, 255, 0.25) 65%,
-    transparent
-  );
-  pointer-events: none;
-}
+.aura-card::after { content: none; }
 
 /*
   Internal lighting simulation:
@@ -516,36 +526,29 @@ h4, h5, h6 {
     /* Diagonal fade — top edge shimmer */
     linear-gradient(
       135deg,
-      rgba(255,255,255,0.055) 0%,
-      rgba(255,255,255,0.010) 30%,
+      rgba(201, 189, 242, 0.16) 0%,
+      rgba(201, 189, 242, 0.04) 30%,
       transparent 55%
     );
 }
 
 .aura-card:hover {
-  border-color: rgba(100,60,180,0.55);
+  border-color: var(--border);
   box-shadow:
-    0 12px 48px rgba(0,0,0,0.82),
-    0 0 28px rgba(0,232,255,0.06),
-    inset 0 1px 0 rgba(255,255,255,0.09);
+    0 12px 48px rgba(42, 45, 124, 0.13),
+    0 0 28px rgba(67, 191, 199, 0.06);
   transform: translateY(-2px);
 }
 
 /* Glass card alias */
 .glass-card {
-  background: rgba(20, 6, 42, 0.88);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(100,60,180,0.25);
-  border-radius: 14px;
-  padding: 1.5rem;
-  position: relative;
-  overflow: hidden;
-  transition: transform 0.4s cubic-bezier(0.16,1,0.3,1), border-color 0.4s;
-  box-shadow: 0 4px 28px rgba(0,0,0,0.70), inset 0 1px 0 rgba(255,255,255,0.05);
+  background: var(--bg-card-solid);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
 }
 .glass-card:hover {
-  border-color: rgba(100,60,180,0.48);
+  border-color: var(--border);
   transform: translateY(-1px);
 }
 
@@ -553,43 +556,29 @@ h4, h5, h6 {
    8. BUTTONS
 ───────────────────────────────────────────── */
 .btn-aura {
-  background: rgba(212,175,55,0.08);
-  border: 1px solid rgba(212,175,55,0.48);
-  color: var(--gold-bright);
-  padding: 0.9rem 2.2rem;
+  background: var(--brand-gradient);
+  border: none;
+  color: #FFFFFF;
+  padding: 1rem 2.4rem;
   font-family: var(--font-sans);
   text-transform: uppercase;
-  letter-spacing: 3px;
-  font-size: 0.72rem;
+  letter-spacing: 2.5px;
+  font-size: 0.74rem;
   font-weight: 700;
   cursor: pointer;
-  transition: all 0.30s cubic-bezier(0.16,1,0.3,1);
+  transition: transform 0.25s cubic-bezier(0.16,1,0.3,1), box-shadow 0.25s ease, filter 0.25s ease;
   position: relative;
-  border-radius: var(--radius);
-  text-shadow: 0 0 14px rgba(212,175,55,0.30);
+  border-radius: var(--radius-pill);
+  box-shadow: var(--shadow-brand);
   overflow: hidden;
 }
 
-.btn-aura::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 1px;
-  background: linear-gradient(90deg,
-    transparent,
-    rgba(212,175,55,0.65) 50%,
-    transparent
-  );
-  pointer-events: none;
-}
+.btn-aura::before { content: none; }
 
 .btn-aura:hover {
-  background: var(--gold-gradient);
-  color: #08001a;
-  border-color: var(--gold-bright);
-  box-shadow: 0 0 32px rgba(212,175,55,0.50), 0 4px 20px rgba(0,0,0,0.60);
-  text-shadow: none;
-  transform: translateY(-1px);
+  filter: brightness(1.06) saturate(1.05);
+  box-shadow: 0 12px 30px -8px rgba(236, 92, 141, 0.60);
+  transform: translateY(-2px);
 }
 
 .btn-aura:active {
@@ -597,36 +586,26 @@ h4, h5, h6 {
 }
 
 .btn-primary {
-  background: var(--gold-gradient);
-  border: 1px solid rgba(212,175,55,0.80);
-  color: #08001a;
-  padding: 0.9rem 2.2rem;
-  font-family: var(--font-sans);
-  text-transform: uppercase;
-  letter-spacing: 3px;
-  font-size: 0.72rem;
-  font-weight: 700;
-  cursor: pointer;
-  border-radius: var(--radius);
-  box-shadow: 0 4px 20px rgba(212,175,55,0.32);
-  transition: all 0.3s ease;
+  background: var(--brand-gradient);
+  border: none;
+  color: #FFFFFF;
 }
 .btn-primary:hover {
-  box-shadow: 0 0 34px rgba(212,175,55,0.60), 0 6px 22px rgba(0,0,0,0.60);
+  box-shadow: 0 0 34px rgba(212,175,55,0.60), 0 6px 22px rgba(42, 45, 124, 0.13);
   transform: translateY(-1px);
 }
 
 .btn-neon {
   border-color: var(--neon-cyan) !important;
   color: var(--neon-cyan) !important;
-  background: rgba(0,232,255,0.06) !important;
-  box-shadow: 0 0 12px rgba(0,232,255,0.14), inset 0 0 10px rgba(0,232,255,0.04);
-  text-shadow: 0 0 12px rgba(0,232,255,0.55) !important;
+  background: rgba(67, 191, 199, 0.06) !important;
+  box-shadow: 0 0 12px rgba(67, 191, 199, 0.14), inset 0 0 10px rgba(67, 191, 199, 0.04);
+  text-shadow: 0 0 12px rgba(67, 191, 199, 0.55) !important;
 }
 .btn-neon:hover {
-  background: rgba(0,232,255,0.12) !important;
-  color: #ffffff !important;
-  box-shadow: var(--cyan-glow), 0 4px 20px rgba(0,0,0,0.55) !important;
+  background: rgba(67, 191, 199, 0.12) !important;
+  color: var(--ink) !important;
+  box-shadow: var(--cyan-glow), 0 4px 20px rgba(42, 45, 124, 0.13) !important;
 }
 
 .btn-full {
@@ -643,7 +622,7 @@ h4, h5, h6 {
   position: sticky;
   top: 0;
   z-index: 100;
-  background: rgba(4, 0, 10, 0.97);
+  background: rgba(254, 251, 244, 0.92);
   backdrop-filter: blur(32px);
   -webkit-backdrop-filter: blur(32px);
   border-bottom: 1px solid rgba(80,40,160,0.20);
@@ -651,7 +630,7 @@ h4, h5, h6 {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 4px 40px rgba(0,0,0,0.85);
+  box-shadow: 0 4px 40px rgba(42, 45, 124, 0.13);
 }
 
 .aura-nav::after {
@@ -662,8 +641,8 @@ h4, h5, h6 {
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(100,60,180,0.50) 30%,
-    rgba(0,232,255,0.45) 70%,
+    var(--border) 30%,
+    rgba(67, 191, 199, 0.45) 70%,
     transparent 100%
   );
   pointer-events: none;
@@ -675,7 +654,7 @@ h4, h5, h6 {
 .bottom-tab-bar {
   position: fixed;
   bottom: 0; left: 0; right: 0;
-  background: rgba(4, 0, 10, 0.98);
+  background: rgba(254, 251, 244, 0.92);
   backdrop-filter: blur(32px);
   -webkit-backdrop-filter: blur(32px);
   border-top: 1px solid rgba(80,40,160,0.18);
@@ -684,13 +663,13 @@ h4, h5, h6 {
   align-items: center;
   padding: 0.5rem 0.5rem calc(0.5rem + env(safe-area-inset-bottom));
   z-index: 200;
-  box-shadow: 0 -6px 32px rgba(0,0,0,0.80);
+  box-shadow: 0 -6px 32px rgba(42, 45, 124, 0.13);
 }
 
 .tab-btn {
   background: none;
   border: none;
-  color: rgba(160,140,210,0.42);
+  color: var(--ink-muted);
   cursor: pointer;
   display: flex;
   flex-direction: column;
@@ -707,7 +686,7 @@ h4, h5, h6 {
 }
 .tab-btn.active {
   color: var(--neon-cyan);
-  text-shadow: 0 0 14px rgba(0,232,255,0.65);
+  text-shadow: 0 0 14px rgba(67, 191, 199, 0.65);
 }
 
 .tab-sos-cta {
@@ -732,7 +711,7 @@ h4, h5, h6 {
 
 .tab-btn.sos-tab   { color: var(--aura-neon-pink); }
 .tab-btn.confirm-tab {
-  background: var(--neon-cyan); color: #04000a;
+  background: var(--neon-cyan); color: var(--ink-strong);
   border-radius: 50%; width: 56px; height: 56px;
   justify-content: center; margin-top: -20px;
   box-shadow: var(--cyan-glow); font-size: 0.55rem; padding: 0;
@@ -743,12 +722,10 @@ h4, h5, h6 {
 ───────────────────────────────────────────── */
 .aura-input {
   width: 100%;
-  background: rgba(255,255,255,0.04);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1.5px solid rgba(100,60,180,0.32);
-  border-radius: var(--radius);
-  color: #FFFFFF;
+  background: var(--bg-card-solid);
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  color: var(--ink);
   font-family: var(--font-sans);
   font-size: 0.95rem;
   padding: 0.9rem 1.2rem;
@@ -756,11 +733,11 @@ h4, h5, h6 {
   transition: border-color 0.3s, box-shadow 0.3s, background 0.3s;
 }
 .aura-input:focus {
-  border-color: var(--neon-cyan);
-  background: rgba(0,232,255,0.035);
-  box-shadow: 0 0 0 3px rgba(0,232,255,0.10), var(--cyan-glow-soft);
+  border-color: var(--violet);
+  background: #FFFFFF;
+  box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.14);
 }
-.aura-input::placeholder { color: rgba(160,140,210,0.40); }
+.aura-input::placeholder { color: var(--ink-soft); }
 .aura-input:disabled { opacity: 0.45; cursor: not-allowed; }
 
 .aura-select {
@@ -771,8 +748,8 @@ h4, h5, h6 {
   background-position: right 1rem center;
 }
 .aura-select option {
-  background: #10001e;
-  color: #FFFFFF;
+  background: var(--bg-card-solid);
+  color: var(--ink);
 }
 
 .input-label {
@@ -808,19 +785,19 @@ h4, h5, h6 {
   flex-shrink: 0;
   scroll-snap-align: center;
   width: 100px; height: 100px;
-  border: 1px solid rgba(100,60,180,0.28);
+  border: 1px solid var(--border);
   border-radius: 12px;
   overflow: hidden;
   cursor: pointer;
   position: relative;
-  background: rgba(20,6,42,0.80);
+  background: var(--bg-card-solid);
   backdrop-filter: blur(8px);
   transition: border-color 0.25s, transform 0.25s, box-shadow 0.25s;
 }
 .species-card:hover {
   border-color: rgba(212,175,55,0.55);
   transform: scale(1.04);
-  box-shadow: 0 0 20px rgba(212,175,55,0.25), 0 6px 20px rgba(0,0,0,0.60);
+  box-shadow: 0 0 20px rgba(212,175,55,0.25), 0 6px 20px rgba(42, 45, 124, 0.13);
 }
 .species-card img {
   width: 100%; height: 100%;
@@ -833,7 +810,7 @@ h4, h5, h6 {
   border-color: var(--gold-primary);
   border-width: 2px;
   transform: scale(1.08);
-  box-shadow: 0 0 22px rgba(212,175,55,0.50), 0 8px 26px rgba(0,0,0,0.65);
+  box-shadow: 0 0 22px rgba(212,175,55,0.50), 0 8px 26px rgba(42, 45, 124, 0.13);
 }
 .species-card.selected img { opacity: 1; }
 .species-check {
@@ -843,7 +820,7 @@ h4, h5, h6 {
   font-size: 0.48rem;
   letter-spacing: 1.5px;
   color: var(--gold-bright);
-  text-shadow: 0 0 8px rgba(240,216,120,0.95), 0 1px 4px rgba(0,0,0,0.95);
+  text-shadow: 0 0 8px rgba(240,216,120,0.95), 0 1px 4px rgba(42, 45, 124, 0.13);
   padding: 4px 0;
 }
 
@@ -857,11 +834,11 @@ h4, h5, h6 {
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(100,60,180,0.55) 25%,
-    rgba(0,232,255,0.45) 75%,
+    var(--border) 25%,
+    rgba(67, 191, 199, 0.45) 75%,
     transparent 100%
   );
-  box-shadow: 0 0 10px rgba(0,232,255,0.12);
+  box-shadow: 0 0 10px rgba(67, 191, 199, 0.12);
 }
 
 /* ─────────────────────────────────────────────
@@ -869,13 +846,13 @@ h4, h5, h6 {
 ───────────────────────────────────────────── */
 .aura-tabs {
   display: flex;
-  border-bottom: 1px solid rgba(80,40,160,0.22);
+  border-bottom: 1px solid var(--border);
   margin-bottom: 2rem;
 }
 .aura-tab {
   background: none;
   border: none;
-  color: rgba(160,140,210,0.42);
+  color: var(--ink-muted);
   font-family: var(--font-sans);
   font-size: 0.75rem;
   letter-spacing: 2px;
@@ -887,9 +864,9 @@ h4, h5, h6 {
   margin-bottom: -1px;
 }
 .aura-tab.active {
-  color: var(--neon-cyan);
-  border-bottom-color: var(--neon-cyan);
-  text-shadow: 0 0 14px rgba(0,232,255,0.55);
+  color: var(--violet);
+  border-bottom-color: var(--violet);
+  text-shadow: 0 0 14px rgba(67, 191, 199, 0.55);
 }
 .aura-tab:hover:not(.active) {
   color: rgba(200,180,240,0.65);
@@ -902,7 +879,7 @@ h4, h5, h6 {
   -webkit-appearance: none;
   width: 100%;
   height: 2px;
-  background: rgba(100,60,180,0.25);
+  background: var(--border);
   outline: none;
   border-radius: 1px;
 }
@@ -934,8 +911,8 @@ h4, h5, h6 {
 .aura-toggle-slider {
   position: absolute;
   inset: 0;
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(100,60,180,0.30);
+  background: var(--bg-card-solid);
+  border: 1px solid var(--border);
   border-radius: 24px;
   cursor: pointer;
   transition: all 0.3s;
@@ -950,14 +927,14 @@ h4, h5, h6 {
   transition: 0.3s;
 }
 .aura-toggle input:checked + .aura-toggle-slider {
-  background: rgba(0,232,255,0.15);
-  border-color: rgba(0,232,255,0.55);
-  box-shadow: 0 0 14px rgba(0,232,255,0.30);
+  background: rgba(67, 191, 199, 0.15);
+  border-color: rgba(67, 191, 199, 0.55);
+  box-shadow: 0 0 14px rgba(67, 191, 199, 0.30);
 }
 .aura-toggle input:checked + .aura-toggle-slider::before {
   transform: translateX(20px);
   background: var(--neon-cyan);
-  box-shadow: 0 0 8px rgba(0,232,255,0.60);
+  box-shadow: 0 0 8px rgba(67, 191, 199, 0.60);
 }
 
 /* ─────────────────────────────────────────────
@@ -968,38 +945,38 @@ h4, h5, h6 {
   display: flex;
   align-items: center;
   gap: 1.2rem;
-  background: rgba(0,232,255,0.04);
-  border: 1px solid rgba(0,232,255,0.18);
+  background: rgba(67, 191, 199, 0.04);
+  border: 1px solid rgba(67, 191, 199, 0.18);
   border-radius: 12px;
   padding: 1.2rem 1.5rem;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 0 32px rgba(0,232,255,0.06), inset 0 1px 0 rgba(255,255,255,0.04);
+  box-shadow: 0 0 32px rgba(67, 191, 199, 0.06);
 }
 .shield-banner::before {
   content: '';
   position: absolute;
   top: 0; left: 0; right: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(0,232,255,0.60), transparent);
+  background: linear-gradient(90deg, transparent, rgba(67, 191, 199, 0.60), transparent);
 }
 
 /* The shield orb — mimics the dramatic glowing sphere in the reference */
 .shield-icon {
   width: 56px; height: 56px;
-  border: 2px solid rgba(0,232,255,0.60);
+  border: 2px solid rgba(139, 92, 246, 0.45);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  color: var(--neon-cyan);
+  color: var(--violet);
   position: relative;
-  background: radial-gradient(circle at 35% 35%, rgba(0,232,255,0.18) 0%, rgba(0,100,180,0.08) 50%, transparent 70%);
+  background: radial-gradient(circle at 35% 35%, rgba(67, 191, 199, 0.18) 0%, rgba(0,100,180,0.08) 50%, transparent 70%);
   box-shadow:
-    0 0 24px rgba(0,232,255,0.55),
-    0 0 48px rgba(0,232,255,0.22),
-    inset 0 0 20px rgba(0,232,255,0.10);
+    0 0 24px rgba(67, 191, 199, 0.55),
+    0 0 48px rgba(67, 191, 199, 0.22),
+    inset 0 0 20px rgba(67, 191, 199, 0.10);
   animation: shield-pulse 3s ease-in-out infinite;
 }
 
@@ -1009,8 +986,8 @@ h4, h5, h6 {
   position: absolute;
   inset: -12px;
   border: 1px solid transparent;
-  border-top-color: rgba(0,232,255,0.65);
-  border-right-color: rgba(0,232,255,0.20);
+  border-top-color: rgba(67, 191, 199, 0.65);
+  border-right-color: rgba(67, 191, 199, 0.20);
   border-radius: 50%;
   animation: orbital-spin 3.5s linear infinite;
 }
@@ -1033,7 +1010,7 @@ h4, h5, h6 {
   color: var(--neon-cyan);
   letter-spacing: 1.5px;
   margin: 0 0 3px;
-  text-shadow: 0 0 14px rgba(0,232,255,0.50);
+  text-shadow: 0 0 14px rgba(67, 191, 199, 0.50);
   text-transform: uppercase;
 }
 .shield-text p {
@@ -1095,15 +1072,15 @@ h4, h5, h6 {
 .gauge-container {
   width: 140px; height: 140px;
   position: relative;
-  border: 1px solid rgba(100,60,180,0.32);
+  border: 1px solid var(--border);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   background: radial-gradient(circle, rgba(20,6,42,0.88) 0%, rgba(4,0,10,0.98) 100%);
   box-shadow:
-    inset 0 0 36px rgba(0,0,0,0.92),
-    0 0 20px rgba(0,232,255,0.08);
+    inset 0 0 36px rgba(42, 45, 124, 0.13),
+    0 0 20px rgba(67, 191, 199, 0.08);
 }
 .gauge-needle {
   position: absolute;
@@ -1118,7 +1095,7 @@ h4, h5, h6 {
 }
 .gauge-cap {
   width: 10px; height: 10px;
-  background: #04000a;
+  background: var(--bg-cream);
   border: 2px solid var(--gold-primary);
   border-radius: 50%;
   z-index: 6;
@@ -1152,7 +1129,7 @@ h4, h5, h6 {
   /* 3-D sphere illusion: radial glow centered on the orb */
   background:
     radial-gradient(circle at 38% 38%,
-      rgba(0,232,255,0.22) 0%,
+      rgba(67, 191, 199, 0.22) 0%,
       rgba(0,100,200,0.10) 40%,
       transparent 70%
     );
@@ -1160,8 +1137,8 @@ h4, h5, h6 {
 
   /* Ambient halo — the "breathing" glow around the whole orb */
   filter:
-    drop-shadow(0 0 18px rgba(0,232,255,0.55))
-    drop-shadow(0 0 40px rgba(0,232,255,0.25))
+    drop-shadow(0 0 18px rgba(67, 191, 199, 0.55))
+    drop-shadow(0 0 40px rgba(67, 191, 199, 0.25))
     drop-shadow(0 0 70px rgba(0,150,220,0.15));
 
   animation: orb-breathe 3.5s ease-in-out infinite;
@@ -1174,8 +1151,8 @@ h4, h5, h6 {
   /* 28 px beyond the 120px orb = inset of -28px relative to .bio-ring */
   inset: -28px;
   border: 1.5px solid transparent;
-  border-top-color:   rgba(0,232,255,0.80);
-  border-right-color: rgba(0,232,255,0.25);
+  border-top-color:   rgba(67, 191, 199, 0.80);
+  border-right-color: rgba(67, 191, 199, 0.25);
   border-radius: 50%;
   animation: orbital-spin 3s linear infinite;
   pointer-events: none;
@@ -1203,7 +1180,7 @@ h4, h5, h6 {
 .aura-pulse-logo {
   animation: logoPulse 3s ease-in-out infinite;
   filter:
-    drop-shadow(0 0 10px rgba(0,232,255,0.55))
+    drop-shadow(0 0 10px rgba(67, 191, 199, 0.55))
     drop-shadow(0 0 22px rgba(212,175,55,0.30));
 }
 
@@ -1229,17 +1206,17 @@ h4, h5, h6 {
 }
 
 @keyframes auraPulse {
-  0%, 100% { box-shadow: 0 0 0 0   rgba(0,232,255,0.40); }
-  50%       { box-shadow: 0 0 0 20px rgba(0,232,255,0.00); }
+  0%, 100% { box-shadow: 0 0 0 0   rgba(67, 191, 199, 0.40); }
+  50%       { box-shadow: 0 0 0 20px rgba(67, 191, 199, 0.00); }
 }
 
 @keyframes logoPulse {
   0%, 100% {
-    filter: drop-shadow(0 0 8px rgba(0,232,255,0.45)) drop-shadow(0 0 18px rgba(212,175,55,0.28));
+    filter: drop-shadow(0 0 8px rgba(67, 191, 199, 0.45)) drop-shadow(0 0 18px rgba(212,175,55,0.28));
     transform: scale(1);
   }
   50% {
-    filter: drop-shadow(0 0 14px rgba(0,232,255,0.70)) drop-shadow(0 0 28px rgba(212,175,55,0.40));
+    filter: drop-shadow(0 0 14px rgba(67, 191, 199, 0.70)) drop-shadow(0 0 28px rgba(212,175,55,0.40));
     transform: scale(1.03);
   }
 }
@@ -1260,15 +1237,15 @@ h4, h5, h6 {
 @keyframes shield-pulse {
   0%, 100% {
     box-shadow:
-      0 0 22px rgba(0,232,255,0.50),
-      0 0 44px rgba(0,232,255,0.20),
-      inset 0 0 18px rgba(0,232,255,0.09);
+      0 0 22px rgba(67, 191, 199, 0.50),
+      0 0 44px rgba(67, 191, 199, 0.20),
+      inset 0 0 18px rgba(67, 191, 199, 0.09);
   }
   50% {
     box-shadow:
-      0 0 40px rgba(0,232,255,0.80),
-      0 0 80px rgba(0,232,255,0.35),
-      inset 0 0 28px rgba(0,232,255,0.16);
+      0 0 40px rgba(67, 191, 199, 0.80),
+      0 0 80px rgba(67, 191, 199, 0.35),
+      inset 0 0 28px rgba(67, 191, 199, 0.16);
   }
 }
 
@@ -1282,14 +1259,14 @@ h4, h5, h6 {
 @keyframes orb-breathe {
   0%, 100% {
     filter:
-      drop-shadow(0 0 16px rgba(0,232,255,0.50))
-      drop-shadow(0 0 36px rgba(0,232,255,0.22))
+      drop-shadow(0 0 16px rgba(67, 191, 199, 0.50))
+      drop-shadow(0 0 36px rgba(67, 191, 199, 0.22))
       drop-shadow(0 0 60px rgba(0,150,220,0.12));
   }
   50% {
     filter:
-      drop-shadow(0 0 28px rgba(0,232,255,0.80))
-      drop-shadow(0 0 60px rgba(0,232,255,0.40))
+      drop-shadow(0 0 28px rgba(67, 191, 199, 0.80))
+      drop-shadow(0 0 60px rgba(67, 191, 199, 0.40))
       drop-shadow(0 0 100px rgba(0,150,220,0.25));
   }
 }
@@ -1357,7 +1334,7 @@ input[type="date"],
 input[type="datetime-local"],
 input[type="time"],
 input[type="month"] {
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 /*
@@ -1389,8 +1366,8 @@ input[type="number"] {
 }
 
 /* ── 25-c  Text selection — gold luxury ────────────────────────── */
-::selection      { background: rgba(212,175,55,0.30); color: #FFFFFF; }
-::-moz-selection { background: rgba(212,175,55,0.30); color: #FFFFFF; }
+::selection      { background: rgba(212,175,55,0.30); color: var(--ink); }
+::-moz-selection { background: rgba(212,175,55,0.30); color: var(--ink); }
 
 /* ── 25-d  Focus-visible — keyboard navigation ring ───────────── */
 .btn-aura:focus-visible,
@@ -1399,7 +1376,7 @@ input[type="number"] {
 .aura-tab:focus-visible,
 .tab-btn:focus-visible,
 .species-card:focus-visible {
-  outline: 2px solid rgba(0,232,255,0.65);
+  outline: 2px solid rgba(67, 191, 199, 0.65);
   outline-offset: 3px;
 }
 .aura-input:focus-visible { outline: none; }
@@ -1409,7 +1386,7 @@ pre {
   font-family: 'Courier New', Courier, monospace;
   font-size: 0.68rem;
   color: var(--aura-text-muted);
-  background: rgba(255,255,255,0.03);
+  background: var(--bg-card-solid);
   border: 1px solid var(--aura-border);
   border-radius: var(--radius);
   padding: 0.8rem;
@@ -1421,7 +1398,7 @@ pre {
 
 /* ── 25-f  Textarea resize handle (webkit) ─────────────────────── */
 ::-webkit-resizer {
-  background-color: rgba(100,60,180,0.22);
+  background-color: var(--border);
   border: none;
 }
 
@@ -1440,16 +1417,16 @@ pre {
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(100,60,180,0.30) 12%,
+    var(--border) 12%,
     rgba(150,100,255,0.65) 32%,
-    rgba(0,232,255,0.62)  50%,
+    rgba(67, 191, 199, 0.62)  50%,
     rgba(150,100,255,0.65) 68%,
-    rgba(100,60,180,0.30) 88%,
+    var(--border) 88%,
     transparent 100%
   );
   background-size: 220% 100%;
   animation: shimmer-sweep 6s linear infinite;
-  box-shadow: 0 0 12px rgba(0,232,255,0.14);
+  box-shadow: 0 0 12px rgba(67, 191, 199, 0.14);
 }
 
 /* ── 25-h  .locale-chip — hover glow ──────────────────────────── */
@@ -1466,14 +1443,12 @@ pre {
 .sos-main-grid .aura-card {
   box-shadow:
     0 0 32px rgba(226,75,74,0.12),
-    0 4px 24px rgba(0,0,0,0.78),
-    inset 0 1px 0 rgba(255,255,255,0.07);
+    0 4px 24px rgba(42, 45, 124, 0.13);
 }
 .sos-main-grid .aura-card:hover {
   box-shadow:
     0 0 50px rgba(226,75,74,0.24),
-    0 12px 40px rgba(0,0,0,0.85),
-    inset 0 1px 0 rgba(255,255,255,0.09);
+    0 12px 40px rgba(42, 45, 124, 0.13);
 }
 
 /* ── 25-j  .tab-sos-cta — persistent emergency pulse animation ── */
@@ -1515,4 +1490,63 @@ pre {
     animation-iteration-count: 1      !important;
     transition-duration:       0.01ms !important;
   }
+}
+
+
+/* ─────────────────────────────────────────────
+   26. CABECERA DE BIENVENIDA — pastel + manuscrito
+───────────────────────────────────────────── */
+.aura-hero {
+  position: relative;
+  background:
+    radial-gradient(ellipse 40% 60% at 6% 12%,  rgba(165,227,220,0.55) 0%, transparent 68%),
+    radial-gradient(ellipse 36% 56% at 96% 18%, rgba(252,225,168,0.60) 0%, transparent 66%),
+    radial-gradient(ellipse 38% 54% at 10% 94%, rgba(201,189,242,0.50) 0%, transparent 68%),
+    radial-gradient(ellipse 34% 52% at 92% 90%, rgba(249,201,216,0.50) 0%, transparent 66%),
+    var(--bg-cream);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+
+/* Saludo manuscrito, como el "Bienvenido a" de la maqueta */
+.aura-script {
+  font-family: var(--font-script);
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  font-weight: 600;
+  color: var(--violet);
+  line-height: 1;
+  margin: 0 0 0.2rem;
+  transform: rotate(-1.6deg);
+  display: inline-block;
+}
+
+/* Separador de tres pasteles */
+.aura-rainbow-rule {
+  width: 132px; height: 3px; border-radius: 999px;
+  margin: 1rem auto;
+  background: linear-gradient(90deg, var(--pastel-mint), var(--pastel-lavender), var(--pastel-peach), var(--pastel-pink));
+}
+
+
+/* ─────────────────────────────────────────────
+   27. TARJETA CON FLORACIÓN PASTEL
+   Variante de .aura-card para las pantallas que necesitan color propio
+   sin dejar de ser una superficie clara y legible.
+───────────────────────────────────────────── */
+.aura-card--bloom {
+  background:
+    radial-gradient(ellipse 44% 62% at 3% 8%,   rgba(165,227,220,0.42) 0%, transparent 66%),
+    radial-gradient(ellipse 38% 56% at 98% 14%, rgba(201,189,242,0.44) 0%, transparent 64%),
+    radial-gradient(ellipse 40% 58% at 6% 96%,  rgba(252,225,168,0.40) 0%, transparent 66%),
+    radial-gradient(ellipse 36% 54% at 95% 92%, rgba(249,201,216,0.40) 0%, transparent 64%),
+    var(--bg-cream);
+}
+
+/* Cabecera de sección sobre la floración */
+.aura-card--bloom .section-eyebrow {
+  color: var(--gold-deep);
+  font-weight: 700;
+  letter-spacing: 3px;
 }

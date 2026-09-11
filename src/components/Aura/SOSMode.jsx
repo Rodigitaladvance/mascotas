@@ -13,6 +13,64 @@ const EMERGENCY = {
 const getEmergencyNumber = (countryCode) =>
   EMERGENCY[countryCode?.toUpperCase()] ?? '112';
 
+/* ── Resolución de país 100 % local ──────────────────────────────────────────
+   Antes esto consultaba a Nominatim, lo que enviaba la ubicación exacta del
+   usuario a un tercero justo en el momento de una emergencia. Ahora se resuelve
+   con cajas delimitadoras en el propio dispositivo: no sale ni un byte.
+   Solo cubrimos los países con número de emergencia propio; para el resto se
+   cae al idioma del navegador y, en último término, al 112.               */
+const COUNTRY_BOXES = [
+  // [ISO, latMin, latMax, lonMin, lonMax]  — orden: de más específico a más amplio
+  ['PT', 36.9, 42.2, -9.6, -6.2],
+  ['ES', 35.9, 43.9, -9.4, 4.4],
+  ['IE', 51.4, 55.5, -10.6, -5.9],
+  ['GB', 49.8, 60.9, -8.2, 1.8],
+  // IT y DE van antes que FR: la caja francesa es ancha y solapa el norte de
+  // Italia y la frontera alemana. Sin este orden, Milán marcaría el 15 francés
+  // en lugar del 118 italiano.
+  ['IT', 35.4, 47.1, 6.6, 18.6],
+  ['DE', 47.2, 55.1, 5.8, 15.1],
+  ['FR', 41.3, 51.2, -5.2, 9.6],
+  ['MX', 14.5, 32.8, -118.5, -86.7],
+  ['US', 18.9, 22.3, -160.3, -154.8], // Hawái
+  ['NZ', -47.4, -34.3, 166.4, 178.6],
+  ['AU', -43.7, -10.6, 112.9, 153.7],
+];
+
+/* La frontera EE.UU. / Canadá no es un rectángulo: sube al paralelo 49 en el
+   oeste y baja bruscamente en los Grandes Lagos. Con cajas simples, Toronto
+   caía en Estados Unidos. Se resuelve por tramos de longitud.               */
+const usOrCanada = (lat, lon) => {
+  if (lon < -141.0) return lat >= 51.2 ? 'US' : null;   // Alaska
+  if (lon > -67.0) return 'CA';                          // Provincias marítimas
+  let borderLat;
+  if (lon <= -84.0) borderLat = 49.0;                    // Oeste y praderas
+  else if (lon <= -74.0) borderLat = 43.5;               // Grandes Lagos
+  else borderLat = 45.0;                                 // Quebec / Nueva Inglaterra
+  return lat >= borderLat ? 'CA' : 'US';
+};
+
+const countryFromCoords = (lat, lon) => {
+  // Norteamérica continental primero, por el tramo de frontera irregular
+  if (lat >= 24.4 && lat <= 83.2 && lon >= -168.2 && lon <= -52.6) {
+    const mx = COUNTRY_BOXES.find(([iso]) => iso === 'MX');
+    if (lat >= mx[1] && lat <= mx[2] && lon >= mx[3] && lon <= mx[4]) return 'MX';
+    const na = usOrCanada(lat, lon);
+    if (na) return na;
+  }
+  for (const [iso, latMin, latMax, lonMin, lonMax] of COUNTRY_BOXES) {
+    if (lat >= latMin && lat <= latMax && lon >= lonMin && lon <= lonMax) return iso;
+  }
+  return null;
+};
+
+/* Último recurso: la región declarada en el idioma del navegador (es-ES → ES) */
+const countryFromLocale = () => {
+  const tag = navigator.language || '';
+  const region = tag.split('-')[1];
+  return region ? region.toUpperCase() : null;
+};
+
 /* ── Build QR text from pet data ── */
 const buildQRText = (pet) => {
   const lines = [
@@ -55,27 +113,16 @@ const SOSMode = ({ pet, pets = [], onActivePetChange, onExit }) => {
     }
     setGeoStatus('loading');
     navigator.geolocation.getCurrentPosition(
-      async (pos) => {
+      (pos) => {
         const { latitude: lat, longitude: lon } = pos.coords;
         setLocation({ lat, lon });
         setGeoStatus('ok');
-        try {
-          const res = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`,
-            { headers: { 'Accept-Language': 'en' } },
-          );
-          const data = await res.json();
-          setCountry(data?.address?.country_code?.toUpperCase() ?? null);
-        } catch {
-          /* fall back to language-based detection */
-          const lang = navigator.language?.split('-')[1]?.toUpperCase();
-          setCountry(lang || null);
-        }
+        /* Resolución local: las coordenadas nunca abandonan el dispositivo */
+        setCountry(countryFromCoords(lat, lon) ?? countryFromLocale());
       },
       () => {
         setGeoStatus('error');
-        const lang = navigator.language?.split('-')[1]?.toUpperCase();
-        setCountry(lang || null);
+        setCountry(countryFromLocale());
       },
       { timeout: 10_000, maximumAge: 60_000 },
     );
@@ -104,14 +151,14 @@ const SOSMode = ({ pet, pets = [], onActivePetChange, onExit }) => {
   return (
     <div style={{
       minHeight: '100vh', background: 'var(--aura-black)', position: 'fixed', inset: 0, zIndex: 1000,
-      overflowY: 'auto', color: 'white',
+      overflowY: 'auto', color: 'var(--ink)',
     }}>
       {/* ── Pulsing SOS banner ── */}
       <motion.div
         animate={{ opacity: [1, 0.55, 1] }}
         transition={{ repeat: Infinity, duration: 1.8 }}
         style={{
-          background: 'var(--aura-neon-pink)', color: 'white', padding: '0.9rem',
+          background: 'var(--aura-neon-pink)', color: 'var(--ink)', padding: '0.9rem',
           textAlign: 'center', letterSpacing: '6px', fontWeight: 900, fontSize: '1rem',
         }}
       >
@@ -140,7 +187,7 @@ const SOSMode = ({ pet, pets = [], onActivePetChange, onExit }) => {
                       </span></>}
             </div>
           </div>
-          <button onClick={onExit} className="btn-aura" style={{ borderColor: 'rgba(255,255,255,0.3)', color: 'white' }}>
+          <button onClick={onExit} className="btn-aura" style={{ borderColor: 'rgba(255,255,255,0.3)', color: 'var(--ink)' }}>
             SALIR DEL MODO SOS
           </button>
         </header>
@@ -153,7 +200,7 @@ const SOSMode = ({ pet, pets = [], onActivePetChange, onExit }) => {
                 <motion.div
                   initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
                   style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap',
-                    background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,0,122,0.3)',
+                    background: '#FFFFFF', border: '1px solid rgba(236, 92, 141, 0.3)',
                     borderRadius: 4, padding: '1rem 1.4rem', marginBottom: '0.8rem' }}>
                   <span style={{ fontSize: '0.62rem', letterSpacing: '2px', color: 'var(--aura-neon-pink)', fontWeight: 700, flexShrink: 0 }}>
                     SELECCIONAR MIEMBRO:
@@ -166,10 +213,10 @@ const SOSMode = ({ pet, pets = [], onActivePetChange, onExit }) => {
                           display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.3rem', padding: 0 }}>
                         <div style={{
                           width: 48, height: 48, borderRadius: '50%', overflow: 'hidden',
-                          border: sel ? '2px solid var(--aura-neon-pink)' : '2px solid rgba(255,255,255,0.15)',
+                          border: sel ? '2px solid var(--aura-neon-pink)' : '2px solid #FAF7FE',
                           display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          fontSize: '1.3rem', background: 'rgba(255,255,255,0.04)',
-                          boxShadow: sel ? '0 0 14px rgba(255,0,122,0.6)' : 'none',
+                          fontSize: '1.3rem', background: '#FFFFFF',
+                          boxShadow: sel ? '0 0 14px rgba(236, 92, 141, 0.6)' : 'none',
                         }}>
                           {p.customImage
                             ? <img src={p.customImage} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -186,7 +233,7 @@ const SOSMode = ({ pet, pets = [], onActivePetChange, onExit }) => {
               )}
             </AnimatePresence>
             <button onClick={() => setShowSwitcher(v => !v)} className="btn-aura"
-              style={{ fontSize: '0.7rem', borderColor: 'rgba(255,0,122,0.5)', color: 'var(--aura-neon-pink)',
+              style={{ fontSize: '0.7rem', borderColor: 'rgba(236, 92, 141, 0.5)', color: 'var(--aura-neon-pink)',
                 display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               ⚡ CAMBIAR MIEMBRO ({pets.length})
             </button>
@@ -198,14 +245,14 @@ const SOSMode = ({ pet, pets = [], onActivePetChange, onExit }) => {
           <div className="aura-card" style={{ background: 'rgba(255,0,80,0.07)', borderColor: 'var(--aura-neon-pink)', padding: '2.5rem', textAlign: 'center' }}>
             <div style={{
               width: 130, height: 130, borderRadius: '50%', margin: '0 auto 1.5rem',
-              background: 'rgba(255,255,255,0.05)', border: '2px solid var(--aura-neon-pink)', overflow: 'hidden',
+              background: '#FFFFFF', border: '2px solid var(--aura-neon-pink)', overflow: 'hidden',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}>
               {activePet?.customImage
                 ? <img src={activePet.customImage} alt={activePet?.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 : <span style={{ fontSize: '3.5rem' }}>{activePet?.avatar || '🐾'}</span>}
             </div>
-            <h2 style={{ fontSize: '2rem', margin: '0 0 4px', color: 'white' }}>{activePet?.name || 'AURA Member'}</h2>
+            <h2 style={{ fontSize: '2rem', margin: '0 0 4px', color: 'var(--ink)' }}>{activePet?.name || 'AURA Member'}</h2>
             <p style={{ margin: '0 0 0.4rem', opacity: 0.7 }}>{activePet?.speciesLabel || activePet?.breed || '—'}</p>
             {activePet?.microchip && (
               <p style={{ margin: 0, fontSize: '0.7rem', letterSpacing: '1px', color: 'var(--aura-gold)' }}>
@@ -309,7 +356,7 @@ const SOSMode = ({ pet, pets = [], onActivePetChange, onExit }) => {
                 </p>
                 <pre style={{
                   margin: 0, fontSize: '0.68rem', color: 'var(--aura-text-muted)',
-                  background: 'rgba(255,255,255,0.03)', border: '1px solid var(--aura-border)',
+                  background: '#FFFFFF', border: '1px solid var(--aura-border)',
                   borderRadius: 4, padding: '0.8rem', whiteSpace: 'pre-wrap', lineHeight: 1.6,
                 }}>
                   {qrText}

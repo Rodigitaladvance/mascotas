@@ -44,7 +44,7 @@ const HistoryPrint = ({ pet }) => {
       </div>
 
       <div className="carnet-header">
-        <h1 style={{ fontSize: '2.5rem', margin: 0 }}>EXPEDIENTE BIOMÉTRICO</h1>
+        <h1 style={{ fontSize: '2.5rem', margin: 0 }}>EXPEDIENTE MÉDICO</h1>
         <div style={{ textAlign: 'right' }}>
           <strong style={{ letterSpacing: '2px', color: '#D4AF37' }}>AURA PETS ELITE</strong>
           <br />

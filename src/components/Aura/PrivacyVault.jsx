@@ -1,18 +1,35 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { ShieldCheck, Lock, EyeOff, Download, Trash2, ChevronRight, FileText, AlertTriangle, ExternalLink, Send, X, MessageSquare } from 'lucide-react';
+import React, { useState } from 'react';
+import { ShieldCheck, Lock, EyeOff, Download, Trash2, ChevronRight, FileText, AlertTriangle, ExternalLink, X, BookOpen } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from '../../context/LocalizationContext';
 import { useAuth } from '../../context/AuthContext';
 import { storage } from '../../utils/storage';
 import jsPDF from 'jspdf';
+import { PawScatter } from './Decorations';
 
 /* ── JSON download helper ── */
+/**
+ * Descarga un objeto como fichero JSON.
+ *
+ * Dos detalles que parecen menores y rompen la descarga entera:
+ *
+ *   1. El enlace tiene que estar en el documento. Varios navegadores ignoran
+ *      click() sobre un elemento que nunca se insertó en la página.
+ *   2. La URL del blob no puede liberarse en la misma vuelta. La descarga
+ *      arranca de forma asíncrona, así que revocarla justo después del clic
+ *      deja al navegador sin nada que leer: el fichero llega vacío o no se
+ *      abre. Se libera más tarde, cuando ya se ha leído.
+ */
 const downloadJSON = (data, filename) => {
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const url  = URL.createObjectURL(blob);
-  const a    = Object.assign(document.createElement('a'), { href: url, download: filename });
+  const a    = Object.assign(document.createElement('a'), {
+    href: url, download: filename, rel: 'noopener',
+  });
+  document.body.appendChild(a);
   a.click();
-  URL.revokeObjectURL(url);
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 5000);
 };
 
 /* ── Premium jsPDF medical record ── */
@@ -132,7 +149,6 @@ const generateMedicalPDF = (pets, userEmail) => {
 /* ── Legal content — locale-aware ── */
 const getLegalContent = (locale) => {
   const es = locale === 'es';
-  const langInstruction = es ? 'Responde siempre en español.' : 'Always respond in English.';
   return {
     hipaa: {
       title: 'HIPAA — Health Insurance Portability and Accountability Act',
@@ -161,19 +177,38 @@ const getLegalContent = (locale) => {
             : '• Access your records\n• Request corrections\n• Know who accessed your data\n• File complaints',
         },
       ],
-      systemPrompt: `Eres un experto en HIPAA. Responde preguntas sobre esta ley de forma clara y sencilla. Contexto: el usuario tiene una app de salud para mascotas llamada AURA Pets Global. ${langInstruction}`,
-      placeholder: es
-        ? 'Ej: ¿Qué es PHI? ¿Cómo afecta HIPAA a mi clínica veterinaria?'
-        : 'E.g. What is PHI? How does HIPAA affect my veterinary clinic?',
-      chatLabel: es ? 'PREGUNTA AL EXPERTO IA' : 'ASK THE AI EXPERT',
-      chatHint: es
-        ? 'Escribe tu pregunta sobre HIPAA y el asistente IA te responderá.'
-        : 'Type your question about HIPAA and the AI assistant will reply.',
-      consultLabel: es ? 'Consultar experto IA' : 'Ask AI Expert',
+      readLabel: es ? 'Ver ficha completa' : 'Read full brief',
+      faqLabel: es ? 'PREGUNTAS FRECUENTES' : 'FREQUENTLY ASKED',
+      faq: [
+        {
+          q: es ? '¿HIPAA se aplica a los datos de mi mascota?' : 'Does HIPAA apply to my pet’s data?',
+          a: es
+            ? 'No. HIPAA protege información sanitaria de personas, no de animales. Los expedientes veterinarios no son PHI y ninguna ley federal estadounidense los regula del mismo modo. AURA Pets aplica igualmente el mismo estándar técnico de protección, por decisión propia y no por obligación legal.'
+            : 'No. HIPAA protects human health information, not animal records. Veterinary files are not PHI and no US federal law regulates them the same way. AURA Pets applies the same technical protection standard anyway, by choice rather than obligation.',
+        },
+        {
+          q: es ? '¿Qué es exactamente PHI?' : 'What exactly is PHI?',
+          a: es
+            ? 'Protected Health Information: cualquier dato de salud que permita identificar a una persona concreta. Incluye diagnósticos, tratamientos, facturación médica y resultados de pruebas cuando van unidos a un nombre, una dirección o un número de historia clínica.'
+            : 'Protected Health Information: any health data that identifies a specific person. It covers diagnoses, treatments, medical billing and test results whenever they are tied to a name, an address or a medical record number.',
+        },
+        {
+          q: es ? 'Soy veterinario y uso AURA. ¿Tengo obligaciones HIPAA?' : 'I am a vet using AURA. Do I have HIPAA duties?',
+          a: es
+            ? 'Por los datos del animal, no. Sí las tendrías si además tratases información sanitaria de personas —por ejemplo, si tu clínica gestiona datos médicos de los propietarios. En ese caso la obligación nace de esos datos humanos, nunca del expediente del animal.'
+            : 'Not for the animal’s data. You would have duties if you also handled human health information — for instance, if your practice manages owners’ medical data. The obligation would come from that human data, never from the pet record.',
+        },
+        {
+          q: es ? '¿Cómo protege AURA los datos sin estar obligada?' : 'How does AURA protect data without being obliged to?',
+          a: es
+            ? 'Cifrado AES-256-GCM en tu propio dispositivo, con una clave derivada de tu contraseña que nunca se almacena ni se transmite. No hay servidores propios, no hay copia en la nube y ninguna petición de red transporta información de tus animales.'
+            : 'AES-256-GCM encryption on your own device, with a key derived from your password that is never stored or transmitted. There are no servers of ours, no cloud copy, and no network request carries your animals’ information.',
+        },
+      ],
     },
     gdpr: {
       title: 'GDPR — General Data Protection Regulation',
-      accentColor: '#B57BFF',
+      accentColor: '#8B5CF6',
       icon: <EyeOff size={22} />,
       cardDesc: es
         ? 'Protege los datos personales y la privacidad de los ciudadanos de la UE. Los usuarios tienen derecho a acceder, corregir, eliminar y transferir sus datos.'
@@ -198,93 +233,57 @@ const getLegalContent = (locale) => {
             : '• Access\n• Rectification\n• Erasure (right to be forgotten)\n• Data portability\n• Withdraw consent',
         },
       ],
-      systemPrompt: `Eres un experto en GDPR europeo. Responde preguntas sobre esta ley de forma clara y sencilla. Contexto: el usuario tiene una app de salud para mascotas llamada AURA Pets Global. ${langInstruction}`,
-      placeholder: es
-        ? 'Ej: ¿Qué es el derecho al olvido? ¿Necesito un DPO?'
-        : 'E.g. What is the right to erasure? Do I need a DPO?',
-      chatLabel: es ? 'PREGUNTA AL EXPERTO IA' : 'ASK THE AI EXPERT',
-      chatHint: es
-        ? 'Escribe tu pregunta sobre GDPR y el asistente IA te responderá.'
-        : 'Type your question about GDPR and the AI assistant will reply.',
-      consultLabel: es ? 'Consultar experto IA' : 'Ask AI Expert',
+      readLabel: es ? 'Ver ficha completa' : 'Read full brief',
+      faqLabel: es ? 'PREGUNTAS FRECUENTES' : 'FREQUENTLY ASKED',
+      faq: [
+        {
+          q: es ? '¿Los datos de mi mascota son datos personales?' : 'Is my pet’s data personal data?',
+          a: es
+            ? 'El animal no es titular de derechos, pero su expediente va unido a datos que sí te identifican a ti: tu email, tu ubicación, el número de microchip registrado a tu nombre. Por esa vía el conjunto sí queda amparado por el GDPR, y así lo trata AURA Pets.'
+            : 'The animal is not a rights holder, but its record is tied to data that identifies you: your email, your location, the microchip number registered in your name. Through that link the whole set does fall under GDPR, and AURA Pets treats it accordingly.',
+        },
+        {
+          q: es ? '¿Qué es el derecho al olvido y cómo lo ejerzo?' : 'What is the right to erasure and how do I use it?',
+          a: es
+            ? 'Es el artículo 17 del GDPR: puedes exigir que tus datos se borren por completo. En AURA lo ejerces desde esta misma pantalla, en Destrucción Certificada. Requiere doble confirmación por palabra clave porque es irreversible: no hay copia de seguridad de la que recuperarlos.'
+            : 'It is GDPR Article 17: you can demand your data be fully deleted. In AURA you exercise it from this very screen, under Certified Destruction. It requires double keyword confirmation because it is irreversible: there is no backup to restore from.',
+        },
+        {
+          q: es ? '¿Cómo ejerzo la portabilidad de mis datos?' : 'How do I exercise data portability?',
+          a: es
+            ? 'Artículo 20. Pulsa Exportar datos en esta pantalla y obtendrás un fichero JSON con todo tu contenido en formato abierto y legible por máquina, listo para llevártelo a otro servicio o para guardarlo por tu cuenta.'
+            : 'Article 20. Press Export data on this screen and you get a JSON file with all your content in an open, machine-readable format, ready to take to another service or keep for yourself.',
+        },
+        {
+          q: es ? '¿AURA Pets necesita un Delegado de Protección de Datos?' : 'Does AURA Pets need a Data Protection Officer?',
+          a: es
+            ? 'No. La figura del DPO es obligatoria para autoridades públicas y para quien trate datos sensibles a gran escala o haga observación sistemática de personas. AURA no trata datos en ningún servidor: el tratamiento ocurre íntegramente en tu dispositivo.'
+            : 'No. A DPO is mandatory for public authorities and for those processing sensitive data at scale or systematically monitoring individuals. AURA processes no data on any server: processing happens entirely on your device.',
+        },
+        {
+          q: es ? '¿Dónde se almacenan realmente mis datos?' : 'Where is my data actually stored?',
+          a: es
+            ? 'En el almacenamiento local de tu navegador, cifrados con AES-256-GCM. No se sincronizan, no se suben a ninguna nube y no viajan entre dispositivos. Si borras los datos del navegador o cambias de equipo sin exportar antes, se pierden: es el precio de que nadie más pueda leerlos.'
+            : 'In your browser’s local storage, encrypted with AES-256-GCM. They are not synced, not uploaded to any cloud and never travel between devices. If you clear browser data or switch machines without exporting first, they are gone: that is the price of nobody else being able to read them.',
+        },
+      ],
     },
   };
 };
 
-/* ════════════════ Legal Chat Modal ════════════════ */
-const LegalChatModal = ({ type, onClose }) => {
+/* ════════════════ Legal Info Modal — contenido local, sin red ════════════════ */
+const LegalInfoModal = ({ type, onClose }) => {
   const { locale } = useTranslation();
+  const es = locale === 'es';
   const content = getLegalContent(locale)[type];
-  const [messages, setMessages] = useState([]);
-  const [input, setInput]       = useState('');
-  const [loading, setLoading]   = useState(false);
-  const [error, setError]       = useState('');
-  const chatEndRef = useRef(null);
-
-  useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, loading]);
-
-  const sendMessage = async () => {
-    const text = input.trim();
-    if (!text || loading) return;
-
-    const userMsg = { role: 'user', text };
-    setMessages(prev => [...prev, userMsg]);
-    setInput('');
-    setLoading(true);
-    setError('');
-
-    try {
-      const apiKey = import.meta.env.VITE_ANTHROPIC_KEY;
-      if (!apiKey) throw new Error('VITE_ANTHROPIC_KEY no está configurada en .env.local');
-
-      const history = [...messages, userMsg].map(m => ({
-        role: m.role,
-        content: m.text,
-      }));
-
-      const res = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: {
-          'x-api-key': apiKey,
-          'anthropic-version': '2023-06-01',
-          'content-type': 'application/json',
-          'anthropic-dangerous-direct-browser-access': 'true',
-        },
-        body: JSON.stringify({
-          model: 'claude-haiku-4-5-20251001',
-          max_tokens: 1024,
-          system: content.systemPrompt,
-          messages: history,
-        }),
-      });
-
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err?.error?.message || `Error ${res.status}`);
-      }
-
-      const data = await res.json();
-      const reply = data.content?.[0]?.text || '—';
-      setMessages(prev => [...prev, { role: 'assistant', text: reply }]);
-    } catch (e) {
-      setError(e.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleKey = e => {
-    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
-  };
+  const [openIdx, setOpenIdx] = useState(0);
 
   return (
     <motion.div
       initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
       onClick={onClose}
       style={{
-        position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.88)',
+        position: 'fixed', inset: 0, background: 'rgba(42, 45, 124, 0.42)',
         backdropFilter: 'blur(18px)', zIndex: 3000,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         padding: '1rem',
@@ -297,7 +296,7 @@ const LegalChatModal = ({ type, onClose }) => {
         transition={{ type: 'spring', stiffness: 300, damping: 28 }}
         onClick={e => e.stopPropagation()}
         style={{
-          background: 'linear-gradient(135deg, #1E0830 0%, #280D3D 100%)',
+          background: 'linear-gradient(135deg, #FFFFFF 0%, #FAF7FE 100%)',
           border: `1px solid ${content.accentColor}40`,
           borderRadius: '1.2rem',
           width: '100%',
@@ -306,7 +305,7 @@ const LegalChatModal = ({ type, onClose }) => {
           display: 'flex',
           flexDirection: 'column',
           overflow: 'hidden',
-          boxShadow: `0 24px 80px rgba(0,0,0,0.8), 0 0 40px ${content.accentColor}18`,
+          boxShadow: `0 24px 80px rgba(42, 45, 124, 0.42), 0 0 40px ${content.accentColor}18`,
         }}
       >
         {/* Header */}
@@ -336,6 +335,7 @@ const LegalChatModal = ({ type, onClose }) => {
           </div>
           <button
             onClick={onClose}
+            aria-label={es ? 'Cerrar' : 'Close'}
             style={{
               background: 'transparent', border: 'none', cursor: 'pointer',
               color: 'var(--aura-text-muted)', padding: '0.3rem', flexShrink: 0,
@@ -387,133 +387,99 @@ const LegalChatModal = ({ type, onClose }) => {
             color: 'var(--aura-text-muted)', fontSize: '0.72rem', letterSpacing: '2px',
           }}>
             <div style={{ flex: 1, height: 1, background: `${content.accentColor}20` }} />
-            <MessageSquare size={13} color={content.accentColor} />
-            <span style={{ color: content.accentColor }}>{content.chatLabel}</span>
+            <BookOpen size={13} color={content.accentColor} />
+            <span style={{ color: content.accentColor }}>{content.faqLabel}</span>
             <div style={{ flex: 1, height: 1, background: `${content.accentColor}20` }} />
           </div>
 
-          {/* Chat messages */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
-            {messages.length === 0 && (
-              <p style={{
-                textAlign: 'center',
-                color: 'var(--aura-text-muted)',
-                fontSize: '0.78rem',
-                opacity: 0.6,
-                margin: '0.5rem 0',
-              }}>
-                {content.chatHint}
-              </p>
-            )}
-
-            {messages.map((m, i) => (
-              <div key={i} style={{
-                display: 'flex',
-                justifyContent: m.role === 'user' ? 'flex-end' : 'flex-start',
-              }}>
-                <div style={{
-                  maxWidth: '82%',
-                  padding: '0.7rem 1rem',
-                  borderRadius: m.role === 'user' ? '1rem 1rem 0.25rem 1rem' : '1rem 1rem 1rem 0.25rem',
-                  background: m.role === 'user' ? '#3D1A6B' : '#1E0830',
-                  border: m.role === 'user'
-                    ? `1px solid ${content.accentColor}35`
-                    : '1px solid rgba(255,255,255,0.06)',
-                  fontSize: '0.83rem',
-                  lineHeight: 1.65,
-                  color: '#FFFFFF',
-                  whiteSpace: 'pre-wrap',
-                  wordBreak: 'break-word',
+          {/* FAQ — contenido local, sin ninguna llamada de red */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+            {content.faq.map((item, i) => {
+              const open = openIdx === i;
+              return (
+                <div key={i} style={{
+                  border: `1px solid ${open ? `${content.accentColor}40` : '#FFFFFF'}`,
+                  borderRadius: '0.7rem',
+                  background: open ? `${content.accentColor}0A` : '#FFFFFF',
+                  overflow: 'hidden',
+                  transition: 'border-color 0.2s, background 0.2s',
                 }}>
-                  {m.text}
+                  <button
+                    onClick={() => setOpenIdx(open ? null : i)}
+                    aria-expanded={open}
+                    style={{
+                      width: '100%',
+                      display: 'flex', alignItems: 'center', gap: '0.8rem',
+                      background: 'transparent', border: 'none', cursor: 'pointer',
+                      padding: '0.85rem 1.1rem',
+                      textAlign: 'left',
+                      color: open ? content.accentColor : '#FFFFFF',
+                      fontSize: '0.83rem',
+                      fontWeight: 600,
+                      lineHeight: 1.5,
+                      fontFamily: 'inherit',
+                    }}
+                  >
+                    <span style={{ flex: 1 }}>{item.q}</span>
+                    <ChevronRight
+                      size={15}
+                      style={{
+                        flexShrink: 0,
+                        transform: open ? 'rotate(90deg)' : 'none',
+                        transition: 'transform 0.2s',
+                        opacity: 0.8,
+                      }}
+                    />
+                  </button>
+                  <AnimatePresence initial={false}>
+                    {open && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.22, ease: 'easeOut' }}
+                        style={{ overflow: 'hidden' }}
+                      >
+                        <p style={{
+                          margin: 0,
+                          padding: '0 1.1rem 1rem',
+                          fontSize: '0.82rem',
+                          lineHeight: 1.75,
+                          color: 'var(--aura-text-muted)',
+                        }}>
+                          {item.a}
+                        </p>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
-              </div>
-            ))}
-
-            {loading && (
-              <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
-                <div style={{
-                  padding: '0.7rem 1rem',
-                  borderRadius: '1rem 1rem 1rem 0.25rem',
-                  background: '#1E0830',
-                  border: '1px solid rgba(255,255,255,0.06)',
-                  display: 'flex', gap: '5px', alignItems: 'center',
-                }}>
-                  {[0, 1, 2].map(d => (
-                    <span key={d} style={{
-                      width: 6, height: 6, borderRadius: '50%',
-                      background: content.accentColor,
-                      display: 'inline-block',
-                      animation: `dotPulse 1.2s ${d * 0.2}s infinite`,
-                      opacity: 0.7,
-                    }} />
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {error && (
-              <p style={{
-                color: 'var(--aura-danger)',
-                fontSize: '0.75rem',
-                textAlign: 'center',
-                background: 'rgba(240,149,149,0.08)',
-                border: '1px solid rgba(240,149,149,0.2)',
-                borderRadius: '0.5rem',
-                padding: '0.6rem 1rem',
-                margin: 0,
-              }}>
-                {error}
-              </p>
-            )}
-
-            <div ref={chatEndRef} />
+              );
+            })}
           </div>
         </div>
 
-        {/* Input bar */}
+        {/* Footer note */}
         <div style={{
-          display: 'flex', gap: '0.7rem', padding: '1rem 1.4rem',
+          padding: '0.9rem 1.6rem',
           borderTop: `1px solid ${content.accentColor}20`,
           flexShrink: 0,
-          background: 'rgba(10,5,20,0.5)',
+          background: 'var(--bg-soft)',
+          display: 'flex', alignItems: 'center', gap: '0.6rem',
         }}>
-          <input
-            className="aura-input"
-            style={{ flex: 1, margin: 0, fontSize: '0.85rem', padding: '0.65rem 1rem' }}
-            placeholder={content.placeholder}
-            value={input}
-            onChange={e => setInput(e.target.value)}
-            onKeyDown={handleKey}
-            disabled={loading}
-          />
-          <button
-            onClick={sendMessage}
-            disabled={!input.trim() || loading}
-            style={{
-              background: input.trim() && !loading ? `${content.accentColor}20` : 'transparent',
-              border: `1px solid ${input.trim() && !loading ? content.accentColor : 'rgba(255,255,255,0.12)'}`,
-              borderRadius: '0.6rem',
-              cursor: input.trim() && !loading ? 'pointer' : 'not-allowed',
-              color: input.trim() && !loading ? content.accentColor : 'var(--aura-text-muted)',
-              padding: '0 1.1rem',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              transition: 'all 0.2s',
-              flexShrink: 0,
-              height: 42,
-            }}
-          >
-            <Send size={16} />
-          </button>
+          <Lock size={12} color={content.accentColor} style={{ flexShrink: 0, opacity: 0.8 }} />
+          <p style={{
+            margin: 0,
+            fontSize: '0.7rem',
+            lineHeight: 1.6,
+            color: 'var(--aura-text-muted)',
+            opacity: 0.85,
+          }}>
+            {es
+              ? 'Información general orientativa, no asesoramiento jurídico. Se muestra desde tu dispositivo, sin consultar ningún servicio externo.'
+              : 'General guidance, not legal advice. Served from your device, with no external service consulted.'}
+          </p>
         </div>
       </motion.div>
-
-      <style>{`
-        @keyframes dotPulse {
-          0%, 80%, 100% { transform: scale(0.7); opacity: 0.5; }
-          40% { transform: scale(1); opacity: 1; }
-        }
-      `}</style>
     </motion.div>
   );
 };
@@ -530,7 +496,7 @@ const DestructionModal = ({ onConfirm, onClose, locale }) => {
       initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
       onClick={onClose}
       style={{
-        position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.92)',
+        position: 'fixed', inset: 0, background: 'rgba(42, 45, 124, 0.42)',
         backdropFilter: 'blur(16px)', zIndex: 3000,
         display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem',
       }}
@@ -624,11 +590,16 @@ const PrivacyVault = () => {
 
   const handleExportJSON = () => {
     const pets = getPets();
+    // La portabilidad del art. 20 GDPR exige entregar TODO, no solo la ficha:
+    // el historial clínico se adjunta a cada mascota.
     const payload = {
       exportDate: new Date().toISOString(),
-      format: 'AURA Pets Data Portability v1',
+      format: 'AURA Pets Data Portability v2',
       user: { email: user?.email, id: user?.id },
-      pets,
+      pets: pets.map(p => ({
+        ...p,
+        medicalHistory: user ? storage.getHistory(user.id, p.id, null) : null,
+      })),
     };
     downloadJSON(payload, `AURA_datos_${new Date().toLocaleDateString('es-ES').replace(/\//g,'-')}.json`);
   };
@@ -640,14 +611,31 @@ const PrivacyVault = () => {
 
   const handleDestroy = () => {
     if (!user) return;
-    const pets = getPets();
-    pets.forEach(p => { storage.deletePet(user.id, p.id); });
-    Object.keys(localStorage).forEach(key => {
-      if (key.startsWith(`aura_${user.id}_`)) localStorage.removeItem(key);
-    });
+    // Borrado real y completo: expedientes, historiales clínicos, documentos
+    // adjuntos y la propia cuenta. Antes solo se limpiaban las claves `aura_*`
+    // y todo el contenido cifrado del vault sobrevivía a la "destrucción".
+    //
+    // Se recogen las claves antes de borrar: eliminar mientras se recorre por
+    // índice desplaza los que quedan y deja registros sin borrar.
+    const claves = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && (key.startsWith(`vault_${user.id}_`) ||
+                  key.startsWith(`aura_${user.id}_`) ||
+                  key === `aura_onboarding_${user.id}`)) {
+        claves.push(key);
+      }
+    }
+    claves.forEach(key => localStorage.removeItem(key));
+    // Historiales de versiones anteriores, que iban sueltos y sin cifrar
+    getPets().forEach(p => localStorage.removeItem(`aura_medical_${p.id}`));
+    // Y la cuenta, para que no quede ni el email ni la sal
+    const remaining = storage.getUsers().filter(u => u.id !== user.id);
+    localStorage.setItem('mascota_health_users', JSON.stringify(remaining));
+
     setShowDestruction(false);
     setDestroyed(true);
-    setTimeout(() => logout(), 1800);
+    setTimeout(() => logout(), 1800); // logout() destruye además la clave en memoria
   };
 
   if (destroyed) return (
@@ -671,7 +659,7 @@ const PrivacyVault = () => {
           />
         )}
         {legalModal && (
-          <LegalChatModal
+          <LegalInfoModal
             key={legalModal}
             type={legalModal}
             onClose={() => setLegalModal(null)}
@@ -691,9 +679,10 @@ const PrivacyVault = () => {
       <div className="vault-layout">
         <div style={{ display: 'grid', gap: '2rem' }}>
           {/* Shield card */}
-          <div className="aura-card" style={{ padding: '2.5rem' }}>
+          <div className="aura-card aura-card--bloom" style={{ padding: '2.5rem', position: 'relative' }}>
+            <PawScatter variante="b" />
             <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'start', flexWrap: 'wrap' }}>
-              <div style={{ padding: '1rem', background: 'rgba(0,245,255,0.05)', borderRadius: '50%', flexShrink: 0 }}>
+              <div style={{ padding: '1rem', background: 'rgba(67, 191, 199, 0.05)', borderRadius: '50%', flexShrink: 0 }}>
                 <ShieldCheck color="var(--aura-neon-cyan)" size={28} />
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
@@ -720,7 +709,7 @@ const PrivacyVault = () => {
               onMouseEnter={e => {
                 e.currentTarget.style.transform = 'translateY(-3px)';
                 e.currentTarget.style.borderColor = 'rgba(201,168,76,0.55)';
-                e.currentTarget.style.boxShadow = '0 12px 40px rgba(0,0,0,0.6), 0 0 24px rgba(201,168,76,0.18)';
+                e.currentTarget.style.boxShadow = '0 12px 40px rgba(42, 45, 124, 0.28), 0 0 24px rgba(201,168,76,0.18)';
               }}
               onMouseLeave={e => {
                 e.currentTarget.style.transform = '';
@@ -737,7 +726,7 @@ const PrivacyVault = () => {
                 fontSize: '0.65rem', letterSpacing: '1.5px', textTransform: 'uppercase',
                 color: 'var(--aura-gold)', display: 'flex', alignItems: 'center', gap: '0.3rem',
               }}>
-                <MessageSquare size={11} /> {legalContent.hipaa.consultLabel}
+                <BookOpen size={11} /> {legalContent.hipaa.readLabel}
               </span>
             </div>
 
@@ -752,7 +741,7 @@ const PrivacyVault = () => {
               onMouseEnter={e => {
                 e.currentTarget.style.transform = 'translateY(-3px)';
                 e.currentTarget.style.borderColor = 'rgba(181,123,255,0.55)';
-                e.currentTarget.style.boxShadow = '0 12px 40px rgba(0,0,0,0.6), 0 0 24px rgba(181,123,255,0.18)';
+                e.currentTarget.style.boxShadow = '0 12px 40px rgba(42, 45, 124, 0.28), 0 0 24px rgba(181,123,255,0.18)';
               }}
               onMouseLeave={e => {
                 e.currentTarget.style.transform = '';
@@ -760,16 +749,16 @@ const PrivacyVault = () => {
                 e.currentTarget.style.boxShadow = '';
               }}
             >
-              <EyeOff size={24} color="#B57BFF" style={{ marginBottom: '1.5rem' }} />
+              <EyeOff size={24} color="#8B5CF6" style={{ marginBottom: '1.5rem' }} />
               <h4 style={{ margin: '0 0 0.5rem' }}>GDPR (Europa)</h4>
               <p style={{ fontSize: '0.8rem', color: 'var(--aura-text-muted)', margin: '0 0 1rem' }}>
                 {legalContent.gdpr.cardDesc}
               </p>
               <span style={{
                 fontSize: '0.65rem', letterSpacing: '1.5px', textTransform: 'uppercase',
-                color: '#B57BFF', display: 'flex', alignItems: 'center', gap: '0.3rem',
+                color: '#8B5CF6', display: 'flex', alignItems: 'center', gap: '0.3rem',
               }}>
-                <MessageSquare size={11} /> {legalContent.gdpr.consultLabel}
+                <BookOpen size={11} /> {legalContent.gdpr.readLabel}
               </span>
             </div>
           </div>
@@ -781,7 +770,7 @@ const PrivacyVault = () => {
             </h3>
             <div style={{ display: 'grid', gap: '1rem' }}>
               <button className="btn-aura"
-                style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', background: 'rgba(212,175,55,0.05)' }}
+                style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', background: 'rgba(217, 164, 65, 0.05)' }}
                 onClick={handleExportPDF}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
                   <FileText size={16} color="var(--aura-gold)" />
@@ -798,7 +787,7 @@ const PrivacyVault = () => {
               </button>
 
               <button className="btn-aura"
-                style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', background: 'rgba(255,255,255,0.03)' }}
+                style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', background: '#FFFFFF' }}
                 onClick={handleExportJSON}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
                   <Download size={16} />
@@ -806,8 +795,20 @@ const PrivacyVault = () => {
                     <span style={{ display: 'block' }}>
                       {es ? 'Portabilidad de Datos (JSON)' : 'Data Portability (JSON)'}
                     </span>
+                    {/* El artículo 20 obliga a entregar los datos en un formato que
+                        otra máquina pueda leer, no en uno cómodo de leer para una
+                        persona. Conviene decirlo: quien abre el fichero esperando
+                        su expediente se encuentra una pared de texto técnico. */}
                     <span style={{ fontSize: '0.65rem', color: 'var(--aura-text-muted)', letterSpacing: '1px' }}>
                       {es ? 'Copia completa · GDPR Art. 20' : 'Full copy · GDPR Art. 20'}
+                    </span>
+                    <span style={{
+                      display: 'block', marginTop: 4, fontSize: '0.66rem', lineHeight: 1.5,
+                      color: 'var(--aura-text-muted)', letterSpacing: 0, whiteSpace: 'normal',
+                    }}>
+                      {es
+                        ? 'Formato técnico, para trasladar tus datos a otro servicio. Si quieres leerlos tú, usa el PDF de arriba.'
+                        : 'A technical format, for moving your data to another service. To read it yourself, use the PDF above.'}
                     </span>
                   </div>
                 </div>
@@ -815,7 +816,7 @@ const PrivacyVault = () => {
               </button>
 
               <button className="btn-aura"
-                style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', background: 'rgba(255,255,255,0.02)' }}
+                style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', background: '#FFFFFF' }}
                 onClick={() => window.open('/politicas.html', '_blank', 'noopener,noreferrer')}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
                   <ExternalLink size={16} color="var(--aura-text-muted)" />
