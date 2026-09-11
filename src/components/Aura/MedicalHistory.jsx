@@ -5,6 +5,7 @@ import { jsPDF } from 'jspdf';
 import { storage } from '../../utils/storage';
 import { useAuth } from '../../context/AuthContext';
 import { PawScatter } from './Decorations';
+import { sugerirProximaDosis } from '../../utils/intelligence';
 
 // ─── Storage ──────────────────────────────────────────────────────────────────
 // El historial clínico se guarda cifrado dentro de la bóveda del usuario.
@@ -176,7 +177,8 @@ const MedicalHistory = ({ pet, onClose }) => {
   };
 
   const submit = async () => {
-    const item = { id: Date.now(), ...form };
+    const { nextDoseSugerida, ...campos } = form;   // marca interna, no se guarda
+    const item = { id: Date.now(), ...campos };
     if (tab === 'analyses' && docPreview) item.document = docPreview;
     const ok = await persist({ ...data, [tab]: [item, ...data[tab]] });
     // Si el guardado falla, el formulario sigue abierto con lo escrito para
@@ -218,9 +220,9 @@ const MedicalHistory = ({ pet, onClose }) => {
   // ── Shared styles ─────────────────────────────────────────────────────────
   const formWrap  = { background: 'rgba(217, 164, 65, 0.05)', border: '1px solid rgba(217, 164, 65, 0.25)', borderRadius: 10, padding: '1.4rem', marginBottom: '1rem', display: 'grid', gap: '1rem' };
   const grid2     = { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' };
-  const cardStyle = { background: 'rgba(10,5,20,0.88)', border: '1px solid rgba(217, 164, 65, 0.16)', borderRadius: 8, padding: '1.2rem' };
+  const cardStyle = { background: '#FFFFFF', border: '1px solid var(--border)', borderRadius: 10, padding: '1.2rem', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(42,45,124,0.06))' };
   const mutedLabel = { margin: '0 0 3px', fontSize: '0.62rem', letterSpacing: '2px', color: 'var(--aura-text-muted)', textTransform: 'uppercase' };
-  const deleteBtn  = { background: 'none', border: 'none', color: 'rgba(255,255,255,0.2)', cursor: 'pointer', padding: 4, lineHeight: 1, flexShrink: 0 };
+  const deleteBtn  = { background: 'none', border: 'none', color: 'var(--ink-muted)', cursor: 'pointer', padding: 4, lineHeight: 1, flexShrink: 0 };
   const empty = (msg) => <p style={{ color: 'var(--aura-text-muted)', fontSize: '0.88rem', padding: '2.5rem 0', textAlign: 'center' }}>{msg}</p>;
 
   // ── Drop zone (solo Análisis) ──────────────────────────────────────────────
@@ -271,7 +273,7 @@ const MedicalHistory = ({ pet, onClose }) => {
         </div>
       ) : (
         /* Preview del documento seleccionado */
-        <div style={{ position: 'relative', border: '1px solid rgba(217, 164, 65, 0.3)', borderRadius: 8, overflow: 'hidden', background: 'rgba(10,5,20,0.85)' }}>
+        <div style={{ position: 'relative', border: '1px solid rgba(217, 164, 65, 0.3)', borderRadius: 8, overflow: 'hidden', background: 'var(--bg-soft)' }}>
           {docPreview.type.startsWith('image/') ? (
             <img
               src={docPreview.dataUrl}
@@ -337,13 +339,56 @@ const MedicalHistory = ({ pet, onClose }) => {
     if (tab === 'vaccines') return (
       <div style={formWrap}>
         <div style={grid2}>
-          <Field label="Nombre vacuna" type="text" placeholder="Rabia, polivalente..." value={form.name} onChange={f('name')} />
+          <Field label="Nombre vacuna" type="text" placeholder="Rabia, polivalente..." value={form.name}
+            onChange={(e) => {
+              const nombre = e.target.value;
+              const sug = sugerirProximaDosis(pet?.species, nombre, form.date);
+              setForm(prev => ({
+                ...prev,
+                name: nombre,
+                nextDose: (!prev.nextDose || prev.nextDoseSugerida) ? (sug?.fecha || prev.nextDose) : prev.nextDose,
+                nextDoseSugerida: (!prev.nextDose || prev.nextDoseSugerida) && !!sug?.fecha,
+              }));
+            }} />
           <Field label="Veterinario"   type="text" placeholder="Dr. ..."               value={form.vet}  onChange={f('vet')} />
         </div>
         <div style={grid2}>
-          <Field label="Fecha administración" type="date" value={form.date}     onChange={f('date')} />
-          <Field label="Próxima dosis"        type="date" value={form.nextDose} onChange={f('nextDose')} />
+          <Field label="Fecha administración" type="date" value={form.date}
+            onChange={(e) => {
+              const fecha = e.target.value;
+              const sug = sugerirProximaDosis(pet?.species, form.name, fecha);
+              /* Solo se rellena si el campo está vacío o si lo que hay lo puso
+                 una sugerencia anterior: nunca se pisa una fecha escrita a mano. */
+              setForm(prev => ({
+                ...prev,
+                date: fecha,
+                nextDose: (!prev.nextDose || prev.nextDoseSugerida) ? (sug?.fecha || prev.nextDose) : prev.nextDose,
+                nextDoseSugerida: (!prev.nextDose || prev.nextDoseSugerida) && !!sug?.fecha,
+              }));
+            }} />
+          <Field label="Próxima dosis" type="date" value={form.nextDose}
+            onChange={(e) => setForm(prev => ({ ...prev, nextDose: e.target.value, nextDoseSugerida: false }))} />
         </div>
+
+        {(() => {
+          const sug = sugerirProximaDosis(pet?.species, form.name, form.date);
+          if (!sug || !form.nextDose) return null;
+          const meses = Math.round(sug.dias / 30.4);
+          return (
+            <p style={{
+              margin: '0.6rem 0 0', fontSize: '0.68rem', lineHeight: 1.55,
+              color: 'var(--aura-text-muted)',
+            }}>
+              {form.nextDoseSugerida ? '✨ ' : ''}
+              {sug.etiqueta}: {meses >= 12
+                ? `refuerzo cada ${Math.round(meses / 12)} año${Math.round(meses / 12) > 1 ? 's' : ''}`
+                : `refuerzo cada ${meses} meses`}
+              {form.nextDoseSugerida
+                ? '. Fecha propuesta, cámbiala si tu veterinario indicó otra.'
+                : '.'}
+            </p>
+          );
+        })()}
       </div>
     );
 
@@ -448,7 +493,7 @@ const MedicalHistory = ({ pet, onClose }) => {
         {data.medications.map((m) => {
           const active = isActiveMed(m);
           return (
-            <div key={m.id} style={{ ...cardStyle, border: `1px solid ${active ? 'rgba(93,202,165,0.3)' : 'rgba(217, 164, 65, 0.12)'}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem' }}>
+            <div key={m.id} style={{ ...cardStyle, border: `1px solid ${active ? 'rgba(63, 191, 160, 0.45)' : 'var(--border)'}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem' }}>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: 4 }}>
                   {active && <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#43BFC7', flexShrink: 0 }} />}

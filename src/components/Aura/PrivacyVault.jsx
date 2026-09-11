@@ -463,7 +463,7 @@ const LegalInfoModal = ({ type, onClose }) => {
           padding: '0.9rem 1.6rem',
           borderTop: `1px solid ${content.accentColor}20`,
           flexShrink: 0,
-          background: 'rgba(10,5,20,0.5)',
+          background: 'var(--bg-soft)',
           display: 'flex', alignItems: 'center', gap: '0.6rem',
         }}>
           <Lock size={12} color={content.accentColor} style={{ flexShrink: 0, opacity: 0.8 }} />

@@ -203,3 +203,39 @@ export const intelligence = {
     return '🚨';
   }
 };
+
+/**
+ * Fecha sugerida para la próxima dosis.
+ *
+ * Al anotar una vacuna, el intervalo suele conocerse: la misma tabla que
+ * calcula el nivel de protección sirve para proponer cuándo toca la siguiente.
+ * Se propone, no se impone —el campo sigue siendo editable— porque el producto
+ * concreto o el criterio del veterinario mandan sobre cualquier calendario
+ * genérico.
+ *
+ * @param {string} species  especie del animal
+ * @param {string} nombre   lo que el usuario escribió como nombre de la vacuna
+ * @param {string} fecha    fecha de administración, en formato YYYY-MM-DD
+ * @returns {{ fecha: string, etiqueta: string } | null}
+ */
+export const sugerirProximaDosis = (species, nombre, fecha) => {
+  if (!fecha) return null;
+  const protocolo = PROTOCOLS[species];
+  if (!protocolo) return null;
+
+  const buscado = normalizar(nombre);
+  if (!buscado.trim()) return null;
+
+  const encontrado = protocolo.find(({ match }) => match.some(m => buscado.includes(m)));
+  if (!encontrado) return null;
+
+  const base = new Date(fecha);
+  if (Number.isNaN(base.getTime())) return null;
+
+  const siguiente = new Date(base.getTime() + encontrado.days * 86400000);
+  return {
+    fecha: siguiente.toISOString().split('T')[0],
+    etiqueta: encontrado.label,
+    dias: encontrado.days,
+  };
+};

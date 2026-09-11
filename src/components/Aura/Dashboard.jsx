@@ -1,7 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Shield, Activity, ChevronRight, Zap, Wind, Calendar, Award, PlusCircle, Pencil, Heart } from 'lucide-react';
-import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import { useTranslation } from '../../context/LocalizationContext';
 import { useAuth } from '../../context/AuthContext';
 import { storage } from '../../utils/storage';
@@ -60,7 +59,6 @@ const Dashboard = ({ pets, activePetId, onActivePetChange, onAddPet, onSelectPet
     () => assessProtection(pet, user ? storage.getHistory(user.id, pet?.id, null) : null),
     [pet, user, historyVersion],
   );
-  const healthScore = protection.score ?? 0;
   /* Cada especie tiñe su ficha con su propio color */
   const accent = accentFor(pet);
   const sinDatos = protection.score === null;
@@ -328,39 +326,121 @@ const Dashboard = ({ pets, activePetId, onActivePetChange, onAddPet, onSelectPet
       <div className="dashboard-layout">
 
         {/* Bio-Ring */}
-        <div className="aura-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '3.5rem 2rem' }}>
-          <div style={{ position: 'relative', width: 260, height: 260 }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie data={[{ v: healthScore },{ v: 100-healthScore }]}
-                     dataKey="v" innerRadius={108} outerRadius={128}
-                     startAngle={90} endAngle={450} strokeWidth={0}>
-                  <Cell fill={accent.base} />
-                  <Cell fill="#FFFFFF" />
-                </Pie>
-              </PieChart>
-            </ResponsiveContainer>
-            <div style={{ position:'absolute', top:'50%', left:'50%', transform:'translate(-50%,-50%)', textAlign:'center' }}>
-              <PawPrint size={sinDatos ? 26 : 30} style={{ color: accent.base, opacity: 0.5, marginBottom: 6, display: 'block', marginInline: 'auto' }} />
-              <h2 style={{ fontSize: sinDatos ? '2.4rem' : '3.8rem', fontWeight: 300, color: accent.base, margin: 0, textShadow: `0 0 22px ${accent.border}`, transition: 'font-size 0.3s, color 0.4s' }}>
-                {sinDatos ? '—' : healthScore}
-              </h2>
-              <p style={{ margin: 0, fontSize: '0.58rem', letterSpacing: '4px', opacity: 0.5 }}>{t('dashboard.scoreTitle')}</p>
-              {sinDatos && (
-                <p style={{
-                  margin: '0.7rem auto 0', maxWidth: 140, fontSize: '0.6rem',
-                  lineHeight: 1.55, letterSpacing: '0.5px', opacity: 0.55,
-                  textTransform: 'none',
-                }}>
-                  {protection.reason === 'sin-protocolo'
-                    ? (es ? 'Sin calendario vacunal estándar para esta especie'
-                          : 'No standard vaccination schedule for this species')
-                    : (es ? 'Registra una vacuna en el historial para calcularlo'
-                          : 'Log a vaccine in the history to calculate it')}
-                </p>
-              )}
+        <div className="aura-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '2.2rem 1.6rem' }}>
+          {(() => {
+            const exigibles = protection.items.filter(i => i.estado !== 'no-aplica');
+            const alDia = exigibles.filter(i => i.estado === 'al-dia').length;
+            const total = exigibles.length;
+            const completo = total > 0 && alDia === total;
+
+            return (
+              <div style={{ width: '100%', maxWidth: 300 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.7rem', marginBottom: '0.9rem' }}>
+                  <PawPrint size={26} style={{ color: accent.base, opacity: 0.65, flexShrink: 0 }} />
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p style={{
+                      margin: 0, fontSize: '0.62rem', letterSpacing: '2.5px',
+                      textTransform: 'uppercase', color: 'var(--ink-muted)', fontWeight: 700,
+                    }}>
+                      {es ? 'Calendario de salud' : 'Health schedule'}
+                    </p>
+                    <p style={{
+                      margin: '2px 0 0', fontSize: '1.15rem', fontWeight: 600,
+                      color: 'var(--ink)', lineHeight: 1.25,
+                    }}>
+                      {sinDatos
+                        ? (es ? 'Sin datos todavía' : 'No data yet')
+                        : completo
+                          ? (es ? 'Todo al día' : 'All up to date')
+                          : (es ? `${alDia} de ${total} al día` : `${alDia} of ${total} up to date`)}
+                    </p>
+                  </div>
+                </div>
+
+                {!sinDatos && total > 0 && (
+                  <div style={{
+                    height: 6, borderRadius: 3, background: 'var(--bg-soft)',
+                    border: '1px solid var(--border)', overflow: 'hidden',
+                  }}>
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${Math.round((alDia / total) * 100)}%` }}
+                      transition={{ duration: 0.7, ease: 'easeOut' }}
+                      style={{ height: '100%', background: accent.base }}
+                    />
+                  </div>
+                )}
+
+                {sinDatos && (
+                  <p style={{
+                    margin: '0.2rem 0 0', fontSize: '0.72rem', lineHeight: 1.6,
+                    color: 'var(--ink-muted)',
+                  }}>
+                    {protection.reason === 'sin-protocolo'
+                      ? (es ? 'Esta especie no tiene un calendario vacunal estándar, así que no hay nada que contar aquí.'
+                            : 'This species has no standard vaccination schedule, so there is nothing to count here.')
+                      : (es ? 'Anota las vacunas en el Historial Médico y aparecerán aquí, con su próxima fecha.'
+                            : 'Log the vaccines in the Medical History and they will show up here, with their next date.')}
+                  </p>
+                )}
+              </div>
+            );
+          })()}
+
+          {/* ── Detalle, uno por uno ── */}
+          {!sinDatos && protection.items.length > 0 && (
+            <div style={{ width: '100%', maxWidth: 300, marginTop: '1.1rem', display: 'grid', gap: '0.4rem' }}>
+              {protection.items.map((it, i) => {
+                const V = {
+                  'al-dia':     { color: '#2E9C7A', texto: es ? 'Al día'     : 'Up to date' },
+                  'por-vencer': { color: '#C9821F', texto: es ? 'Por vencer' : 'Due soon'   },
+                  'vencida':    { color: '#C0392B', texto: es ? 'Vencida'    : 'Overdue'    },
+                  'ausente':    { color: 'var(--ink-muted)', texto: es ? 'Sin registrar' : 'Not recorded' },
+                  'no-aplica':  { color: 'var(--ink-muted)', texto: es ? 'No necesaria'  : 'Not needed'   },
+                }[it.estado] || { color: 'var(--ink-muted)', texto: '—' };
+                return (
+                  <div key={i} style={{
+                    display: 'flex', alignItems: 'center', gap: '0.6rem',
+                    padding: '0.5rem 0.7rem', borderRadius: 8,
+                    background: 'var(--bg-soft)', border: '1px solid var(--border)',
+                  }}>
+                    <span aria-hidden="true" style={{
+                      flexShrink: 0, width: 7, height: 7, borderRadius: '50%', background: V.color,
+                    }} />
+                    <span style={{
+                      flex: 1, textAlign: 'left', fontSize: '0.74rem',
+                      color: 'var(--ink-body)', lineHeight: 1.3,
+                    }}>
+                      {it.label}
+                      {it.vence && it.estado !== 'no-aplica' && (
+                        <span style={{ display: 'block', fontSize: '0.63rem', color: 'var(--ink-muted)' }}>
+                          {it.estado === 'vencida'
+                            ? (es ? 'Tocaba el ' : 'Was due ')
+                            : (es ? 'Siguiente: ' : 'Next: ')}
+                          {new Date(it.vence).toLocaleDateString(es ? 'es-ES' : 'en-GB')}
+                        </span>
+                      )}
+                    </span>
+                    <span style={{
+                      fontSize: '0.6rem', letterSpacing: '1px', fontWeight: 700,
+                      color: V.color, whiteSpace: 'nowrap', textTransform: 'uppercase',
+                    }}>
+                      {V.texto}
+                    </span>
+                  </div>
+                );
+              })}
+              <p style={{
+                margin: '0.5rem 0 0', fontSize: '0.64rem', lineHeight: 1.5,
+                color: 'var(--ink-muted)', textAlign: 'left',
+              }}>
+                {es
+                  ? 'Calculado sobre las vacunas anotadas en el historial. Si tu veterinario fijó otra fecha, esa manda.'
+                  : 'Based on the vaccines logged in the history. If your vet set a different date, that one prevails.'}
+              </p>
             </div>
-          </div>
+          )}
+
           <div style={{ marginTop: '2.5rem', textAlign: 'center' }}>
             {/* Pet photo / avatar */}
             <div style={{ width: 56, height: 56, borderRadius: '50%', overflow: 'hidden', border: `2px solid ${accent.base}`, margin: '0 auto 1rem', boxShadow: accent.glow, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.6rem', background: '#FFFFFF' }}>
