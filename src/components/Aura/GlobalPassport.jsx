@@ -356,12 +356,33 @@ const buildBirdRequirements = (pet, countryId, locale, origen = 'ES') => {
       { ...sanitario, label: es ? 'Certificado sanitario · TRACES' : 'Health certificate · TRACES' },
     ];
     case 'UK': return [
-      anilla, especie, cites, gripeAviar, newcastle,
-      { ...sanitario, label: 'Export Health Certificate (EHC)' },
-      { icon: 'doc', id: 'bcp', manual: true, label: es ? 'Entrada por Puesto de Control Fronterizo' : 'Entry via Border Control Post',
+      anilla, especie, cites,
+      { icon: 'doc', id: 'aviso-apha', manual: true,
+        label: es ? 'Avisar a la APHA antes de viajar' : 'Notify APHA before travelling',
         status: 'pending',
-        detail: es ? 'Las aves no pueden entrar por la vía de mascotas' : 'Birds cannot use the pet travel route' },
-      cuarentena(es ? '30 días' : '30 days'),
+        detail: es
+          ? 'Hay que comunicarlo con al menos un día de antelación. Sin ese aviso, el animal no entra'
+          : 'It must be notified at least one day in advance. Without that notice the animal is not admitted' },
+      { icon: 'doc', id: 'licencia-apha', manual: true,
+        label: es ? 'Licencia de importación · APHA' : 'Import licence · APHA',
+        status: 'pending',
+        detail: es
+          ? 'Obligatoria desde fuera de la UE. Desde países de la UE y la EFTA no se exige actualmente'
+          : 'Required from outside the EU. Not currently required from EU and EFTA countries' },
+      gripeAviar, newcastle,
+      { ...sanitario, label: 'Export Health Certificate (EHC)',
+        detail: es
+          ? 'Emitido en el país de salida'
+          : 'Issued in the country of departure' },
+      { icon: 'doc', id: 'puerto-uk', manual: true,
+        label: es ? 'Solo cuatro aeropuertos admiten aves' : 'Only four airports accept birds',
+        status: 'alert',
+        detail: es
+          ? 'Heathrow, Gatwick, Edimburgo y Glasgow. Comprueba esto antes de comprar el billete'
+          : 'Heathrow, Gatwick, Edinburgh and Glasgow. Check this before buying the ticket' },
+      cuarentena(es ? '30 días' : '30 days', es
+        ? 'En instalación autorizada por la APHA. Las psitácidas deben ir identificadas una a una'
+        : 'At an APHA-licensed facility. Psittacines must be individually identified'),
     ];
     case 'US': return [
       anilla, especie, cites,
@@ -381,10 +402,34 @@ const buildBirdRequirements = (pet, countryId, locale, origen = 'ES') => {
           : 'Signed by a salaried government veterinarian of the country of departure' },
     ];
     case 'CA': return [
-      anilla, especie, cites, permiso('CFIA'),
+      anilla, especie, cites,
+      { icon: 'doc', id: 'posesion-90', manual: true,
+        label: es ? '90 días de posesión previa' : '90 days of prior ownership',
+        status: 'pending',
+        detail: es
+          ? 'El ave debe haber estado en tu poder, en el país de origen, los 90 días anteriores a pedir el permiso, y sin contacto con otras aves'
+          : 'The bird must have been in your possession, in the country of origin, for the 90 days before applying for the permit, with no contact with other birds' },
+      permiso('CFIA', es
+        ? 'La cuarentena debe estar aprobada ANTES de que emitan el permiso: contacta con la oficina del CFIA de tu provincia'
+        : 'The quarantine must be approved BEFORE the permit is issued: contact the CFIA office for your province'),
+      { icon: 'doc', id: 'acompanar', manual: true,
+        label: es ? 'El dueño debe viajar con el ave' : 'The owner must travel with the bird',
+        status: 'pending',
+        detail: es
+          ? 'No se admite que llegue sola ni enviada por separado'
+          : 'It cannot arrive alone or be shipped separately' },
       gripeAviar, newcastle,
-      { ...sanitario, label: es ? 'Certificado sanitario endosado' : 'Endorsed health certificate' },
-      cuarentena(es ? 'según origen' : 'depending on origin'),
+      { ...sanitario, label: es ? 'Certificado veterinario internacional' : 'International veterinary certificate',
+        detail: es
+          ? 'Debe declarar que no hubo gripe aviar notificable en los 6 meses previos, y que el ave se inspeccionó en las 72 horas anteriores al envío'
+          : 'It must state that no notifiable avian influenza occurred in the previous 6 months, and that the bird was inspected within 72 hours before shipment' },
+      cuarentena(es ? '45 días' : '45 days', es
+        ? 'Mínimo, en un local tuyo que el CFIA debe aprobar de antemano'
+        : 'Minimum, at your own premises, which the CFIA must approve beforehand'),
+      { icon: 'doc', info: true, label: es ? 'Límite de ejemplares' : 'Limit on numbers', status: 'ok',
+        detail: es
+          ? 'Hasta 5 psitácidas o 20 aves de otras especies. Tampoco puedes haber importado aves en los 90 días anteriores'
+          : 'Up to 5 psittacines or 20 birds of other species. You also cannot have imported birds in the previous 90 days' },
     ];
     case 'AU': return [
       anilla, especie, cites, permiso('DAFF'),
@@ -459,12 +504,27 @@ const buildRabbitRequirements = (pet, countryId, locale, origen = 'ES') => {
   switch (countryId) {
     case 'ES': return [identificacion, fueraDelReglamento, mixomatosis, rhd, sanitario];
     case 'UK': return [
-      identificacion, fueraDelReglamento, mixomatosis, rhd,
-      { icon: 'doc', id: 'licencia-uk', manual: true, label: es ? 'Licencia de importación' : 'Import licence', status: 'pending',
+      identificacion, fueraDelReglamento,
+      { icon: 'doc', id: 'licencia-rabia-uk', manual: true,
+        label: es ? 'Licencia de importación por rabia · APHA' : 'Rabies import licence · APHA',
+        status: 'pending',
         detail: es
-          ? 'Los conejos entran como “otros mamíferos”, con licencia previa'
-          : 'Rabbits enter as “other mammals”, under prior licence' },
-      sanitario,
+          ? 'El conejo se considera especie sensible a la rabia. La licencia se solicita a la APHA antes de viajar'
+          : 'Rabbits are treated as a rabies-susceptible species. The licence is applied for from APHA before travelling' },
+      { icon: 'vet', id: 'cuarentena-uk-conejo', manual: true,
+        label: es ? 'Cuarentena de 4 meses, salvo exención' : 'Four months quarantine, unless exempt',
+        status: 'alert',
+        detail: es
+          ? 'Cuatro meses en Inglaterra y Gales, tres en Escocia. Es el plazo por defecto y cambia por completo el viaje'
+          : 'Four months in England and Wales, three in Scotland. This is the default and it changes the whole trip' },
+      { icon: 'doc', id: 'exencion-uk-conejo', manual: true,
+        label: es ? 'Exención de cuarentena desde la UE' : 'Quarantine exemption from the EU',
+        status: 'pending',
+        detail: es
+          ? 'Saliendo de la UE se evita la cuarentena si el conejo nació en una explotación registrada y vivió siempre en cautividad, no hay rabia ni mixomatosis en ella, y el certificado sanitario lleva la declaración específica para lagomorfos'
+          : 'From the EU the quarantine is avoided if the rabbit was born on a registered holding and always kept in captivity, the holding is free of rabies and myxomatosis, and the health certificate carries the specific lagomorph statement' },
+      mixomatosis, rhd,
+      { ...sanitario, label: es ? 'Certificado sanitario con declaración de lagomorfos' : 'Health certificate with lagomorph statement' },
     ];
     case 'US': return [
       identificacion, fueraDelReglamento, mixomatosis, rhd,
@@ -473,9 +533,23 @@ const buildRabbitRequirements = (pet, countryId, locale, origen = 'ES') => {
       sanitario,
     ];
     case 'CA': return [
-      identificacion, fueraDelReglamento, mixomatosis, rhd,
-      { icon: 'doc', id: 'permiso-ca', manual: true, label: es ? 'Permiso de importación · CFIA' : 'Import permit · CFIA', status: 'pending',
-        detail: es ? 'Requisitos según el país de salida' : 'Requirements depend on the country of departure' },
+      identificacion,
+      { ...fueraDelReglamento,
+        detail: es
+          ? 'Para el CFIA solo son mascotas los perros, gatos y hurones. El conejo se tramita como animal peletero, con otro procedimiento'
+          : 'For the CFIA only dogs, cats and ferrets count as pets. Rabbits are processed as fur-bearing animals, under a different procedure' },
+      { icon: 'doc', id: 'permiso-ca', manual: true,
+        label: es ? 'Consulta previa · CFIA' : 'Prior enquiry · CFIA', status: 'pending',
+        detail: es
+          ? 'Los requisitos dependen del país de salida y del número de animales: confírmalos con la oficina del CFIA antes de mover nada'
+          : 'Requirements depend on the country of departure and the number of animals: confirm with the CFIA office before arranging anything' },
+      { icon: 'vet', id: 'cuarentena-ca-conejo', manual: true,
+        label: es ? 'Cuarentena a partir de 3 animales' : 'Quarantine from three animals up',
+        status: 'pending',
+        detail: es
+          ? 'Con más de dos conejos se exige cuarentena de 21 días y reconocimiento veterinario en los 5 días previos a la salida'
+          : 'With more than two rabbits, a 21-day quarantine and a veterinary examination within 5 days before departure are required' },
+      mixomatosis, rhd,
       sanitario,
     ];
     case 'AU': return [

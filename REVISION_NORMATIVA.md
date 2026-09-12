@@ -4,7 +4,7 @@
 **Alcance:** requisitos de entrada para perros, gatos, équidos, aves, conejos y
 reptiles en los cinco países de la app (ES, UK, US, CA, AU), más los protocolos
 de vacunación que calculan el nivel de protección.
-**Estado:** las 22 correcciones están aplicadas en el código.
+**Estado:** las 26 correcciones están aplicadas en el código.
 
 Este documento es el registro de qué se comprobó, contra qué fuente y qué se
 corrigió. Sirve como respaldo de las listas: cualquiera puede seguir los enlaces
@@ -270,6 +270,65 @@ producto se usó.
 | Ámbito | Organismo | Fuente |
 |---|---|---|
 | Vacunación de perros y gatos | WSAVA | https://wsava.org/global-guidelines/vaccination-guidelines/ |
+
+---
+
+## Tercera pasada: aves y conejos hacia Reino Unido y Canadá
+
+### 23. Conejos a Reino Unido — faltaban cuatro meses de cuarentena
+
+Es la omisión más grave de todas las encontradas. El conejo se considera
+**especie sensible a la rabia**, lo que obliga a una licencia de importación de
+la APHA y, por defecto, a **cuatro meses de cuarentena en Inglaterra y Gales,
+tres en Escocia**.
+
+La aplicación decía únicamente que los conejos entran «como otros mamíferos, con
+licencia previa». Alguien podía planificar unas vacaciones y encontrarse con que
+su animal se queda retenido un tercio de año.
+
+Existe una **exención** que lo evita, y es tan importante como el propio plazo:
+saliendo de la Unión Europea no hay cuarentena si el conejo nació en una
+explotación registrada y vivió siempre en cautividad, la explotación está libre
+de rabia y de mixomatosis, y el certificado sanitario incluye la declaración
+específica para lagomorfos.
+
+### 24. Aves a Reino Unido — el aviso previo y los cuatro aeropuertos
+
+Hay que **comunicar el viaje a la APHA con al menos un día de antelación**, y
+solo se puede entrar por **Heathrow, Gatwick, Edimburgo o Glasgow**. Ninguna de
+las dos cosas aparecía, y cualquiera de ellas invalida un billete ya comprado.
+
+La licencia de importación solo se exige desde fuera de la UE; desde la UE y la
+EFTA no. La cuarentena de 30 días que ya figuraba es correcta.
+
+### 25. Aves a Canadá — el destino más restrictivo, y el peor descrito
+
+La aplicación pedía un permiso del CFIA y una cuarentena «según origen». Lo real:
+
+- **90 días de posesión previa** del ave en el país de origen antes siquiera de
+  solicitar el permiso, sin contacto con otras aves
+- **La cuarentena debe estar aprobada antes** de que emitan el permiso: no es un
+  trámite posterior sino previo
+- **45 días** de cuarentena como mínimo, en un local propio que el CFIA inspecciona
+- **El dueño tiene que viajar con el ave**; no se admite enviada por separado
+- Certificado veterinario internacional que declare ausencia de gripe aviar
+  notificable en los 6 meses previos e inspección en las **72 horas** anteriores
+- Máximo **5 psitácidas o 20 aves** de otras especies
+
+### 26. Conejos a Canadá — no son mascotas a efectos del CFIA
+
+Para el CFIA solo son mascotas perros, gatos y hurones. El conejo se tramita como
+**animal peletero**, por otro procedimiento. A partir de tres animales se exige
+cuarentena de 21 días y reconocimiento veterinario en los 5 días previos.
+
+Por debajo de esa cifra la documentación pública no es concluyente, así que la
+aplicación remite a consultar al CFIA en lugar de afirmar un requisito concreto.
+
+| Ámbito | Organismo | Fuente |
+|---|---|---|
+| Aves de compañía a Gran Bretaña | GOV.UK / APHA | https://www.gov.uk/government/publications/birds-and-poultry-live-and-products-import-information-notes/import-of-pet-birds-import-information-note-iin-pbtc2 |
+| Especies sensibles a la rabia a Gran Bretaña | GOV.UK / APHA | https://www.gov.uk/government/publications/live-animals-not-pet-dogs-cats-ferrets-application-for-import-licence |
+| Aves de compañía a Canadá | CFIA | https://inspection.canada.ca/en/animal-health/terrestrial-animals/imports/import-policies/live-animals/2011-8 |
 
 ---
 

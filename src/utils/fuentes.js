@@ -46,16 +46,16 @@ const EQUINOS = {
 /* Aves: sanidad aviar y, casi siempre, CITES por encima. */
 const AVES = {
   ES: 'https://food.ec.europa.eu/animals/live-animal-movements/pet-birds_en',
-  UK: 'https://www.gov.uk/guidance/importing-live-animals-or-animal-products-from-non-eu-countries',
+  UK: 'https://www.gov.uk/government/publications/birds-and-poultry-live-and-products-import-information-notes/import-of-pet-birds-import-information-note-iin-pbtc2',
   US: 'https://www.aphis.usda.gov/pet-travel/another-country-to-us-import/birds',
-  CA: 'https://inspection.canada.ca/en/importing-food-plants-animals/pets',
+  CA: 'https://inspection.canada.ca/en/animal-health/terrestrial-animals/imports/import-policies/live-animals/2011-8',
   AU: 'https://bicon.agriculture.gov.au/',
 };
 
 /* Conejos, reptiles y todo lo demás: norma nacional, muy variable. */
 const OTROS = {
   ES: 'https://www.mapa.gob.es/es/ganaderia/temas/comercio-exterior-ganadero/',
-  UK: 'https://www.gov.uk/guidance/importing-live-animals-or-animal-products-from-non-eu-countries',
+  UK: 'https://www.gov.uk/government/publications/live-animals-not-pet-dogs-cats-ferrets-application-for-import-licence',
   US: 'https://www.fws.gov/program/office-of-law-enforcement/information-importers-exporters',
   CA: 'https://inspection.canada.ca/en/importing-food-plants-animals/pets',
   AU: 'https://www.agriculture.gov.au/biosecurity-trade/travelling/bringing-mailing-goods/unique-exotic-pets',
