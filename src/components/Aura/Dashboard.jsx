@@ -108,37 +108,61 @@ const Dashboard = ({ pets, activePetId, onActivePetChange, onAddPet, onSelectPet
 
     if (sid === 'exotic') return (
       <div className="aura-card" style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', padding: '3rem', flexWrap: 'wrap', gap: '1.5rem' }}>
-        <ChronographGauge value={pet.specific?.temp ?? 28} min={0} max={50}  label={t('species.exotic.temp')}     unit="°C" color="var(--aura-neon-cyan)" />
-        <ChronographGauge value={pet.specific?.humidity ?? 65} min={0} max={100} label={t('species.exotic.humidity')} unit="%" color="var(--aura-gold)" />
+        {pet.specific?.temp
+          ? <ChronographGauge value={Number(pet.specific.temp)} min={0} max={50} label={t('species.exotic.temp')} unit="°C" color="var(--aura-neon-cyan)" />
+          : <div style={{ textAlign: 'center' }}>
+              <h4 style={{ margin: '0 0 0.5rem', fontSize: '0.75rem', opacity: 0.6 }}>{t('species.exotic.temp')}</h4>
+              <p style={{ margin: 0, fontSize: '1.4rem', opacity: 0.45 }}>—</p>
+            </div>}
+        {pet.specific?.humidity
+          ? <ChronographGauge value={Number(pet.specific.humidity)} min={0} max={100} label={t('species.exotic.humidity')} unit="%" color="var(--aura-gold)" />
+          : <div style={{ textAlign: 'center' }}>
+              <h4 style={{ margin: '0 0 0.5rem', fontSize: '0.75rem', opacity: 0.6 }}>{t('species.exotic.humidity')}</h4>
+              <p style={{ margin: 0, fontSize: '1.4rem', opacity: 0.45 }}>—</p>
+            </div>}
         <div style={{ textAlign: 'center' }}>
           <Wind color="var(--aura-neon-pink)" size={32} style={{ marginBottom: '1rem' }} />
-          <h4 style={{ margin: '0 0 0.5rem', fontSize: '0.75rem', opacity: 0.6 }}>{t('species.exotic.shedding')}</h4>
-          <span className="locale-chip" style={{ color: 'var(--aura-neon-pink)', borderColor: 'var(--aura-neon-pink)' }}>75% COMPLETE</span>
+          <h4 style={{ margin: '0 0 0.5rem', fontSize: '0.75rem', opacity: 0.6 }}>CITES</h4>
+          <span style={{ fontWeight: 600 }}>
+            {pet.specific?.citesAppendix && pet.specific.citesAppendix !== 'no'
+              ? `${es ? 'Apéndice' : 'Appendix'} ${pet.specific.citesAppendix}`
+              : pet.specific?.citesAppendix === 'no'
+                ? (es ? 'No listada' : 'Not listed')
+                : '—'}
+          </span>
         </div>
       </div>
     );
 
-    if (sid === 'bird') return (
-      <div className="aura-card" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '2rem', textAlign: 'center' }}>
-        <div>
-          <p style={{ fontSize: '0.7rem', letterSpacing: '2px', opacity: 0.5 }}>{t('species.bird.ringing')}</p>
-          <p style={{ fontSize: '1.3rem', fontWeight: 700 }}>{pet.specific?.ringing || 'AUR-99X-Z'}</p>
+    if (sid === 'bird') {
+      const sp = pet.specific || {};
+      const cites = sp.citesAppendix && sp.citesAppendix !== 'no'
+        ? `${es ? 'Apéndice' : 'Appendix'} ${sp.citesAppendix}`
+        : sp.citesAppendix === 'no'
+          ? (es ? 'No listada' : 'Not listed')
+          : '—';
+      return (
+        <div className="aura-card" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '2rem', textAlign: 'center' }}>
+          {[
+            { label: es ? 'Identificación' : 'Identification',
+              value: sp.ringing || '—',
+              nota: sp.idType || '' },
+            { label: es ? 'Especie' : 'Species',
+              value: sp.scientificName || '—',
+              nota: es ? 'Nombre científico' : 'Scientific name' },
+            { label: 'CITES',
+              value: cites,
+              nota: sp.citesNumber || '' },
+          ].map(({ label, value, nota }) => (
+            <div key={label}>
+              <p style={{ fontSize: '0.7rem', letterSpacing: '2px', opacity: 0.5, margin: '0 0 0.4rem' }}>{label}</p>
+              <p style={{ fontSize: '1.05rem', fontWeight: 700, margin: 0, wordBreak: 'break-word' }}>{value}</p>
+              {nota && <p style={{ fontSize: '0.65rem', opacity: 0.5, margin: '0.25rem 0 0' }}>{nota}</p>}
+            </div>
+          ))}
         </div>
-        <div>
-          <p style={{ fontSize: '0.7rem', letterSpacing: '2px', opacity: 0.5 }}>{t('species.bird.feather')}</p>
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '4px', marginTop: '0.5rem' }}>
-            {[1,2,3,4,5].map(i => <div key={i} style={{ width:20, height:4, background: i<=4?'var(--aura-gold)':'#FAF7FE' }} />)}
-          </div>
-        </div>
-        <div>
-          <p style={{ fontSize: '0.7rem', letterSpacing: '2px', opacity: 0.5 }}>{t('species.bird.song')}</p>
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', alignItems: 'center' }}>
-            <Activity size={16} color="var(--aura-neon-cyan)" />
-            <span style={{ fontWeight: 600 }}>OPTIMAL</span>
-          </div>
-        </div>
-      </div>
-    );
+      );
+    }
 
     return (
       <div className="aura-card" style={{ display: 'flex', gap: '2rem', justifyContent: 'center', flexWrap: 'wrap' }}>
@@ -149,9 +173,10 @@ const Dashboard = ({ pets, activePetId, onActivePetChange, onAddPet, onSelectPet
           </div>
         </div>
         <div style={{ textAlign: 'center' }}>
-          <p style={{ fontSize: '0.7rem', letterSpacing: '2px', opacity: 0.5 }}>EXCELENCIA SANITARIA</p>
+          <p style={{ fontSize: '0.7rem', letterSpacing: '2px', opacity: 0.5 }}>MICROCHIP</p>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.5rem' }}>
-            <Award color="var(--aura-gold)" size={18} /> <span style={{ fontWeight: 600 }}>TIER 1 MEMBER</span>
+            <Award color="var(--aura-gold)" size={18} />
+            <span style={{ fontWeight: 600 }}>{pet.microchip?.trim() || '—'}</span>
           </div>
         </div>
       </div>

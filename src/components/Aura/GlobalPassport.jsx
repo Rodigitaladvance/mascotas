@@ -1596,7 +1596,7 @@ const GlobalPassport = ({ pet, onUpdatePet }) => {
               }
             </div>
             <p style={{ margin:0, fontWeight:700, fontSize:'0.95rem', textAlign:'center' }}>{pet?.name || 'AURA Member'}</p>
-            <span className="locale-chip">TIER 1 TRAVELER</span>
+            <span className="locale-chip">{(pet?.speciesLabel || '').toUpperCase() || (es ? 'SIN ESPECIE' : 'NO SPECIES')}</span>
           </div>
         </header>
 

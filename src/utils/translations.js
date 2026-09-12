@@ -69,16 +69,13 @@ export const translations = {
         competition: "Nivel de Competición"
       },
       exotic: {
-        shedding: "Ciclo de Muda",
         habitat: "Parámetros del Hábitat",
         temp: "Temperatura",
         humidity: "Humedad",
         diet: "Dieta Especializada"
       },
       bird: {
-        ringing: "Registro de Anillado",
-        feather: "Ciclo de Pluma",
-        song: "Ciclo de Canto"
+        ringing: "Registro de Anillado"
       }
     }
   },
@@ -152,16 +149,13 @@ export const translations = {
         competition: "Competition Level"
       },
       exotic: {
-        shedding: "Shedding Cycle",
         habitat: "Habitat Parameters",
         temp: "Temperature",
         humidity: "Humidity",
         diet: "Specialized Diet"
       },
       bird: {
-        ringing: "Ringing Registry",
-        feather: "Feather Cycle",
-        song: "Song Cycle"
+        ringing: "Ringing Registry"
       }
     }
   }

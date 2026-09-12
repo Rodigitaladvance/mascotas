@@ -214,7 +214,9 @@ const ExoticFields = ({ data, onChange, locale }) => {
           <div className="form-group">
             <div style={{ display:'flex', justifyContent:'space-between', marginBottom:'0.6rem' }}>
               <label className="input-label" style={{ marginBottom:0 }}>{locale==='es'?'Temperatura':'Temperature'}</label>
-              <span style={{ fontSize:'0.9rem', color:'var(--aura-neon-cyan)', fontWeight:600 }}>{data.temp ?? 28}°C</span>
+              <span style={{ fontSize:'0.9rem', color: data.temp == null ? 'var(--aura-text-muted)' : 'var(--aura-neon-cyan)', fontWeight:600 }}>
+                {data.temp == null ? (locale==='es'?'sin registrar':'not recorded') : `${data.temp}°C`}
+              </span>
             </div>
             <div style={{ display:'flex', alignItems:'center', gap:'0.6rem' }}>
               <span style={{ fontSize:'0.65rem', color:'var(--aura-text-muted)' }}>0</span>
@@ -226,7 +228,9 @@ const ExoticFields = ({ data, onChange, locale }) => {
           <div className="form-group">
             <div style={{ display:'flex', justifyContent:'space-between', marginBottom:'0.6rem' }}>
               <label className="input-label" style={{ marginBottom:0 }}>{locale==='es'?'Humedad':'Humidity'}</label>
-              <span style={{ fontSize:'0.9rem', color:'var(--aura-gold)', fontWeight:600 }}>{data.humidity ?? 65}%</span>
+              <span style={{ fontSize:'0.9rem', color: data.humidity == null ? 'var(--aura-text-muted)' : 'var(--aura-gold)', fontWeight:600 }}>
+                {data.humidity == null ? (locale==='es'?'sin registrar':'not recorded') : `${data.humidity}%`}
+              </span>
             </div>
             <div style={{ display:'flex', alignItems:'center', gap:'0.6rem' }}>
               <span style={{ fontSize:'0.65rem', color:'var(--aura-text-muted)' }}>0</span>
@@ -539,6 +543,7 @@ const PetRegistration = ({ onSave, onCancel }) => {
   const handleBasicPhoto = (e) =>
     readImageAsDataURL(e.target.files?.[0], (src) => setBasicData(prev => ({ ...prev, customPhoto: src })));
   const [saved, setSaved] = useState(false);
+  const [falta, setFalta] = useState('');
 
   const speciesLabel = (sp) => locale === 'es' ? sp.label : sp.labelEn;
 
@@ -556,7 +561,20 @@ const PetRegistration = ({ onSave, onCancel }) => {
   };
 
   const handleSave = () => {
-    if (!selectedSpecies || !basicData.name) return;
+    if (!selectedSpecies) {
+      setFalta(locale === 'es'
+        ? 'Elige primero la especie, en el carrusel de arriba.'
+        : 'Choose the species first, in the carousel above.');
+      return;
+    }
+    if (!basicData.name?.trim()) {
+      setSubTab('info');
+      setFalta(locale === 'es'
+        ? 'Falta el nombre del animal. Está en la pestaña «Info General», el primer campo.'
+        : 'The animal’s name is missing. It is in the “General Info” tab, the first field.');
+      return;
+    }
+    setFalta('');
     const newPet = {
       species: selectedSpecies.id,
       speciesLabel: speciesLabel(selectedSpecies),
@@ -575,6 +593,7 @@ const PetRegistration = ({ onSave, onCancel }) => {
     if (selectedSpecies?.id === 'exotic') return locale==='es'?'Hábitat':'Habitat';
     if (selectedSpecies?.id === 'bird')  return locale==='es'?'Ave':'Bird';
     if (selectedSpecies?.id === 'rabbit') return locale==='es'?'Conejo':'Rabbit';
+    if (selectedSpecies?.id === 'ferret') return locale==='es'?'Hurón':'Ferret';
     if (selectedSpecies?.id === 'other') return locale==='es'?'Especial':'Special';
     return locale==='es'?'Específico':'Specific';
   };
@@ -784,7 +803,7 @@ const PetRegistration = ({ onSave, onCancel }) => {
                       <input className="aura-input"
                         placeholder={locale==='es'?'Nombre de tu mascota':"Your pet's name"}
                         value={basicData.name}
-                        onChange={e => setBasicData({...basicData, name:e.target.value})} />
+                        onChange={e => { setBasicData({...basicData, name:e.target.value}); if (falta) setFalta(''); }} />
                     </FieldWrap>
                   </div>
                   <div className="form-group">
@@ -835,11 +854,11 @@ const PetRegistration = ({ onSave, onCancel }) => {
               {selectedSpecies?.id === 'bird'   && <BirdFields   data={specificData} onChange={setSpecificData} locale={locale} />}
               {selectedSpecies?.id === 'rabbit' && <RabbitFields data={specificData} onChange={setSpecificData} locale={locale} />}
               {selectedSpecies?.id === 'other'  && <OtherFields  data={specificData} onChange={setSpecificData} locale={locale} />}
-              {(!selectedSpecies || ['dog','cat'].includes(selectedSpecies?.id)) && (
-                <p style={{ color:'var(--aura-text-muted)', textAlign:'center', padding:'2rem 0', fontSize:'0.85rem' }}>
+              {(!selectedSpecies || ['dog','cat','ferret'].includes(selectedSpecies?.id)) && (
+                <p style={{ color:'var(--aura-text-muted)', textAlign:'center', padding:'2rem 0', fontSize:'0.85rem', lineHeight:1.6 }}>
                   {locale==='es'
-                    ? 'Perros y gatos no necesitan campos adicionales: su ficha general ya está completa.'
-                    : 'Select Horse, Bird or Other for species-specific fields.'}
+                    ? 'Perros, gatos y hurones no necesitan campos adicionales: viajan bajo el mismo régimen europeo y su ficha general ya está completa.'
+                    : 'Dogs, cats and ferrets need no extra fields: they travel under the same EU scheme and their general record is already complete.'}
                 </p>
               )}
             </motion.div>
@@ -869,14 +888,24 @@ const PetRegistration = ({ onSave, onCancel }) => {
           style={{
             flex:2,
             borderColor: selectedSpecies && basicData.name ? 'var(--aura-gold)' : 'var(--aura-border)',
-            opacity: selectedSpecies && basicData.name ? 1 : 0.4,
+            opacity: selectedSpecies && basicData.name ? 1 : 0.62,
           }}
-          disabled={!selectedSpecies || !basicData.name}
           onClick={handleSave}
         >
           {locale==='es'?'CONFIRMAR REGISTRO':'CONFIRM REGISTRATION'}
         </button>
       </div>
+
+      {falta && (
+        <p role="alert" style={{
+          margin:'0.9rem 0 0', padding:'0.7rem 0.9rem',
+          borderLeft:'3px solid var(--warn)', background:'rgba(240, 167, 60, 0.10)',
+          borderRadius:'0 8px 8px 0', fontSize:'0.78rem', lineHeight:1.6,
+          color:'var(--ink-body)',
+        }}>
+          {falta}
+        </p>
+      )}
     </motion.div>
   );
 };
