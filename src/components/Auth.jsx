@@ -136,7 +136,7 @@ const Auth = () => {
               padding: '0.3rem 0.9rem',
               border: '1px solid var(--aura-gold)',
               borderRadius: '2rem',
-              color: 'var(--aura-gold)',
+              color: 'var(--gold-ink)',
               fontSize: '0.65rem',
               letterSpacing: '3px',
               textTransform: 'uppercase',
@@ -169,7 +169,7 @@ const Auth = () => {
 
         <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '2rem', textAlign: 'left' }}>
           <div className="input-group">
-            <label style={{ display: 'flex', alignItems: 'center', gap: '0.7rem', marginBottom: '0.8rem', color: 'var(--aura-gold)', fontWeight: 500, fontSize: '0.8rem', letterSpacing: '1px' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '0.7rem', marginBottom: '0.8rem', color: 'var(--gold-ink)', fontWeight: 500, fontSize: '0.8rem', letterSpacing: '1px' }}>
               <Mail size={16} /> DIRECCIÓN DE ENLACE
             </label>
             <input 
@@ -185,7 +185,7 @@ const Auth = () => {
             />
           </div>
           <div className="input-group">
-            <label style={{ display: 'flex', alignItems: 'center', gap: '0.7rem', marginBottom: '0.8rem', color: 'var(--aura-gold)', fontWeight: 500, fontSize: '0.8rem', letterSpacing: '1px' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '0.7rem', marginBottom: '0.8rem', color: 'var(--gold-ink)', fontWeight: 500, fontSize: '0.8rem', letterSpacing: '1px' }}>
               <Lock size={16} /> CLAVE DE SEGURIDAD
             </label>
             <input 
@@ -207,10 +207,10 @@ const Auth = () => {
                 margin: '0.8rem 0 0', fontSize: '0.73rem', lineHeight: 1.55,
                 color: 'var(--aura-text-muted)',
               }}>
-                <KeyRound size={13} style={{ flexShrink: 0, marginTop: 2, color: 'var(--aura-gold)' }} />
+                <KeyRound size={13} style={{ flexShrink: 0, marginTop: 2, color: 'var(--gold-ink)' }} />
                 <span>
                   Guárdala bien: tus expedientes se cifran con ella y
-                  <strong style={{ color: 'var(--aura-gold)' }}> no se pueden recuperar si la olvidas</strong>.
+                  <strong style={{ color: 'var(--gold-ink)' }}> no se pueden recuperar si la olvidas</strong>.
                 </span>
               </p>
             )}
@@ -219,7 +219,7 @@ const Auth = () => {
           {error && (
             <div style={{ 
               padding: '1rem', background: 'rgba(236, 92, 141, 0.05)', border: '1px solid var(--aura-neon-pink)',
-              color: 'var(--aura-neon-pink)', fontSize: '0.8rem', textAlign: 'center', letterSpacing: '1px'
+              color: 'var(--pink-ink)', fontSize: '0.8rem', textAlign: 'center', letterSpacing: '1px'
             }}>
               {error.toUpperCase()}
             </div>
@@ -261,7 +261,7 @@ const Auth = () => {
               <a
                 href="/recuperar-acceso"
               style={{
-                color: 'var(--aura-gold)', fontSize: '0.75rem', letterSpacing: '1.5px',
+                color: 'var(--gold-ink)', fontSize: '0.75rem', letterSpacing: '1.5px',
                 textDecoration: 'none', opacity: 0.75, fontWeight: 600,
               }}
               onMouseEnter={e => e.currentTarget.style.opacity = '1'}

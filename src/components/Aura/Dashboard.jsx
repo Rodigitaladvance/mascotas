@@ -155,9 +155,9 @@ const Dashboard = ({ pets, activePetId, onActivePetChange, onAddPet, onSelectPet
               nota: sp.citesNumber || '' },
           ].map(({ label, value, nota }) => (
             <div key={label}>
-              <p style={{ fontSize: '0.7rem', letterSpacing: '2px', opacity: 0.5, margin: '0 0 0.4rem' }}>{label}</p>
+              <p style={{ fontSize: '0.7rem', letterSpacing: '2px', opacity: 0.68, margin: '0 0 0.4rem' }}>{label}</p>
               <p style={{ fontSize: '1.05rem', fontWeight: 700, margin: 0, wordBreak: 'break-word' }}>{value}</p>
-              {nota && <p style={{ fontSize: '0.65rem', opacity: 0.5, margin: '0.25rem 0 0' }}>{nota}</p>}
+              {nota && <p style={{ fontSize: '0.68rem', opacity: 0.68, margin: '0.25rem 0 0' }}>{nota}</p>}
             </div>
           ))}
         </div>
@@ -167,13 +167,13 @@ const Dashboard = ({ pets, activePetId, onActivePetChange, onAddPet, onSelectPet
     return (
       <div className="aura-card" style={{ display: 'flex', gap: '2rem', justifyContent: 'center', flexWrap: 'wrap' }}>
         <div style={{ textAlign: 'center' }}>
-          <p style={{ fontSize: '0.7rem', letterSpacing: '2px', opacity: 0.5 }}>EXPEDIENTE MÉDICO</p>
+          <p style={{ fontSize: '0.7rem', letterSpacing: '2px', opacity: 0.68 }}>EXPEDIENTE MÉDICO</p>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.5rem' }}>
             <Shield color="var(--aura-gold)" size={18} /> <span style={{ fontWeight: 600 }}>CIFRADO ACTIVO</span>
           </div>
         </div>
         <div style={{ textAlign: 'center' }}>
-          <p style={{ fontSize: '0.7rem', letterSpacing: '2px', opacity: 0.5 }}>MICROCHIP</p>
+          <p style={{ fontSize: '0.7rem', letterSpacing: '2px', opacity: 0.68 }}>MICROCHIP</p>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.5rem' }}>
             <Award color="var(--aura-gold)" size={18} />
             <span style={{ fontWeight: 600 }}>{pet.microchip?.trim() || '—'}</span>
@@ -337,7 +337,7 @@ const Dashboard = ({ pets, activePetId, onActivePetChange, onAddPet, onSelectPet
             flexShrink: 0, width: 64, height: 64, borderRadius: '50%',
             border: '1px dashed rgba(217, 164, 65, 0.35)', background: 'none',
             cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            color: 'var(--aura-gold)', transition: 'border-color 0.2s',
+            color: 'var(--gold-ink)', transition: 'border-color 0.2s',
           }}
             onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(217, 164, 65, 0.7)'}
             onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(217, 164, 65, 0.35)'}
@@ -571,7 +571,7 @@ const Dashboard = ({ pets, activePetId, onActivePetChange, onAddPet, onSelectPet
               onClick={e => e.stopPropagation()}
             >
               {/* Header */}
-              <h2 style={{ fontSize: '1.8rem', marginBottom: '1.5rem', color: 'var(--aura-neon-pink)', display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+              <h2 style={{ fontSize: '1.8rem', marginBottom: '1.5rem', color: 'var(--pink-ink)', display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
                 <Zap /> {t('dashboard.cardio')}
               </h2>
 
@@ -580,8 +580,8 @@ const Dashboard = ({ pets, activePetId, onActivePetChange, onAddPet, onSelectPet
                 <>
                   <div style={{ display: 'grid', gap: '0.8rem', marginBottom: '2rem' }}>
                     {[
-                      { label: es?'Frecuencia Cardíaca':'Heart Rate', value: `${pet.vitals.heartRate} BPM`, color: 'var(--aura-neon-pink)' },
-                      { label: es?'Actividad Diaria':'Daily Activity',  value: `${pet.vitals.activity}%`,         color: 'var(--aura-gold)' },
+                      { label: es?'Frecuencia Cardíaca':'Heart Rate', value: `${pet.vitals.heartRate} BPM`, color: 'var(--pink-ink)' },
+                      { label: es?'Actividad Diaria':'Daily Activity',  value: `${pet.vitals.activity}%`,         color: 'var(--gold-ink)' },
                       { label: es?'Peso Actual':'Current Weight',       value: pet.vitals.weight ? `${pet.vitals.weight} kg` : '—', color: 'var(--aura-text)' },
                       { label: es?'Estado General':'Overall Status',    value: STATUS_OPTS.find(o=>o[0]===pet.vitals.status)?.[1] || pet.vitals.status, color: STATUS_COLOR[pet.vitals.status] || 'var(--aura-text)' },
                     ].map(({ label, value, color }) => (
@@ -601,8 +601,8 @@ const Dashboard = ({ pets, activePetId, onActivePetChange, onAddPet, onSelectPet
                     </p>
                   </div>
                   <div style={{ display:'flex', gap:'1rem' }}>
-                    <button className="btn-aura" style={{ flex:1 }} onClick={() => setShowPerformanceDetail(false)}>{es?'CERRAR':'CLOSE'}</button>
-                    <button className="btn-aura" style={{ flex:2, borderColor:'var(--aura-neon-pink)', color:'var(--aura-neon-pink)' }}
+                    <button className="btn-aura btn-ghost" style={{ flex:1 }} onClick={() => setShowPerformanceDetail(false)}>{es?'CERRAR':'CLOSE'}</button>
+                    <button className="btn-aura" style={{ flex:2 }}
                       onClick={() => setEditingVitals(true)}>{es?'EDITAR DATOS':'EDIT DATA'}</button>
                   </div>
                 </>
@@ -626,7 +626,7 @@ const Dashboard = ({ pets, activePetId, onActivePetChange, onAddPet, onSelectPet
                   <div className="form-group">
                     <div style={{ display:'flex', justifyContent:'space-between', marginBottom:'0.6rem' }}>
                       <label className="input-label" style={{ marginBottom:0 }}>{es?'Actividad Diaria':'Daily Activity'}</label>
-                      <span style={{ fontSize:'0.9rem', color:'var(--aura-gold)', fontWeight:700 }}>{vitalsForm.activity}%</span>
+                      <span style={{ fontSize:'0.9rem', color:'var(--gold-ink)', fontWeight:700 }}>{vitalsForm.activity}%</span>
                     </div>
                     <input type="range" className="aura-range" min="0" max="100"
                       value={vitalsForm.activity}
@@ -662,12 +662,12 @@ const Dashboard = ({ pets, activePetId, onActivePetChange, onAddPet, onSelectPet
                   </div>
 
                   <div style={{ display:'flex', gap:'1rem' }}>
-                    <button className="btn-aura" style={{ flex:1 }}
+                    <button className="btn-aura btn-ghost" style={{ flex:1 }}
                       onClick={() => { setShowPerformanceDetail(false); setEditingVitals(false); }}>
                       {es?'CANCELAR':'CANCEL'}
                     </button>
                     <button className="btn-aura"
-                      style={{ flex:2, borderColor: vitalsForm.heartRate ? 'var(--aura-gold)' : 'var(--aura-border)', opacity: vitalsForm.heartRate ? 1 : 0.45 }}
+                      style={{ flex:2 }}
                       disabled={!vitalsForm.heartRate}
                       onClick={saveVitals}>
                       {es?'GUARDAR DATOS':'SAVE DATA'}

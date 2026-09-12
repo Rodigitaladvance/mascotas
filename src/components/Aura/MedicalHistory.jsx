@@ -118,7 +118,7 @@ const generatePDF = (pet, data) => {
 // ─── Field ────────────────────────────────────────────────────────────────────
 const Field = ({ label, as, ...props }) => (
   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-    <label style={{ fontSize: '0.65rem', letterSpacing: '2px', color: 'var(--aura-gold)', textTransform: 'uppercase' }}>
+    <label style={{ fontSize: '0.65rem', letterSpacing: '2px', color: 'var(--gold-ink)', textTransform: 'uppercase' }}>
       {label}
     </label>
     {as === 'textarea'
@@ -228,7 +228,7 @@ const MedicalHistory = ({ pet, onClose }) => {
   // ── Drop zone (solo Análisis) ──────────────────────────────────────────────
   const DropZone = () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-      <label style={{ fontSize: '0.65rem', letterSpacing: '2px', color: 'var(--aura-gold)', textTransform: 'uppercase' }}>
+      <label style={{ fontSize: '0.65rem', letterSpacing: '2px', color: 'var(--gold-ink)', textTransform: 'uppercase' }}>
         Documento adjunto
       </label>
 
@@ -255,14 +255,14 @@ const MedicalHistory = ({ pet, onClose }) => {
             <button
               type="button"
               onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click(); }}
-              style={{ padding: '7px 14px', background: 'rgba(217, 164, 65, 0.1)', border: '1px solid rgba(217, 164, 65, 0.35)', borderRadius: 6, color: 'var(--aura-gold)', fontSize: '0.75rem', cursor: 'pointer' }}
+              style={{ padding: '7px 14px', background: 'rgba(217, 164, 65, 0.1)', border: '1px solid rgba(217, 164, 65, 0.35)', borderRadius: 6, color: 'var(--gold-ink)', fontSize: '0.75rem', cursor: 'pointer' }}
             >
               📎 Subir documento
             </button>
             <button
               type="button"
               onClick={(e) => { e.stopPropagation(); cameraInputRef.current?.click(); }}
-              style={{ padding: '7px 14px', background: 'rgba(217, 164, 65, 0.1)', border: '1px solid rgba(217, 164, 65, 0.35)', borderRadius: 6, color: 'var(--aura-gold)', fontSize: '0.75rem', cursor: 'pointer' }}
+              style={{ padding: '7px 14px', background: 'rgba(217, 164, 65, 0.1)', border: '1px solid rgba(217, 164, 65, 0.35)', borderRadius: 6, color: 'var(--gold-ink)', fontSize: '0.75rem', cursor: 'pointer' }}
             >
               📷 Usar cámara
             </button>
@@ -292,7 +292,7 @@ const MedicalHistory = ({ pet, onClose }) => {
           <button
             type="button"
             onClick={() => setDocPreview(null)}
-            style={{ position: 'absolute', top: 6, right: 6, width: 26, height: 26, borderRadius: '50%', background: 'rgba(42, 45, 124, 0.28)', border: '1px solid rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#fff' }}
+            style={{ position: 'absolute', top: 6, right: 6, width: 26, height: 26, borderRadius: '50%', background: 'rgba(42, 45, 124, 0.62)', border: '1px solid rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#fff' }}
           >
             <X size={13} />
           </button>
@@ -433,12 +433,12 @@ const MedicalHistory = ({ pet, onClose }) => {
           <div style={cardStyle}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>
-                <p style={{ margin: '0 0 2px', fontSize: '0.68rem', color: 'var(--aura-gold)', letterSpacing: '2px' }}>{v.date}</p>
+                <p style={{ margin: '0 0 2px', fontSize: '0.68rem', color: 'var(--gold-ink)', letterSpacing: '2px' }}>{v.date}</p>
                 <p style={{ margin: '0 0 4px', fontWeight: 600, fontSize: '0.98rem' }}>{v.clinic || '—'}</p>
                 <p style={{ margin: 0, fontSize: '0.78rem', color: 'var(--aura-text-muted)' }}>{v.vet}</p>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
-                {v.cost && <span style={{ fontWeight: 700, color: 'var(--aura-gold)' }}>€{v.cost}</span>}
+                {v.cost && <span style={{ fontWeight: 700, color: 'var(--gold-ink)' }}>€{v.cost}</span>}
                 <button style={deleteBtn} onClick={() => remove('visits', v.id)}><X size={14} /></button>
               </div>
             </div>
@@ -524,7 +524,7 @@ const MedicalHistory = ({ pet, onClose }) => {
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
               {a.result && (
-                <span style={{ padding: '4px 10px', borderRadius: 20, fontSize: '0.68rem', fontWeight: 600, background: 'rgba(217, 164, 65, 0.1)', color: 'var(--aura-gold)', border: '1px solid rgba(217, 164, 65, 0.3)' }}>
+                <span style={{ padding: '4px 10px', borderRadius: 20, fontSize: '0.68rem', fontWeight: 600, background: 'rgba(217, 164, 65, 0.1)', color: 'var(--gold-ink)', border: '1px solid rgba(217, 164, 65, 0.3)' }}>
                   {a.result}
                 </span>
               )}
@@ -563,7 +563,7 @@ const MedicalHistory = ({ pet, onClose }) => {
                 </p>
                 <button
                   onClick={() => setViewDoc(a.document)}
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', padding: '5px 12px', background: 'rgba(217, 164, 65, 0.08)', border: '1px solid rgba(217, 164, 65, 0.3)', borderRadius: 6, color: 'var(--aura-gold)', fontSize: '0.72rem', cursor: 'pointer' }}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', padding: '5px 12px', background: 'rgba(217, 164, 65, 0.08)', border: '1px solid rgba(217, 164, 65, 0.3)', borderRadius: 6, color: 'var(--gold-ink)', fontSize: '0.72rem', cursor: 'pointer' }}
                 >
                   <Eye size={12} /> Ver documento
                 </button>
@@ -595,7 +595,7 @@ const MedicalHistory = ({ pet, onClose }) => {
         {/* Header */}
         <div style={{ padding: '1.4rem 2rem', borderBottom: '1px solid rgba(217, 164, 65, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
           <div>
-            <p style={{ margin: '0 0 2px', fontSize: '0.6rem', letterSpacing: '3px', color: 'var(--aura-gold)', textTransform: 'uppercase' }}>
+            <p style={{ margin: '0 0 2px', fontSize: '0.6rem', letterSpacing: '3px', color: 'var(--gold-ink)', textTransform: 'uppercase' }}>
               AURA Pets Global · {pet.name}
             </p>
             <h2 style={{ margin: 0, fontSize: '1.55rem', fontWeight: 700 }}>Historial Médico Completo</h2>
@@ -606,7 +606,7 @@ const MedicalHistory = ({ pet, onClose }) => {
               <Download size={13} /> PDF
             </button>
             <button onClick={onClose}
-              style={{ width: 34, height: 34, borderRadius: '50%', background: '#FFFFFF', border: '1px solid #FAF7FE', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--aura-text)' }}>
+              style={{ width: 34, height: 34, borderRadius: '50%', background: '#FFFFFF', border: '1px solid var(--border-strong)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--aura-text)' }}>
               <X size={17} />
             </button>
           </div>
@@ -639,7 +639,7 @@ const MedicalHistory = ({ pet, onClose }) => {
             return (
               <button key={id}
                 onClick={() => { setTab(id); setShowForm(false); setDocPreview(null); setFileError(''); }}
-                style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', padding: '0.9rem 1.4rem', background: 'none', border: 'none', cursor: 'pointer', borderBottom: active ? '2px solid var(--aura-gold)' : '2px solid transparent', color: active ? 'var(--aura-gold)' : 'var(--aura-text-muted)', fontSize: '0.8rem', fontWeight: active ? 600 : 400, letterSpacing: '0.5px', whiteSpace: 'nowrap', transition: 'color 0.2s' }}
+                style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', padding: '0.9rem 1.4rem', background: 'none', border: 'none', cursor: 'pointer', borderBottom: active ? '2px solid var(--aura-gold)' : '2px solid transparent', color: active ? 'var(--gold-ink)' : 'var(--aura-text-muted)', fontSize: '0.8rem', fontWeight: active ? 600 : 400, letterSpacing: '0.5px', whiteSpace: 'nowrap', transition: 'color 0.2s' }}
               >
                 <Icon size={14} /> {label}
               </button>
@@ -653,7 +653,7 @@ const MedicalHistory = ({ pet, onClose }) => {
           {!showForm ? (
             <div style={{ marginBottom: '1.2rem' }}>
               <button onClick={openForm} className="btn-aura"
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem', fontSize: '0.76rem', padding: '0.55rem 1.1rem', borderColor: 'var(--aura-gold)', color: 'var(--aura-gold)' }}>
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem', fontSize: '0.76rem', padding: '0.55rem 1.1rem' }}>
                 <Plus size={13} /> {ADD_LABELS[tab]}
               </button>
             </div>
@@ -661,8 +661,8 @@ const MedicalHistory = ({ pet, onClose }) => {
             <div style={{ marginBottom: '1.2rem' }}>
               {renderForm()}
               <div style={{ display: 'flex', gap: '0.7rem' }}>
-                <button className="btn-aura" style={{ flex: 1, fontSize: '0.75rem' }} onClick={cancelForm}>CANCELAR</button>
-                <button className="btn-aura" style={{ flex: 2, fontSize: '0.75rem', borderColor: 'var(--aura-gold)', color: 'var(--aura-gold)' }} onClick={submit}>GUARDAR</button>
+                <button className="btn-aura btn-ghost" style={{ flex: 1, fontSize: '0.75rem' }} onClick={cancelForm}>CANCELAR</button>
+                <button className="btn-aura" style={{ flex: 2, fontSize: '0.75rem' }} onClick={submit}>GUARDAR</button>
               </div>
             </div>
           )}
@@ -677,7 +677,7 @@ const MedicalHistory = ({ pet, onClose }) => {
 
         {/* ── Footer de marca ── */}
         <div style={{ padding: '0.6rem 2rem', borderTop: '1px solid var(--aura-border)', flexShrink: 0, textAlign: 'center' }}>
-          <p style={{ margin: 0, fontSize: '0.55rem', letterSpacing: '1.8px', color: 'var(--aura-text-muted)', opacity: 0.55, textTransform: 'uppercase' }}>
+          <p style={{ margin: 0, fontSize: '0.55rem', letterSpacing: '1.8px', color: 'var(--aura-text-muted)', opacity: 0.68, textTransform: 'uppercase' }}>
             AURA Pets Global · Expediente Médico Digital
           </p>
         </div>
@@ -704,7 +704,7 @@ const MedicalHistory = ({ pet, onClose }) => {
                   href={viewDoc.dataUrl}
                   target="_blank"
                   rel="noreferrer"
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', padding: '6px 12px', background: 'rgba(217, 164, 65, 0.08)', border: '1px solid rgba(217, 164, 65, 0.3)', borderRadius: 6, color: 'var(--aura-gold)', fontSize: '0.72rem', textDecoration: 'none' }}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', padding: '6px 12px', background: 'rgba(217, 164, 65, 0.08)', border: '1px solid rgba(217, 164, 65, 0.3)', borderRadius: 6, color: 'var(--gold-ink)', fontSize: '0.72rem', textDecoration: 'none' }}
                 >
                   <Download size={12} /> Abrir
                 </a>

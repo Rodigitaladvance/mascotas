@@ -56,7 +56,7 @@ const generateMedicalPDF = (pets, userEmail) => {
   doc.setTextColor(60, 60, 60);
   doc.setFontSize(8);
   doc.setFont('helvetica', 'normal');
-  doc.text(`Titular: ${userEmail || 'AURA Member'}`, 15, y);
+  doc.text(`Titular: ${userEmail || 'No registrado'}`, 15, y);
   y += 12;
 
   if (!pets.length) {
@@ -511,7 +511,7 @@ const DestructionModal = ({ onConfirm, onClose, locale }) => {
         <div style={{ width: 52, height: 52, borderRadius: '50%', border: '2px solid var(--aura-neon-pink)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem' }}>
           <AlertTriangle size={24} color="var(--aura-neon-pink)" />
         </div>
-        <h2 style={{ textAlign: 'center', color: 'var(--aura-neon-pink)', fontSize: '1.4rem', marginBottom: '1rem' }}>
+        <h2 style={{ textAlign: 'center', color: 'var(--pink-ink)', fontSize: '1.4rem', marginBottom: '1rem' }}>
           {es ? 'Destrucción Permanente de Datos' : 'Permanent Data Destruction'}
         </h2>
 
@@ -523,11 +523,11 @@ const DestructionModal = ({ onConfirm, onClose, locale }) => {
                 : 'This action permanently deletes all medical records, health documentation, and pet data. It is irreversible and complies with GDPR right to erasure.'}
             </p>
             <div style={{ display: 'flex', gap: '1rem' }}>
-              <button className="btn-aura" style={{ flex: 1 }} onClick={onClose}>
+              <button className="btn-aura btn-ghost" style={{ flex: 1 }} onClick={onClose}>
                 {es ? 'CANCELAR' : 'CANCEL'}
               </button>
-              <button className="btn-aura"
-                style={{ flex: 1, borderColor: 'var(--aura-neon-pink)', color: 'var(--aura-neon-pink)' }}
+              <button className="btn-aura btn-ghost"
+                style={{ flex: 1, '--btn-accent': 'var(--danger)' }}
                 onClick={() => setStep(2)}>
                 {es ? 'CONTINUAR' : 'CONTINUE'}
               </button>
@@ -549,16 +549,13 @@ const DestructionModal = ({ onConfirm, onClose, locale }) => {
               style={{ marginBottom: '1.5rem', textAlign: 'center', letterSpacing: '4px', fontWeight: 700 }}
             />
             <div style={{ display: 'flex', gap: '1rem' }}>
-              <button className="btn-aura" style={{ flex: 1 }} onClick={() => { setStep(1); setTyped(''); }}>
+              <button className="btn-aura btn-ghost" style={{ flex: 1 }} onClick={() => { setStep(1); setTyped(''); }}>
                 {es ? 'ATRÁS' : 'BACK'}
               </button>
-              <button className="btn-aura"
+              <button className="btn-aura btn-ghost"
                 style={{
                   flex: 2,
-                  background: typed === KEYWORD ? 'rgba(255,0,80,0.15)' : 'transparent',
-                  borderColor: typed === KEYWORD ? 'var(--aura-neon-pink)' : 'var(--aura-border)',
-                  color: typed === KEYWORD ? 'var(--aura-neon-pink)' : 'var(--aura-text-muted)',
-                  cursor: typed === KEYWORD ? 'pointer' : 'not-allowed',
+                  '--btn-accent': 'var(--danger)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem',
                 }}
                 disabled={typed !== KEYWORD}
@@ -641,7 +638,7 @@ const PrivacyVault = () => {
   if (destroyed) return (
     <div style={{ minHeight: '60vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1rem' }}>
       <Trash2 size={48} color="var(--aura-neon-pink)" />
-      <h2 style={{ color: 'var(--aura-neon-pink)' }}>{es ? 'Datos eliminados' : 'Data destroyed'}</h2>
+      <h2 style={{ color: 'var(--pink-ink)' }}>{es ? 'Datos eliminados' : 'Data destroyed'}</h2>
       <p style={{ color: 'var(--aura-text-muted)', fontSize: '0.82rem' }}>
         {es ? 'Cerrando sesión…' : 'Signing out…'}
       </p>
@@ -668,7 +665,7 @@ const PrivacyVault = () => {
       </AnimatePresence>
 
       <header style={{ marginBottom: '2.5rem' }}>
-        <span style={{ fontSize: '0.75rem', letterSpacing: '4px', opacity: 0.5, textTransform: 'uppercase' }}>
+        <span style={{ fontSize: '0.75rem', letterSpacing: '4px', opacity: 0.68, textTransform: 'uppercase' }}>
           {es ? 'Protocolo de Seguridad' : 'Security Protocol'}
         </span>
         <h1 className="luxury-title" style={{ fontSize: 'clamp(1.8rem, 5vw, 3rem)', margin: '0.5rem 0' }}>
@@ -724,7 +721,7 @@ const PrivacyVault = () => {
               </p>
               <span style={{
                 fontSize: '0.65rem', letterSpacing: '1.5px', textTransform: 'uppercase',
-                color: 'var(--aura-gold)', display: 'flex', alignItems: 'center', gap: '0.3rem',
+                color: 'var(--gold-ink)', display: 'flex', alignItems: 'center', gap: '0.3rem',
               }}>
                 <BookOpen size={11} /> {legalContent.hipaa.readLabel}
               </span>
@@ -770,7 +767,7 @@ const PrivacyVault = () => {
             </h3>
             <div style={{ display: 'grid', gap: '1rem' }}>
               <button className="btn-aura"
-                style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', background: 'rgba(217, 164, 65, 0.05)' }}
+                style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', textAlign: 'left' }}
                 onClick={handleExportPDF}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
                   <FileText size={16} color="var(--aura-gold)" />
@@ -787,7 +784,7 @@ const PrivacyVault = () => {
               </button>
 
               <button className="btn-aura"
-                style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', background: '#FFFFFF' }}
+                style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', textAlign: 'left' }}
                 onClick={handleExportJSON}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
                   <Download size={16} />
@@ -816,7 +813,7 @@ const PrivacyVault = () => {
               </button>
 
               <button className="btn-aura"
-                style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', background: '#FFFFFF' }}
+                style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', textAlign: 'left' }}
                 onClick={() => window.open('/politicas.html', '_blank', 'noopener,noreferrer')}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
                   <ExternalLink size={16} color="var(--aura-text-muted)" />
@@ -833,7 +830,7 @@ const PrivacyVault = () => {
               </button>
 
               <button className="btn-aura"
-                style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', borderColor: 'rgba(255,0,80,0.35)', color: 'var(--aura-neon-pink)' }}
+                style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', textAlign: 'left', '--btn-accent': 'var(--danger)' }}
                 onClick={() => setShowDestruction(true)}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
                   <Trash2 size={16} />
@@ -860,7 +857,7 @@ const PrivacyVault = () => {
               <div style={{ position: 'absolute', inset: '10px', border: '2px solid var(--aura-neon-cyan)', borderRadius: '50%', borderTopColor: 'transparent', animation: 'rotate 3s linear infinite' }} />
               <ShieldCheck size={40} color="var(--aura-neon-cyan)" />
             </div>
-            <h4 style={{ color: 'var(--aura-neon-cyan)', letterSpacing: '2px', fontSize: '0.7rem', margin: '0 0 0.5rem' }}>
+            <h4 style={{ color: 'var(--cyan-ink)', letterSpacing: '2px', fontSize: '0.7rem', margin: '0 0 0.5rem' }}>
               {es ? 'ESTADO DE SEGURIDAD' : 'SECURITY STATUS'}
             </h4>
             <p style={{ fontSize: '1.2rem', fontWeight: 600, margin: '0 0 0.5rem' }}>
@@ -873,7 +870,7 @@ const PrivacyVault = () => {
               <p style={{ margin: '0 0 0.3rem', fontSize: '0.65rem', color: 'var(--aura-text-muted)', letterSpacing: '1.5px', textTransform: 'uppercase' }}>
                 {es ? 'Mascotas registradas' : 'Registered pets'}
               </p>
-              <p style={{ margin: 0, fontSize: '2rem', fontWeight: 700, color: 'var(--aura-gold)' }}>
+              <p style={{ margin: 0, fontSize: '2rem', fontWeight: 700, color: 'var(--gold-ink)' }}>
                 {getPets().length}
               </p>
             </div>

@@ -75,8 +75,8 @@ const countryFromLocale = () => {
 const buildQRText = (pet) => {
   const lines = [
     '🚨 EMERGENCIA VETERINARIA — AURA Pets',
-    `Mascota: ${pet?.name || 'N/A'}`,
-    `Especie: ${pet?.speciesLabel || pet?.species || 'N/A'}`,
+    pet?.name ? `Mascota: ${pet.name}` : null,
+    (pet?.speciesLabel || pet?.species) ? `Especie: ${pet.speciesLabel || pet.species}` : null,
     pet?.breed ? `Raza: ${pet.breed}` : null,
     pet?.microchip ? `Microchip: ${pet.microchip}` : null,
     pet?.age ? `Edad: ${pet.age}` : null,
@@ -155,10 +155,10 @@ const SOSMode = ({ pet, pets = [], onActivePetChange, onExit }) => {
     }}>
       {/* ── Pulsing SOS banner ── */}
       <motion.div
-        animate={{ opacity: [1, 0.55, 1] }}
+        animate={{ backgroundColor: ['#EC5C8D', '#F6839F', '#EC5C8D'] }}
         transition={{ repeat: Infinity, duration: 1.8 }}
         style={{
-          background: 'var(--aura-neon-pink)', color: 'var(--ink)', padding: '0.9rem',
+          background: 'var(--pink)', color: 'var(--ink-strong)', padding: '0.9rem',
           textAlign: 'center', letterSpacing: '6px', fontWeight: 900, fontSize: '1rem',
         }}
       >
@@ -175,19 +175,19 @@ const SOSMode = ({ pet, pets = [], onActivePetChange, onExit }) => {
             {/* Geo status pill */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               {geoStatus === 'ok'
-                ? <><Wifi size={13} color="var(--aura-neon-cyan)" />
-                    <span style={{ fontSize: '0.65rem', color: 'var(--aura-neon-cyan)', letterSpacing: '1.5px' }}>
+                ? <><Wifi size={14} color="var(--cyan-ink)" />
+                    <span style={{ fontSize: '0.74rem', color: 'var(--cyan-ink)', letterSpacing: '1px', fontWeight: 600 }}>
                       UBICACIÓN DETECTADA · {country || '…'}  —  Emergencias: {emergencyNumber}
                     </span></>
                 : geoStatus === 'loading'
-                  ? <span style={{ fontSize: '0.65rem', color: 'var(--aura-gold)', letterSpacing: '1.5px' }}>Detectando ubicación…</span>
-                  : <><WifiOff size={13} color="var(--aura-gold)" />
-                      <span style={{ fontSize: '0.65rem', color: 'var(--aura-gold)', letterSpacing: '1.5px' }}>
+                  ? <span style={{ fontSize: '0.74rem', color: 'var(--gold-ink)', letterSpacing: '1px', fontWeight: 600 }}>Detectando ubicación…</span>
+                  : <><WifiOff size={14} color="var(--gold-ink)" />
+                      <span style={{ fontSize: '0.74rem', color: 'var(--gold-ink)', letterSpacing: '1px', fontWeight: 600 }}>
                         UBICACIÓN NO DISPONIBLE · Nº por defecto: {emergencyNumber}
                       </span></>}
             </div>
           </div>
-          <button onClick={onExit} className="btn-aura" style={{ borderColor: 'rgba(255,255,255,0.3)', color: 'var(--ink)' }}>
+          <button onClick={onExit} className="btn-aura btn-ghost">
             SALIR DEL MODO SOS
           </button>
         </header>
@@ -202,7 +202,7 @@ const SOSMode = ({ pet, pets = [], onActivePetChange, onExit }) => {
                   style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap',
                     background: '#FFFFFF', border: '1px solid rgba(236, 92, 141, 0.3)',
                     borderRadius: 4, padding: '1rem 1.4rem', marginBottom: '0.8rem' }}>
-                  <span style={{ fontSize: '0.62rem', letterSpacing: '2px', color: 'var(--aura-neon-pink)', fontWeight: 700, flexShrink: 0 }}>
+                  <span style={{ fontSize: '0.7rem', letterSpacing: '1.5px', color: 'var(--pink-ink)', fontWeight: 700, flexShrink: 0 }}>
                     SELECCIONAR MIEMBRO:
                   </span>
                   {pets.map(p => {
@@ -222,8 +222,8 @@ const SOSMode = ({ pet, pets = [], onActivePetChange, onExit }) => {
                             ? <img src={p.customImage} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                             : p.avatar || '🐾'}
                         </div>
-                        <span style={{ fontSize: '0.55rem', color: sel ? 'var(--aura-neon-pink)' : 'var(--aura-text-muted)',
-                          letterSpacing: '1px', fontWeight: sel ? 700 : 400 }}>
+                        <span style={{ fontSize: '0.7rem', color: sel ? 'var(--pink-ink)' : 'var(--ink-body)',
+                          letterSpacing: '0.5px', fontWeight: sel ? 700 : 500 }}>
                           {p.name}
                         </span>
                       </button>
@@ -232,8 +232,8 @@ const SOSMode = ({ pet, pets = [], onActivePetChange, onExit }) => {
                 </motion.div>
               )}
             </AnimatePresence>
-            <button onClick={() => setShowSwitcher(v => !v)} className="btn-aura"
-              style={{ fontSize: '0.7rem', borderColor: 'rgba(236, 92, 141, 0.5)', color: 'var(--aura-neon-pink)',
+            <button onClick={() => setShowSwitcher(v => !v)} className="btn-aura btn-ghost"
+              style={{ fontSize: '0.7rem', '--btn-accent': 'var(--pink-ink)',
                 display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               ⚡ CAMBIAR MIEMBRO ({pets.length})
             </button>
@@ -252,10 +252,10 @@ const SOSMode = ({ pet, pets = [], onActivePetChange, onExit }) => {
                 ? <img src={activePet.customImage} alt={activePet?.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 : <span style={{ fontSize: '3.5rem' }}>{activePet?.avatar || '🐾'}</span>}
             </div>
-            <h2 style={{ fontSize: '2rem', margin: '0 0 4px', color: 'var(--ink)' }}>{activePet?.name || 'AURA Member'}</h2>
+            <h2 style={{ fontSize: '2rem', margin: '0 0 4px', color: 'var(--ink)' }}>{activePet?.name || 'Sin nombre'}</h2>
             <p style={{ margin: '0 0 0.4rem', opacity: 0.7 }}>{activePet?.speciesLabel || activePet?.breed || '—'}</p>
             {activePet?.microchip && (
-              <p style={{ margin: 0, fontSize: '0.7rem', letterSpacing: '1px', color: 'var(--aura-gold)' }}>
+              <p style={{ margin: 0, fontSize: '0.78rem', letterSpacing: '1px', color: 'var(--gold-ink)', fontWeight: 600 }}>
                 CHIP: {activePet.microchip}
               </p>
             )}
@@ -275,7 +275,7 @@ const SOSMode = ({ pet, pets = [], onActivePetChange, onExit }) => {
               </div>
               <button
                 className="btn-aura"
-                style={{ borderColor: 'var(--aura-neon-pink)', color: 'var(--aura-neon-pink)', whiteSpace: 'nowrap' }}
+                style={{ whiteSpace: 'nowrap' }}
                 onClick={handleCall}
               >
                 LLAMAR {emergencyNumber}
@@ -292,8 +292,8 @@ const SOSMode = ({ pet, pets = [], onActivePetChange, onExit }) => {
                 </p>
               </div>
               <button
-                className="btn-aura"
-                style={{ borderColor: 'var(--aura-neon-pink)', color: 'var(--aura-neon-pink)' }}
+                className="btn-aura btn-ghost"
+                style={{ '--btn-accent': 'var(--pink-ink)' }}
                 onClick={handleMap}
               >
                 MAPA
@@ -309,8 +309,8 @@ const SOSMode = ({ pet, pets = [], onActivePetChange, onExit }) => {
                   <p style={{ margin: 0, opacity: 0.6, fontSize: '0.8rem' }}>{c.phone}</p>
                 </div>
                 <button
-                  className="btn-aura"
-                  style={{ borderColor: 'var(--aura-gold)', color: 'var(--aura-gold)', fontSize: '0.7rem' }}
+                  className="btn-aura btn-ghost"
+                  style={{ '--btn-accent': 'var(--gold-ink)', fontSize: '0.7rem' }}
                   onClick={() => window.open(`tel:${c.phone}`)}
                 >
                   LLAMAR
@@ -320,8 +320,8 @@ const SOSMode = ({ pet, pets = [], onActivePetChange, onExit }) => {
 
             {/* QR toggle */}
             <button
-              className="btn-aura"
-              style={{ borderColor: 'var(--aura-neon-cyan)', color: 'var(--aura-neon-cyan)', padding: '1rem' }}
+              className="btn-aura btn-ghost"
+              style={{ '--btn-accent': 'var(--cyan-ink)', padding: '1rem' }}
               onClick={() => setShowQR(v => !v)}
             >
               {showQR ? 'OCULTAR CÓDIGO QR' : 'MOSTRAR CÓDIGO QR DE EMERGENCIA'}
@@ -347,15 +347,15 @@ const SOSMode = ({ pet, pets = [], onActivePetChange, onExit }) => {
                 />
               </div>
               <div style={{ flex: 1 }}>
-                <p style={{ fontSize: '0.65rem', letterSpacing: '3px', color: 'var(--aura-neon-cyan)', textTransform: 'uppercase', margin: '0 0 0.8rem' }}>
+                <p style={{ fontSize: '0.72rem', letterSpacing: '2px', color: 'var(--cyan-ink)', textTransform: 'uppercase', fontWeight: 700, margin: '0 0 0.8rem' }}>
                   QR de Emergencia
                 </p>
-                <p style={{ margin: '0 0 1rem', fontSize: '0.82rem', color: 'var(--aura-text-muted)', lineHeight: 1.7 }}>
+                <p style={{ margin: '0 0 1rem', fontSize: '0.82rem', color: 'var(--ink-body)', lineHeight: 1.7 }}>
                   Cualquier veterinario puede escanear este código para acceder a los datos críticos
                   de {activePet?.name || 'la mascota'} sin necesidad de la app.
                 </p>
                 <pre style={{
-                  margin: 0, fontSize: '0.68rem', color: 'var(--aura-text-muted)',
+                  margin: 0, fontSize: '0.72rem', color: 'var(--ink-body)',
                   background: '#FFFFFF', border: '1px solid var(--aura-border)',
                   borderRadius: 4, padding: '0.8rem', whiteSpace: 'pre-wrap', lineHeight: 1.6,
                 }}>
@@ -369,7 +369,7 @@ const SOSMode = ({ pet, pets = [], onActivePetChange, onExit }) => {
         {/* ── Medical alerts ── */}
         {activePet?.emergencyConfig?.medicalAlerts && (
           <div className="aura-card" style={{ marginTop: '2rem', background: 'white', color: 'black', padding: '2rem' }}>
-            <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', color: 'var(--aura-neon-pink)', marginBottom: '1rem', fontSize: '1.1rem' }}>
+            <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', color: 'var(--pink-ink)', marginBottom: '1rem', fontSize: '1.1rem' }}>
               <AlertCircle size={24} /> ALERTAS MÉDICAS CRÍTICAS
             </h3>
             <p style={{ margin: 0, fontSize: '1rem', fontWeight: 600, lineHeight: 1.7 }}>
@@ -378,8 +378,8 @@ const SOSMode = ({ pet, pets = [], onActivePetChange, onExit }) => {
           </div>
         )}
 
-        <div style={{ marginTop: '3rem', textAlign: 'center', opacity: 0.4, fontSize: '0.7rem', letterSpacing: '2px' }}>
-          PROTOCOLO DE SEGURIDAD AURA Pets v3.0 · {new Date().toLocaleDateString()}
+        <div style={{ marginTop: '3rem', textAlign: 'center', opacity: 0.68, fontSize: '0.7rem', letterSpacing: '2px' }}>
+          AURA Pets · {new Date().toLocaleDateString('es-ES')}
         </div>
       </div>
     </div>

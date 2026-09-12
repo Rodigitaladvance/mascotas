@@ -106,13 +106,13 @@ const SessionModal = ({ locale, onRenew, onLogout }) => {
         </p>
 
         <div style={{ display: 'flex', gap: '1rem' }}>
-          <button className="btn-aura" style={{ flex: 1, borderColor: 'var(--aura-border)' }}
+          <button className="btn-aura btn-ghost" style={{ flex: 1 }}
             onClick={onLogout}>
             {es ? 'CERRAR SESIÓN' : 'SIGN OUT'}
           </button>
           <button
             className="btn-aura"
-            style={{ flex: 2, borderColor: 'var(--aura-gold)', background: 'rgba(217, 164, 65, 0.1)', color: 'var(--aura-gold)' }}
+            style={{ flex: 2 }}
             onClick={onRenew}>
             {es ? '✓ CONTINUAR SESIÓN' : '✓ CONTINUE SESSION'}
           </button>
@@ -207,7 +207,7 @@ const AppContent = () => {
       <div style={{
         minHeight: '100vh', display: 'flex', flexDirection: 'column',
         alignItems: 'center', justifyContent: 'center', gap: '1.4rem',
-        background: 'var(--aura-black)', color: 'var(--aura-gold)',
+        background: 'var(--aura-black)', color: 'var(--gold-ink)',
         fontSize: '0.78rem', letterSpacing: '3px', textTransform: 'uppercase',
       }}>
         <motion.div
@@ -290,8 +290,8 @@ const AppContent = () => {
                alt="AURA Pets Global" />
           <div style={{ width: 1, height: 24, background: 'var(--aura-border)' }} />
           <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <span style={{ fontSize: '0.62rem', letterSpacing: '4px', color: 'var(--aura-gold)', fontWeight: 700 }}>EXCELENCIA</span>
-            <span style={{ fontSize: '0.72rem', letterSpacing: '2px', opacity: 0.45 }}>EXPEDIENTE MÉDICO</span>
+            <span style={{ fontSize: '0.62rem', letterSpacing: '4px', color: 'var(--gold-ink)', fontWeight: 700 }}>EXCELENCIA</span>
+            <span style={{ fontSize: '0.72rem', letterSpacing: '2px', opacity: 0.68 }}>EXPEDIENTE MÉDICO</span>
           </div>
         </div>
 
@@ -330,7 +330,7 @@ const AppContent = () => {
               background: 'rgba(226,75,74,0.1)',
               border: '1px solid rgba(226,75,74,0.5)',
               borderRadius: 14,
-              color: 'var(--aura-neon-pink)',
+              color: 'var(--pink-ink)',
               padding: '0.45rem 0.75rem',
               cursor: 'pointer',
               display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3px',
@@ -402,33 +402,36 @@ const AppContent = () => {
                   <h2 style={{ fontSize: '2rem', marginBottom: '3rem' }}>{t('common.settings')}</h2>
                   <div style={{ display: 'grid', gap: '3rem' }}>
                     <div>
-                      <p style={{ fontSize: '0.68rem', letterSpacing: '2.5px', opacity: 0.5, marginBottom: '1.2rem', textTransform: 'uppercase' }}>
+                      <p style={{ fontSize: '0.68rem', letterSpacing: '2.5px', opacity: 0.68, marginBottom: '1.2rem', textTransform: 'uppercase' }}>
                         {locale === 'es' ? 'Idioma y Región' : 'Language & Region'}
                       </p>
                       <div style={{ display: 'flex', gap: '1rem' }}>
-                        <button className={`btn-aura${locale === 'es' ? ' btn-neon' : ''}`}
+                        <button className={`btn-aura ${locale === 'es' ? 'btn-neon' : 'btn-ghost'}`}
+                          aria-pressed={locale === 'es'}
                           onClick={() => setManualConfig('es')}>ESPAÑOL</button>
-                        <button className={`btn-aura${locale === 'en' ? ' btn-neon' : ''}`}
+                        <button className={`btn-aura ${locale === 'en' ? 'btn-neon' : 'btn-ghost'}`}
+                          aria-pressed={locale === 'en'}
                           onClick={() => setManualConfig('en')}>ENGLISH</button>
                       </div>
                     </div>
                     <div>
-                      <p style={{ fontSize: '0.68rem', letterSpacing: '2.5px', opacity: 0.5, marginBottom: '1.2rem', textTransform: 'uppercase' }}>
+                      <p style={{ fontSize: '0.68rem', letterSpacing: '2.5px', opacity: 0.68, marginBottom: '1.2rem', textTransform: 'uppercase' }}>
                         {locale === 'es' ? 'Divisa de Referencia' : 'Reference Currency'}
                       </p>
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                         {['EUR','USD','GBP','AUD'].map(c => (
-                          <button key={c} className={`btn-aura${currency === c ? ' btn-neon' : ''}`}
+                          <button key={c} className={`btn-aura ${currency === c ? 'btn-neon' : 'btn-ghost'}`}
+                            aria-pressed={currency === c}
                             onClick={() => setManualConfig(null, c)}>{c}</button>
                         ))}
                       </div>
                     </div>
                     {/* Logout — accessible on mobile where top nav is hidden */}
                     <div>
-                      <p style={{ fontSize: '0.68rem', letterSpacing: '2.5px', opacity: 0.5, marginBottom: '1.2rem', textTransform: 'uppercase' }}>
+                      <p style={{ fontSize: '0.68rem', letterSpacing: '2.5px', opacity: 0.68, marginBottom: '1.2rem', textTransform: 'uppercase' }}>
                         {locale === 'es' ? 'Sesión' : 'Session'}
                       </p>
-                      <button className="btn-aura" style={{ width: '100%', borderColor: '#FAF7FE', color: 'var(--aura-text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.6rem' }}
+                      <button className="btn-aura btn-ghost" style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.6rem' }}
                         onClick={logout}>
                         <LogOut size={15} />
                         {locale === 'es' ? 'CERRAR SESIÓN' : 'SIGN OUT'}

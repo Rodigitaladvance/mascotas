@@ -110,7 +110,7 @@ const RecuperarAcceso = () => {
         <header style={{ marginBottom: '2.5rem' }}>
           <img src={logo} alt="AURA" style={{ height: 58, marginBottom: '1.5rem', filter: 'drop-shadow(0 0 10px rgba(217, 164, 65, 0.35))' }} />
           <h1 style={{ fontSize: '1.8rem', margin: '0 0 0.4rem' }}>
-            Recuperar <span style={{ color: 'var(--aura-gold)' }}>Acceso</span>
+            Recuperar <span style={{ color: 'var(--gold-ink)' }}>Acceso</span>
           </h1>
           <p style={{ color: 'var(--aura-text-muted)', fontSize: '0.75rem', letterSpacing: '2px', margin: 0 }}>
             PORTAL DE SEGURIDAD AURA
@@ -130,7 +130,7 @@ const RecuperarAcceso = () => {
                 Introduce tu dirección de enlace registrada. Recibirás un código de acceso temporal válido por 20 minutos.
               </p>
               <div className="input-group">
-                <label style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.7rem', color: 'var(--aura-gold)', fontSize: '0.75rem', letterSpacing: '1px', fontWeight: 600 }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.7rem', color: 'var(--gold-ink)', fontSize: '0.75rem', letterSpacing: '1px', fontWeight: 600 }}>
                   <Mail size={14} /> DIRECCIÓN DE ENLACE
                 </label>
                 <input type="email" required
@@ -140,7 +140,7 @@ const RecuperarAcceso = () => {
                   onChange={e => setEmail(e.target.value)}
                 />
               </div>
-              {error && <p style={{ color: 'var(--aura-neon-pink)', fontSize: '0.78rem', margin: 0 }}>{error}</p>}
+              {error && <p style={{ color: 'var(--pink-ink)', fontSize: '0.78rem', margin: 0 }}>{error}</p>}
               <button type="submit" className="btn-aura" style={{ padding: '1.1rem', width: '100%' }}>
                 SOLICITAR CÓDIGO TEMPORAL
               </button>
@@ -159,10 +159,10 @@ const RecuperarAcceso = () => {
                 background: 'rgba(217, 164, 65, 0.07)', border: '1px solid rgba(217, 164, 65, 0.3)',
                 borderRadius: 4, padding: '1rem 1.2rem',
               }}>
-                <p style={{ margin: '0 0 4px', fontSize: '0.68rem', letterSpacing: '2px', color: 'var(--aura-gold)', textTransform: 'uppercase' }}>
+                <p style={{ margin: '0 0 4px', fontSize: '0.68rem', letterSpacing: '2px', color: 'var(--gold-ink)', textTransform: 'uppercase' }}>
                   Código temporal generado
                 </p>
-                <p style={{ margin: 0, fontSize: '1.8rem', fontWeight: 800, letterSpacing: '8px', color: 'var(--aura-gold)' }}>
+                <p style={{ margin: 0, fontSize: '1.8rem', fontWeight: 800, letterSpacing: '8px', color: 'var(--gold-ink)' }}>
                   {localCode}
                 </p>
                 <p style={{ margin: '8px 0 0', fontSize: '0.65rem', color: 'var(--aura-text-muted)', lineHeight: 1.6 }}>
@@ -171,7 +171,7 @@ const RecuperarAcceso = () => {
               </div>
 
               <div className="input-group">
-                <label style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.7rem', color: 'var(--aura-gold)', fontSize: '0.75rem', letterSpacing: '1px', fontWeight: 600 }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.7rem', color: 'var(--gold-ink)', fontSize: '0.75rem', letterSpacing: '1px', fontWeight: 600 }}>
                   <KeyRound size={14} /> CÓDIGO DE SEGURIDAD
                 </label>
                 <input type="text" required maxLength={6}
@@ -182,7 +182,7 @@ const RecuperarAcceso = () => {
                   style={{ textAlign: 'center', letterSpacing: '8px', fontSize: '1.4rem' }}
                 />
               </div>
-              {error && <p style={{ color: 'var(--aura-neon-pink)', fontSize: '0.78rem', margin: 0 }}>{error}</p>}
+              {error && <p style={{ color: 'var(--pink-ink)', fontSize: '0.78rem', margin: 0 }}>{error}</p>}
               <button type="submit" className="btn-aura" style={{ padding: '1.1rem', width: '100%' }}>
                 VERIFICAR CÓDIGO
               </button>
@@ -232,7 +232,7 @@ const RecuperarAcceso = () => {
                 <span>Entiendo que los expedientes guardados se perderán de forma irreversible.</span>
               </label>
               <div className="input-group">
-                <label style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.7rem', color: 'var(--aura-gold)', fontSize: '0.75rem', letterSpacing: '1px', fontWeight: 600 }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.7rem', color: 'var(--gold-ink)', fontSize: '0.75rem', letterSpacing: '1px', fontWeight: 600 }}>
                   NUEVA CLAVE
                 </label>
                 <input type="password" required
@@ -243,7 +243,7 @@ const RecuperarAcceso = () => {
                 />
               </div>
               <div className="input-group">
-                <label style={{ marginBottom: '0.7rem', color: 'var(--aura-gold)', fontSize: '0.75rem', letterSpacing: '1px', fontWeight: 600, display: 'block' }}>
+                <label style={{ marginBottom: '0.7rem', color: 'var(--gold-ink)', fontSize: '0.75rem', letterSpacing: '1px', fontWeight: 600, display: 'block' }}>
                   CONFIRMAR CLAVE
                 </label>
                 <input type="password" required
@@ -253,7 +253,7 @@ const RecuperarAcceso = () => {
                   onChange={e => setNewPass2(e.target.value)}
                 />
               </div>
-              {error && <p style={{ color: 'var(--aura-neon-pink)', fontSize: '0.78rem', margin: 0 }}>{error}</p>}
+              {error && <p style={{ color: 'var(--pink-ink)', fontSize: '0.78rem', margin: 0 }}>{error}</p>}
               <button type="submit" disabled={loading} className="btn-aura" style={{ padding: '1.1rem', width: '100%' }}>
                 {loading ? 'ACTUALIZANDO…' : 'ESTABLECER NUEVA CLAVE'}
               </button>
@@ -267,7 +267,7 @@ const RecuperarAcceso = () => {
               style={{ display: 'grid', gap: '1.5rem' }}
             >
               <CheckCircle2 size={56} color="var(--aura-neon-cyan)" style={{ margin: '0 auto', filter: 'drop-shadow(0 0 16px rgba(67, 191, 199, 0.4))' }} />
-              <h2 style={{ color: 'var(--aura-neon-cyan)', margin: 0 }}>Clave Actualizada</h2>
+              <h2 style={{ color: 'var(--cyan-ink)', margin: 0 }}>Clave Actualizada</h2>
               <p style={{ color: 'var(--aura-text-muted)', fontSize: '0.82rem', margin: 0 }}>
                 Tu clave de seguridad ha sido actualizada correctamente.
               </p>

@@ -472,7 +472,7 @@ const OtherFields = ({ data, onChange, locale }) => {
             <Upload size={28} color="var(--aura-gold)" />
           )}
           <div>
-            <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--aura-gold)', fontWeight: 600 }}>
+            <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--gold-ink)', fontWeight: 600 }}>
               {locale==='es'?'Subir Fotografía':'Upload Photo'}
             </p>
             <p style={{ margin: '4px 0 0', fontSize: '0.68rem', color: 'var(--aura-text-muted)' }}>
@@ -604,7 +604,7 @@ const PetRegistration = ({ onSave, onCancel }) => {
       <motion.div initial={{ scale:0 }} animate={{ scale:1 }} transition={{ type:'spring', stiffness:200 }}>
         <CheckCircle2 size={72} color="var(--aura-neon-cyan)" style={{ filter:'drop-shadow(0 0 20px rgba(67, 191, 199, 0.5))' }} />
       </motion.div>
-      <h2 style={{ color:'var(--aura-neon-cyan)' }}>{locale==='es'?'Miembro Registrado':'Member Registered'}</h2>
+      <h2 style={{ color:'var(--cyan-ink)' }}>{locale==='es'?'Miembro Registrado':'Member Registered'}</h2>
       <p style={{ color:'var(--aura-text-muted)', textAlign:'center' }}>
         {locale==='es'?'Añadido a tu Expediente Médico AURA con encriptación AES-256.':'Added to your AURA Medical Record with AES-256 encryption.'}
       </p>
@@ -876,18 +876,17 @@ const PetRegistration = ({ onSave, onCancel }) => {
       </div>
 
       {/* ── Footer de marca ── */}
-      <p style={{ textAlign:'center', fontSize:'0.58rem', letterSpacing:'1.5px', color:'var(--aura-text-muted)', margin:'0 0 1rem', opacity:0.6 }}>
+      <p style={{ textAlign:'center', fontSize:'0.58rem', letterSpacing:'1.5px', color:'var(--aura-text-muted)', margin:'0 0 1rem', opacity: 0.68 }}>
         AURA PETS GLOBAL · EXPEDIENTE MÉDICO DIGITAL
       </p>
 
       {/* ── Actions ── */}
       <div style={{ display:'flex', gap:'1rem' }}>
-        <button className="btn-aura" style={{ flex:1 }} onClick={onCancel}>{t('common.cancel')}</button>
+        <button className="btn-aura btn-ghost" style={{ flex:1 }} onClick={onCancel}>{t('common.cancel')}</button>
         <button
           className="btn-aura"
           style={{
             flex:2,
-            borderColor: selectedSpecies && basicData.name ? 'var(--aura-gold)' : 'var(--aura-border)',
             opacity: selectedSpecies && basicData.name ? 1 : 0.62,
           }}
           onClick={handleSave}

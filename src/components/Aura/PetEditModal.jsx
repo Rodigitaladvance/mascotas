@@ -43,7 +43,7 @@ const generateMemorialPDF = (pet) => {
   doc.rect(0, 30, W, 270, 'F');
   doc.setTextColor(212, 175, 55);
   doc.setFontSize(30); doc.setFont('helvetica', 'bold');
-  doc.text(pet.name || 'AURA Member', W / 2, 60, { align: 'center' });
+  doc.text(pet.name || 'Sin nombre', W / 2, 60, { align: 'center' });
   doc.setTextColor(140, 140, 140);
   doc.setFontSize(9); doc.setFont('helvetica', 'normal');
   doc.text((pet.speciesLabel || pet.species || '').toUpperCase(), W / 2, 70, { align: 'center' });
@@ -202,7 +202,7 @@ const DeregistrationModal = ({ pet, onConfirm, onCancel }) => {
                     <Icon size={18} color={reason?.id === id ? 'var(--aura-gold)' : 'var(--aura-text-muted)'} style={{ marginTop: 2, flexShrink: 0 }} />
                     <div>
                       <p style={{ margin: '0 0 2px', fontSize: '0.88rem', fontWeight: 600,
-                        color: reason?.id === id ? 'var(--aura-gold)' : 'var(--aura-text)' }}>
+                        color: reason?.id === id ? 'var(--gold-ink)' : 'var(--aura-text)' }}>
                         {label}
                       </p>
                       <p style={{ margin: 0, fontSize: '0.7rem', color: 'var(--aura-text-muted)' }}>{note}</p>
@@ -216,11 +216,11 @@ const DeregistrationModal = ({ pet, onConfirm, onCancel }) => {
               </p>
 
               <div style={{ display: 'flex', gap: '0.8rem' }}>
-                <button className="btn-aura" style={{ flex: 1 }} onClick={onCancel}>
+                <button className="btn-aura btn-ghost" style={{ flex: 1 }} onClick={onCancel}>
                   {es ? 'CANCELAR' : 'CANCEL'}
                 </button>
                 <button className="btn-aura"
-                  style={{ flex: 2, borderColor: 'var(--aura-gold)', color: 'var(--aura-gold)', background: 'rgba(217, 164, 65, 0.07)' }}
+                  style={{ flex: 2 }}
                   onClick={proceed}>
                   {es ? 'CONTINUAR' : 'CONTINUE'}
                 </button>
@@ -255,7 +255,7 @@ const DeregistrationModal = ({ pet, onConfirm, onCancel }) => {
                 background: 'rgba(67, 191, 199, 0.04)', border: '1px solid rgba(67, 191, 199, 0.2)',
                 borderRadius: 4, padding: '1.4rem', marginBottom: '2rem', textAlign: 'center',
               }}>
-                <p style={{ margin: '0 0 4px', fontSize: '0.65rem', letterSpacing: '2px', color: 'var(--aura-neon-cyan)', textTransform: 'uppercase' }}>
+                <p style={{ margin: '0 0 4px', fontSize: '0.65rem', letterSpacing: '2px', color: 'var(--cyan-ink)', textTransform: 'uppercase' }}>
                   {es ? 'Contenido del expediente' : 'Record contents'}
                 </p>
                 <p style={{ margin: 0, fontSize: '0.78rem', color: 'var(--aura-text-muted)', lineHeight: 1.7 }}>
@@ -267,18 +267,17 @@ const DeregistrationModal = ({ pet, onConfirm, onCancel }) => {
 
               <div style={{ display: 'grid', gap: '0.8rem' }}>
                 <button className="btn-aura"
-                  style={{ borderColor: 'var(--aura-neon-cyan)', color: 'var(--aura-neon-cyan)', background: 'rgba(67, 191, 199, 0.05)',
-                    padding: '1.1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.6rem' }}
+                  style={{ padding: '1.1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.6rem' }}
                   onClick={() => { generateMemorialPDF(pet); setStep(3); }}>
                   <Download size={16} />
                   {es ? 'DESCARGAR EXPEDIENTE DE RECUERDO' : 'DOWNLOAD MEMORIAL RECORD'}
                 </button>
-                <button className="btn-aura"
-                  style={{ borderColor: 'var(--aura-border)', color: 'var(--aura-text-muted)', fontSize: '0.75rem' }}
+                <button className="btn-aura btn-ghost"
+                  style={{ fontSize: '0.75rem' }}
                   onClick={() => setStep(3)}>
                   {es ? 'Continuar sin descargar' : 'Continue without downloading'}
                 </button>
-                <button className="btn-aura" onClick={onCancel}>
+                <button className="btn-aura btn-ghost" onClick={onCancel}>
                   {es ? 'CANCELAR' : 'CANCEL'}
                 </button>
               </div>
@@ -299,7 +298,7 @@ const DeregistrationModal = ({ pet, onConfirm, onCancel }) => {
                 }}>
                   <ShieldOff size={24} color="var(--aura-neon-pink)" />
                 </div>
-                <h2 style={{ fontSize: '1.4rem', margin: '0 0 0.6rem', color: 'var(--aura-neon-pink)' }}>
+                <h2 style={{ fontSize: '1.4rem', margin: '0 0 0.6rem', color: 'var(--pink-ink)' }}>
                   {es ? 'Destrucción Permanente de Datos' : 'Permanent Data Destruction'}
                 </h2>
                 <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--aura-text-muted)', lineHeight: 1.7 }}>
@@ -314,7 +313,7 @@ const DeregistrationModal = ({ pet, onConfirm, onCancel }) => {
                 borderRadius: 4, padding: '1.2rem', marginBottom: '1.6rem',
               }}>
                 <p style={{ margin: '0 0 8px', fontSize: '0.65rem', letterSpacing: '2px',
-                  color: 'var(--aura-neon-pink)', textTransform: 'uppercase', fontWeight: 700 }}>
+                  color: 'var(--pink-ink)', textTransform: 'uppercase', fontWeight: 700 }}>
                   {es ? 'Datos que serán eliminados' : 'Data to be deleted'}
                 </p>
                 {[
@@ -331,8 +330,8 @@ const DeregistrationModal = ({ pet, onConfirm, onCancel }) => {
               <div style={{ marginBottom: '1.6rem' }}>
                 <p style={{ margin: '0 0 0.7rem', fontSize: '0.72rem', color: 'var(--aura-text-muted)', letterSpacing: '0.5px' }}>
                   {es
-                    ? <>Para confirmar, escribe <strong style={{ color: 'var(--aura-neon-pink)' }}>BAJA</strong> en el campo siguiente:</>
-                    : <>To confirm, type <strong style={{ color: 'var(--aura-neon-pink)' }}>BAJA</strong> in the field below:</>}
+                    ? <>Para confirmar, escribe <strong style={{ color: 'var(--pink-ink)' }}>BAJA</strong> en el campo siguiente:</>
+                    : <>To confirm, type <strong style={{ color: 'var(--pink-ink)' }}>BAJA</strong> in the field below:</>}
                 </p>
                 <input
                   className="aura-input"
@@ -345,17 +344,14 @@ const DeregistrationModal = ({ pet, onConfirm, onCancel }) => {
               </div>
 
               <div style={{ display: 'flex', gap: '0.8rem' }}>
-                <button className="btn-aura" style={{ flex: 1 }} onClick={onCancel}>
+                <button className="btn-aura btn-ghost" style={{ flex: 1 }} onClick={onCancel}>
                   {es ? 'CANCELAR' : 'CANCEL'}
                 </button>
-                <button className="btn-aura"
+                <button className="btn-aura btn-ghost"
                   disabled={typed !== CONFIRM_KEYWORD}
                   style={{
                     flex: 2,
-                    background:   typed === CONFIRM_KEYWORD ? 'rgba(236, 92, 141, 0.12)' : undefined,
-                    borderColor:  typed === CONFIRM_KEYWORD ? 'var(--aura-neon-pink)' : 'var(--aura-border)',
-                    color:        typed === CONFIRM_KEYWORD ? 'var(--aura-neon-pink)' : 'var(--aura-text-muted)',
-                    opacity:      typed === CONFIRM_KEYWORD ? 1 : 0.4,
+                    '--btn-accent': 'var(--danger)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem',
                   }}
                   onClick={confirm}>
@@ -377,7 +373,7 @@ const DeregistrationModal = ({ pet, onConfirm, onCancel }) => {
                 style={{ fontSize: '3.5rem', marginBottom: '1.5rem' }}>
                 {reason?.id === 'lost' ? '🔍' : '🕊'}
               </motion.div>
-              <h2 style={{ fontSize: '1.4rem', margin: '0 0 1rem', color: reason?.id === 'lost' ? 'var(--aura-gold)' : 'var(--aura-neon-cyan)' }}>
+              <h2 style={{ fontSize: '1.4rem', margin: '0 0 1rem', color: reason?.id === 'lost' ? 'var(--gold-ink)' : 'var(--cyan-ink)' }}>
                 {reason?.id === 'lost'
                   ? (es ? 'Estado: BUSCANDO' : 'Status: MISSING')
                   : (es ? 'Expediente Cerrado' : 'Record Closed')}
@@ -392,7 +388,7 @@ const DeregistrationModal = ({ pet, onConfirm, onCancel }) => {
                       : `${pet.name}'s data has been permanently and securely deleted from the vault.`)}
               </p>
               {reason?.id === 'deceased' && (
-                <p style={{ marginTop: '1rem', fontSize: '0.78rem', color: 'var(--aura-gold)', fontStyle: 'italic' }}>
+                <p style={{ marginTop: '1rem', fontSize: '0.78rem', color: 'var(--gold-ink)', fontStyle: 'italic' }}>
                   {es ? '"Guardado en el corazón, recordado para siempre."' : '"Kept in the heart, remembered forever."'}
                 </p>
               )}
@@ -673,7 +669,7 @@ const PetEditModal = ({ pet, onSave, onDelete, onClose }) => {
 
           {/* ── Save button ── */}
           <button className="btn-aura btn-full"
-            style={{ marginTop:'2rem', borderColor: name ? 'var(--aura-gold)' : 'var(--aura-border)', opacity: name ? 1 : 0.4 }}
+            style={{ marginTop:'2rem' }}
             disabled={!name}
             onClick={handleSave}>
             {es?'GUARDAR CAMBIOS':'SAVE CHANGES'}

@@ -17,7 +17,7 @@
   --ink:                #2A2D7C;   /* azul marino de los titulares */
   --ink-strong:         #1E2166;
   --ink-body:           #4A4C7A;
-  --ink-muted:          #7B7DA3;
+  --ink-muted:          #6B6D94;
   --ink-soft:           #A9AAC6;
 
   /* ── Marca ── */
@@ -34,6 +34,13 @@
   --pastel-peach:       #FCE1A8;
   --pastel-pink:        #F9C9D8;
   --pastel-sky:         #BFE0F5;
+
+  /* ── Tintas legibles ──
+     Versiones oscurecidas de los colores de marca, para texto pequeño sobre
+     fondo claro. El color vivo se reserva para iconos, rellenos y bordes. */
+  --pink-ink:           #C2255C;
+  --cyan-ink:           #1F7C83;
+  --gold-ink:           #8A6414;
 
   /* ── Semánticos ── */
   --ok:                 #3FBFA0;
@@ -585,6 +592,33 @@ h4, h5, h6 {
   transform: scale(0.97) translateY(0);
 }
 
+.btn-aura.btn-ghost {
+  --btn-accent: var(--ink);
+  background: var(--bg-card-solid);
+  color: var(--btn-accent);
+  border: 1.5px solid currentColor;
+  box-shadow: var(--shadow-sm);
+}
+.btn-aura.btn-ghost:hover {
+  background: var(--bg-soft);
+  filter: none;
+  box-shadow: var(--shadow-md);
+}
+
+/* Un botón apagado tiene que parecerlo, y no responder al ratón. */
+.btn-aura:disabled,
+.btn-aura[aria-disabled="true"] {
+  opacity: 0.45;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+.btn-aura:disabled:hover,
+.btn-aura[aria-disabled="true"]:hover {
+  filter: none;
+  transform: none;
+  box-shadow: none;
+}
+
 .btn-primary {
   background: var(--brand-gradient);
   border: none;
@@ -596,16 +630,18 @@ h4, h5, h6 {
 }
 
 .btn-neon {
-  border-color: var(--neon-cyan) !important;
-  color: var(--neon-cyan) !important;
-  background: rgba(67, 191, 199, 0.06) !important;
-  box-shadow: 0 0 12px rgba(67, 191, 199, 0.14), inset 0 0 10px rgba(67, 191, 199, 0.04);
-  text-shadow: 0 0 12px rgba(67, 191, 199, 0.55) !important;
+  background: var(--cyan-ink) !important;
+  color: #FFFFFF !important;
+  border: 1.5px solid var(--cyan-ink) !important;
+  box-shadow: var(--shadow-sm) !important;
+  text-shadow: none !important;
 }
 .btn-neon:hover {
-  background: rgba(67, 191, 199, 0.12) !important;
-  color: var(--ink) !important;
-  box-shadow: var(--cyan-glow), 0 4px 20px rgba(42, 45, 124, 0.13) !important;
+  background: #17666C !important;
+  border-color: #17666C !important;
+  color: #FFFFFF !important;
+  filter: none;
+  box-shadow: var(--shadow-md) !important;
 }
 
 .btn-full {

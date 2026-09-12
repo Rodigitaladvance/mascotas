@@ -1064,7 +1064,7 @@ const exportPDF = (country, reqs, pet, readiness, locale, countryId = 'ES') => {
   const fechaRevision = new Date(FECHA_REVISION).toLocaleDateString(
     locale === 'es' ? 'es-ES' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
   const es = locale === 'es';
-  const name = pet?.name || 'AURA Member';
+  const name = pet?.name || (es ? 'Sin nombre' : 'Unnamed');
   const date = new Date().toLocaleDateString(es ? 'es-ES' : 'en-GB');
 
   const rows = reqs.map(r => `
@@ -1204,7 +1204,7 @@ const CountryModal = ({ countryId, pet, locale, onClose, origen = 'ES', marcas =
                     }}
                   />
                 </div>
-                <span style={{ fontSize:'0.85rem', fontWeight:700, color:'var(--aura-gold)', whiteSpace:'nowrap' }}>
+                <span style={{ fontSize:'0.85rem', fontWeight:700, color:'var(--gold-ink)', whiteSpace:'nowrap' }}>
                   {readiness}% {es?'Listo':'Ready'}
                 </span>
               </div>
@@ -1220,7 +1220,7 @@ const CountryModal = ({ countryId, pet, locale, onClose, origen = 'ES', marcas =
           {meta.note && (
             <div style={{ background:'rgba(217, 164, 65, 0.06)', border:'1px solid rgba(217, 164, 65, 0.25)',
               borderRadius:4, padding:'1rem 1.2rem', marginBottom:'2rem' }}>
-              <p style={{ margin:0, fontSize:'0.8rem', color:'var(--aura-gold)', lineHeight:1.6 }}>
+              <p style={{ margin:0, fontSize:'0.8rem', color:'var(--gold-ink)', lineHeight:1.6 }}>
                 ⚠ {typeof meta.note === 'string' ? meta.note : meta.note[es ? 'es' : 'en']}
               </p>
             </div>
@@ -1351,7 +1351,7 @@ const CountryModal = ({ countryId, pet, locale, onClose, origen = 'ES', marcas =
           {!pet?.microchip && (
             <div style={{ background:'rgba(217, 164, 65, 0.05)', border:'1px dashed rgba(217, 164, 65, 0.3)',
               borderRadius:4, padding:'0.9rem 1.2rem', marginBottom:'1.5rem' }}>
-              <p style={{ margin:0, fontSize:'0.75rem', color:'var(--aura-gold)' }}>
+              <p style={{ margin:0, fontSize:'0.75rem', color:'var(--gold-ink)' }}>
                 💡 {es
                   ? 'Añade el número de microchip en el registro para mejorar tu disponibilidad de viaje.'
                   : 'Add the microchip number in registration to improve your travel readiness.'}
@@ -1361,11 +1361,11 @@ const CountryModal = ({ countryId, pet, locale, onClose, origen = 'ES', marcas =
 
           {/* Actions */}
           <div style={{ display:'flex', gap:'1rem' }}>
-            <button className="btn-aura" style={{ flex:1 }} onClick={onClose}>
+            <button className="btn-aura btn-ghost" style={{ flex:1 }} onClick={onClose}>
               {es?'Cerrar':'Close'}
             </button>
             <button className="btn-aura"
-              style={{ flex:2, borderColor:'var(--aura-neon-cyan)', color:'var(--aura-neon-cyan)' }}
+              style={{ flex:2 }}
               onClick={() => exportPDF(meta, reqs, pet, readiness, locale, countryId)}>
               {es?'DESCARGAR REQUISITOS PDF':'DOWNLOAD PDF REQUIREMENTS'}
             </button>
@@ -1379,7 +1379,7 @@ const CountryModal = ({ countryId, pet, locale, onClose, origen = 'ES', marcas =
 const FIELD_LABEL = {
   display: 'flex', alignItems: 'center', gap: '0.5rem',
   fontSize: '0.68rem', letterSpacing: '1.5px', textTransform: 'uppercase',
-  color: 'var(--aura-gold)', fontWeight: 700,
+  color: 'var(--gold-ink)', fontWeight: 700,
 };
 
 /* ════════ Main Component ════════ */
@@ -1574,7 +1574,7 @@ const GlobalPassport = ({ pet, onUpdatePet }) => {
         {/* Header */}
         <header style={{ padding:'2rem 0 1.5rem', display:'flex', justifyContent:'space-between', alignItems:'center', flexWrap:'wrap', gap:'1rem' }}>
           <div style={{ flex:1, minWidth:0 }}>
-            <span style={{ fontSize:'0.7rem', letterSpacing:'5px', color:'var(--aura-gold)', fontWeight:700, textTransform:'uppercase', display:'block', marginBottom:'0.6rem' }}>
+            <span style={{ fontSize:'0.7rem', letterSpacing:'5px', color:'var(--gold-ink)', fontWeight:700, textTransform:'uppercase', display:'block', marginBottom:'0.6rem' }}>
               {es?'Logística Transfronteriza':'Cross-Border Logistics'}
             </span>
             <h1 style={{ fontSize:'clamp(1.5rem,5vw,3.5rem)', margin:0 }}>
@@ -1595,7 +1595,7 @@ const GlobalPassport = ({ pet, onUpdatePet }) => {
                 : <span style={{ fontSize:'1.5rem' }}>{pet?.avatar || '🐾'}</span>
               }
             </div>
-            <p style={{ margin:0, fontWeight:700, fontSize:'0.95rem', textAlign:'center' }}>{pet?.name || 'AURA Member'}</p>
+            <p style={{ margin:0, fontWeight:700, fontSize:'0.95rem', textAlign:'center' }}>{pet?.name || (es ? 'Sin nombre' : 'Unnamed')}</p>
             <span className="locale-chip">{(pet?.speciesLabel || '').toUpperCase() || (es ? 'SIN ESPECIE' : 'NO SPECIES')}</span>
           </div>
         </header>
@@ -1632,7 +1632,7 @@ const GlobalPassport = ({ pet, onUpdatePet }) => {
               <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'0.6rem' }}>
                 <label style={FIELD_LABEL}><Shield size={13}/> Microchip ISO 11784/11785</label>
                 <span style={{ fontSize:'0.6rem', letterSpacing:'1.5px', fontWeight:700,
-                  color: chipValid ? 'var(--aura-neon-cyan)' : 'var(--aura-gold)' }}>
+                  color: chipValid ? 'var(--cyan-ink)' : 'var(--gold-ink)' }}>
                   {chipValid ? '✓ VERIFICADO' : '⏳ PENDIENTE'}
                 </span>
               </div>
@@ -1646,7 +1646,7 @@ const GlobalPassport = ({ pet, onUpdatePet }) => {
                 style={{ width:'100%', fontSize:'0.9rem', padding:'0.7rem 1rem', letterSpacing:'3px', fontFamily:'var(--font-mono, monospace)' }}
               />
               {draft.microchip.length > 0 && !chipValid && (
-                <p style={{ margin:'5px 0 0', fontSize:'0.68rem', color:'var(--aura-neon-pink)' }}>
+                <p style={{ margin:'5px 0 0', fontSize:'0.68rem', color:'var(--pink-ink)' }}>
                   {draft.microchip.length}/15 {es ? 'dígitos' : 'digits'}
                 </p>
               )}
@@ -1657,7 +1657,7 @@ const GlobalPassport = ({ pet, onUpdatePet }) => {
               <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'0.6rem' }}>
                 <label style={FIELD_LABEL}><Syringe size={13}/> {es ? 'Vacuna Antirrábica' : 'Rabies Vaccination'}</label>
                 {draft.rabiesDate && (
-                  <span style={{ fontSize:'0.6rem', letterSpacing:'1.5px', fontWeight:700, color:'var(--aura-neon-cyan)' }}>
+                  <span style={{ fontSize:'0.6rem', letterSpacing:'1.5px', fontWeight:700, color:'var(--cyan-ink)' }}>
                     ✓ {es ? 'REGISTRADA' : 'REGISTERED'}
                   </span>
                 )}
@@ -1696,7 +1696,7 @@ const GlobalPassport = ({ pet, onUpdatePet }) => {
               <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'0.6rem' }}>
                 <label style={FIELD_LABEL}><FileCheck size={13}/> {es ? 'Certificado Sanitario' : 'Health Certificate'}</label>
                 {draft.certFileName && (
-                  <span style={{ fontSize:'0.6rem', letterSpacing:'1.5px', fontWeight:700, color:'var(--aura-neon-cyan)' }}>
+                  <span style={{ fontSize:'0.6rem', letterSpacing:'1.5px', fontWeight:700, color:'var(--cyan-ink)' }}>
                     ✓ ADJUNTO
                   </span>
                 )}
@@ -1714,13 +1714,11 @@ const GlobalPassport = ({ pet, onUpdatePet }) => {
               <div style={{ display:'flex', gap:'0.6rem', alignItems:'center' }}>
                 <button
                   type="button"
-                  className="btn-aura"
+                  className={`btn-aura ${draft.certFileName ? '' : 'btn-ghost'}`}
                   onClick={() => certInputRef.current?.click()}
                   style={{
                     flex:1, fontSize:'0.72rem', padding:'0.7rem 1rem',
                     display:'flex', alignItems:'center', justifyContent:'center', gap:'0.5rem',
-                    borderColor: draft.certFileName ? 'var(--aura-neon-cyan)' : 'var(--aura-border)',
-                    color: draft.certFileName ? 'var(--aura-neon-cyan)' : 'var(--aura-text-muted)',
                     overflow:'hidden',
                   }}
                 >
@@ -1750,7 +1748,7 @@ const GlobalPassport = ({ pet, onUpdatePet }) => {
                 {draft.passportFileName && (
                   <motion.span
                     initial={{ opacity:0, scale:0.8 }} animate={{ opacity:1, scale:1 }}
-                    style={{ fontSize:'0.6rem', letterSpacing:'1.5px', fontWeight:700, color:'var(--aura-neon-cyan)' }}>
+                    style={{ fontSize:'0.6rem', letterSpacing:'1.5px', fontWeight:700, color:'var(--cyan-ink)' }}>
                     ✓ {es ? 'DOCUMENTO CUSTODIADO' : 'DOCUMENT ON FILE'}
                   </motion.span>
                 )}
@@ -1768,14 +1766,11 @@ const GlobalPassport = ({ pet, onUpdatePet }) => {
               <div style={{ display:'flex', gap:'0.6rem', alignItems:'center' }}>
                 <button
                   type="button"
-                  className="btn-aura"
+                  className={`btn-aura ${draft.passportFileName ? '' : 'btn-ghost'}`}
                   onClick={() => passportInputRef.current?.click()}
                   style={{
                     flex:1, fontSize:'0.72rem', padding:'0.75rem 1rem',
                     display:'flex', alignItems:'center', justifyContent:'center', gap:'0.5rem',
-                    borderColor: draft.passportFileName ? 'var(--aura-neon-cyan)' : 'var(--aura-gold)',
-                    color:       draft.passportFileName ? 'var(--aura-neon-cyan)' : 'var(--aura-gold)',
-                    background:  draft.passportFileName ? 'rgba(67, 191, 199, 0.05)' : 'rgba(217, 164, 65, 0.04)',
                     overflow:'hidden',
                   }}
                 >
@@ -1805,8 +1800,6 @@ const GlobalPassport = ({ pet, onUpdatePet }) => {
               onClick={handleSave}
               style={{
                 marginTop:'1.8rem', width:'100%', padding:'1.1rem',
-                borderColor:'var(--aura-gold)', color:'var(--aura-gold)',
-                background:'rgba(217, 164, 65, 0.06)',
                 display:'flex', alignItems:'center', justifyContent:'center', gap:'0.6rem',
               }}
             >
@@ -1817,7 +1810,7 @@ const GlobalPassport = ({ pet, onUpdatePet }) => {
               {saved && (
                 <motion.p
                   initial={{ opacity:0, y:4 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0 }}
-                  style={{ margin:'0.7rem 0 0', fontSize:'0.72rem', color:'var(--aura-neon-cyan)', textAlign:'center', letterSpacing:'1px' }}
+                  style={{ margin:'0.7rem 0 0', fontSize:'0.72rem', color:'var(--cyan-ink)', textAlign:'center', letterSpacing:'1px' }}
                 >
                   ✓ {es ? 'Registros actualizados correctamente' : 'Records updated successfully'}
                 </motion.p>
@@ -2012,11 +2005,11 @@ const GlobalPassport = ({ pet, onUpdatePet }) => {
                           {es ? meta.name : meta.nameEn}
                         </span>
                       </h4>
-                      {meta.note && <p style={{ margin:0, fontSize:'0.68rem', color:'var(--aura-gold)' }}>⚠ {(typeof meta.note === 'string' ? meta.note : meta.note[es ? 'es' : 'en']).split('.')[0]}.</p>}
+                      {meta.note && <p style={{ margin:0, fontSize:'0.68rem', color:'var(--gold-ink)' }}>⚠ {(typeof meta.note === 'string' ? meta.note : meta.note[es ? 'es' : 'en']).split('.')[0]}.</p>}
                     </div>
                   </div>
                   <div style={{ display:'flex', alignItems:'center', gap:'1rem' }}>
-                    <span style={{ fontSize:'0.72rem', fontWeight:700, color:compliant?'var(--aura-neon-cyan)':'var(--aura-gold)' }}>
+                    <span style={{ fontSize:'0.72rem', fontWeight:700, color:compliant?'var(--cyan-ink)':'var(--gold-ink)' }}>
                       {ready}%
                     </span>
                     {compliant
@@ -2034,9 +2027,16 @@ const GlobalPassport = ({ pet, onUpdatePet }) => {
           display:'flex', justifyContent:'space-between', alignItems:'center' }}>
           <div style={{ display:'flex', alignItems:'center', gap:'1.2rem' }}>
             <FileText size={22} color="var(--aura-gold)" />
-            <p style={{ margin:0, fontSize:'0.88rem' }}>
-              {es?'Exportar datos oficiales IATA para cumplimiento normativo':'Export official IATA data for regulatory compliance'}
-            </p>
+            <div>
+              <p style={{ margin:0, fontSize:'0.88rem' }}>
+                {es?'Descargar los requisitos de entrada en España':'Download the entry requirements for Spain'}
+              </p>
+              <p style={{ margin:'0.2rem 0 0', fontSize:'0.72rem', color:'var(--ink-muted)' }}>
+                {es
+                  ? 'Los de los demás países se descargan desde la ficha de cada uno'
+                  : 'The other countries are downloaded from their own cards'}
+              </p>
+            </div>
           </div>
           <button className="btn-aura" onClick={handleExportAll}>
             {es?'DESCARGAR PDF':'DOWNLOAD PDF'}
