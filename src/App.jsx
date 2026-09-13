@@ -317,7 +317,7 @@ const AppContent = () => {
                 onMouseLeave={e => { if (!isActive) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--ink-muted)'; } }}
               >
                 <Icon size={20} />
-                <span style={{ fontSize: '9px', letterSpacing: '0.8px', fontWeight: 600, lineHeight: 1 }}>
+                <span style={{ fontSize: '9px', letterSpacing: '0.8px', fontWeight: 600, lineHeight: 1, whiteSpace: 'nowrap' }}>
                   {t(k)}
                 </span>
               </button>
@@ -341,7 +341,7 @@ const AppContent = () => {
             onMouseLeave={e => { e.currentTarget.style.background = 'rgba(226,75,74,0.1)'; }}
           >
             <ShieldAlert size={20} />
-            <span style={{ fontSize: '9px', letterSpacing: '0.8px', fontWeight: 600, lineHeight: 1 }}>{t('nav.sos')}</span>
+            <span style={{ fontSize: '9px', letterSpacing: '0.8px', fontWeight: 600, lineHeight: 1, whiteSpace: 'nowrap' }}>{t('nav.sos')}</span>
           </button>
 
           <div style={{ width: 1, height: 32, background: 'var(--aura-border)', margin: '0 0.15rem' }} />
@@ -363,7 +363,7 @@ const AppContent = () => {
             onMouseLeave={e => { e.currentTarget.style.opacity = '0.7'; e.currentTarget.style.color = '#8B5CF6'; }}
           >
             <LogOut size={20} />
-            <span style={{ fontSize: '9px', letterSpacing: '0.8px', fontWeight: 600, lineHeight: 1 }}>{t('nav.logout')}</span>
+            <span style={{ fontSize: '9px', letterSpacing: '0.8px', fontWeight: 600, lineHeight: 1, whiteSpace: 'nowrap' }}>{t('nav.logout')}</span>
           </button>
         </div>
       </nav>
