@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useTranslation } from '../context/LocalizationContext';
 import { vault } from '../utils/vault';
 import { storage } from '../utils/storage';
 import { KeyRound, Mail, ShieldCheck, UserPlus, Lock } from 'lucide-react';
@@ -30,6 +31,7 @@ const AUTH_PAWS = [
 
 const Auth = () => {
   const { login } = useAuth();
+  const { t } = useTranslation();
   const [isRegister, setIsRegister] = useState(false);
   const [showIntroModal, setShowIntroModal] = useState(false);
   const [formData, setFormData] = useState({ email: '', password: '' });
@@ -46,7 +48,7 @@ const Auth = () => {
 
       if (isRegister) {
         if (users.find(u => u.email === formData.email)) {
-          setError('Identidad ya registrada en la red AURA');
+          setError(t('auth.errEmailTaken'));
           return;
         }
         const id = Date.now().toString();
@@ -64,12 +66,12 @@ const Auth = () => {
           storage.updateUser(opened);
           login(opened);
         } else {
-          setError('Clave de acceso o identidad no válida');
+          setError(t('auth.errBadCredentials'));
         }
       }
     } catch (err) {
       console.error('[AURA] Error de autenticación:', err);
-      setError('Error en el protocolo de seguridad Vault™');
+      setError(t('auth.errGeneric'));
     } finally {
       setLoading(false);
     }
@@ -143,16 +145,16 @@ const Auth = () => {
               fontWeight: 600,
               background: 'rgba(217, 164, 65, 0.08)',
             }}>
-              Nueva cuenta
+              {t('auth.badgeNew')}
             </div>
           )}
 
           <p style={{ color: 'var(--ink)', fontSize: '0.78rem', letterSpacing: '2.6px', textTransform: 'uppercase', margin: 0, fontWeight: 600 }}>
-              {isRegister ? 'Crea tu cuenta' : 'Tu mascota, en todo el mundo'}
+              {isRegister ? t('auth.taglineRegister') : t('auth.taglineLogin')}
             </p>
             {!isRegister && (
               <p className="aura-script" style={{ fontSize: 'clamp(1.5rem, 4vw, 2rem)', margin: '0.1rem 0 0' }}>
-                con total seguridad
+                {t('auth.taglineScript')}
               </p>
             )}
             <div className="aura-rainbow-rule" style={{ width: 118, height: 4, margin: '0.9rem auto 0' }} />
@@ -162,7 +164,7 @@ const Auth = () => {
               color: 'var(--aura-text-muted)', fontSize: '0.78rem',
               lineHeight: 1.6, margin: '0.8rem auto 0', maxWidth: '30ch', opacity: 0.8,
             }}>
-              Solo necesitas un correo y una contraseña. Nada sale de este dispositivo.
+              {t('auth.registerHint')}
             </p>
           )}
         </header>
@@ -170,12 +172,12 @@ const Auth = () => {
         <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '2rem', textAlign: 'left' }}>
           <div className="input-group">
             <label style={{ display: 'flex', alignItems: 'center', gap: '0.7rem', marginBottom: '0.8rem', color: 'var(--gold-ink)', fontWeight: 500, fontSize: '0.8rem', letterSpacing: '1px' }}>
-              <Mail size={16} /> DIRECCIÓN DE ENLACE
+              <Mail size={16} /> {t('auth.emailLabel')}
             </label>
             <input 
               type="email" 
               required
-              placeholder="ejemplo@aura.com"
+              placeholder={t('auth.emailPlaceholder')}
               style={{ 
                 width: '100%', background: '#FFFFFF', border: '1px solid var(--aura-border)', 
                 padding: '1.2rem', color: 'var(--ink)', fontSize: '1rem', outline: 'none'
@@ -186,7 +188,7 @@ const Auth = () => {
           </div>
           <div className="input-group">
             <label style={{ display: 'flex', alignItems: 'center', gap: '0.7rem', marginBottom: '0.8rem', color: 'var(--gold-ink)', fontWeight: 500, fontSize: '0.8rem', letterSpacing: '1px' }}>
-              <Lock size={16} /> CLAVE DE SEGURIDAD
+              <Lock size={16} /> {t('auth.passLabel')}
             </label>
             <input 
               type="password" 
@@ -209,8 +211,8 @@ const Auth = () => {
               }}>
                 <KeyRound size={13} style={{ flexShrink: 0, marginTop: 2, color: 'var(--gold-ink)' }} />
                 <span>
-                  Guárdala bien: tus expedientes se cifran con ella y
-                  <strong style={{ color: 'var(--gold-ink)' }}> no se pueden recuperar si la olvidas</strong>.
+                  {t('auth.passWarning')}
+                  <strong style={{ color: 'var(--gold-ink)' }}> {t('auth.passWarningStrong')}</strong>.
                 </span>
               </p>
             )}
@@ -229,8 +231,8 @@ const Auth = () => {
             style={{ padding: '1.2rem', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.7rem' }}>
             <PawPrint size={17} />
             {loading
-              ? (isRegister ? 'CREANDO CUENTA…' : 'ENTRANDO…')
-              : (isRegister ? 'CREAR MI CUENTA' : 'ENTRAR')}
+              ? t(isRegister ? 'auth.btnCreating' : 'auth.btnEntering')
+              : t(isRegister ? 'auth.btnCreate'   : 'auth.btnEnter')}
           </button>
         </form>
 
@@ -248,7 +250,7 @@ const Auth = () => {
               }
             }}
           >
-            {isRegister ? '¿YA TIENES CUENTA? ENTRAR' : '¿PRIMERA VEZ AQUÍ? CREAR CUENTA'}
+            {t(isRegister ? 'auth.switchToLogin' : 'auth.switchToRegister')}
           </button>
           {!isRegister && (
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', width: '100%', maxWidth: 300, margin: '0.2rem 0' }}>
@@ -267,7 +269,7 @@ const Auth = () => {
               onMouseEnter={e => e.currentTarget.style.opacity = '1'}
               onMouseLeave={e => e.currentTarget.style.opacity = '0.75'}
             >
-              ¿OLVIDÓ SU CLAVE DE SEGURIDAD?
+              {t('auth.forgot')}
             </a>
           )}
         </footer>

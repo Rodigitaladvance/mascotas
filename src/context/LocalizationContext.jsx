@@ -32,14 +32,24 @@ export const LocalizationProvider = ({ children }) => {
     }
   }, [autoDetect]);
 
-  const t = (path) => {
-    const keys = path.split('.');
-    let result = translations[locale];
-    for (const key of keys) {
-      if (result[key]) result = result[key];
-      else return path; // Return path as fallback
+  const buscar = (idioma, path) => {
+    let nodo = translations[idioma];
+    for (const key of path.split('.')) {
+      if (nodo == null || typeof nodo !== 'object' || !(key in nodo)) return undefined;
+      nodo = nodo[key];
     }
-    return result;
+    return typeof nodo === 'string' ? nodo : undefined;
+  };
+
+  const t = (path, vars) => {
+    const otro = locale === 'es' ? 'en' : 'es';
+    const texto = buscar(locale, path) ?? buscar(otro, path);
+    if (texto == null) {
+      if (import.meta.env?.DEV) console.warn('[AURA] falta la traducción:', path);
+      return path;
+    }
+    if (!vars) return texto;
+    return texto.replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m));
   };
 
   const setManualConfig = (newLocale, newCurrency, newUnits) => {

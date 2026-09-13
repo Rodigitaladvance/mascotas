@@ -6,6 +6,7 @@ import { storage } from '../../utils/storage';
 import { useAuth } from '../../context/AuthContext';
 import { PawScatter } from './Decorations';
 import { sugerirProximaDosis } from '../../utils/intelligence';
+import { useTranslation } from '../../context/LocalizationContext';
 
 // ─── Storage ──────────────────────────────────────────────────────────────────
 // El historial clínico se guarda cifrado dentro de la bóveda del usuario.
@@ -18,17 +19,24 @@ const EMPTY_MED      = { name: '', dose: '', frequency: '', startDate: '', endDa
 const EMPTY_ANALYSIS = { type: '', date: '', result: '', notes: '' };
 
 const TABS = [
-  { id: 'visits',      label: 'Visitas',    icon: Calendar },
-  { id: 'vaccines',    label: 'Vacunas',    icon: Shield   },
-  { id: 'medications', label: 'Medicación', icon: Activity },
-  { id: 'analyses',    label: 'Análisis',   icon: Award    },
+  { id: 'visits',      k: 'history.tabVisits',   icon: Calendar },
+  { id: 'vaccines',    k: 'history.tabVaccines', icon: Shield   },
+  { id: 'medications', k: 'history.tabMeds',     icon: Activity },
+  { id: 'analyses',    k: 'history.tabAnalyses', icon: Award    },
 ];
 
-const ADD_LABELS = {
-  visits:      'Nueva visita',
-  vaccines:    'Añadir vacuna',
-  medications: 'Añadir medicamento',
-  analyses:    'Añadir análisis',
+const ADD_KEYS = {
+  visits:      'history.addVisit',
+  vaccines:    'history.addVaccine',
+  medications: 'history.addMed',
+  analyses:    'history.addAnalysis',
+};
+
+const EMPTY_KEYS = {
+  visits:      'history.emptyVisits',
+  vaccines:    'history.emptyVaccines',
+  medications: 'history.emptyMeds',
+  analyses:    'history.emptyAnalyses',
 };
 
 const MAX_FILE_BYTES = 3 * 1024 * 1024; // 3 MB antes de base64
@@ -40,18 +48,18 @@ const loadData = (userId, petId) => {
   catch { return EMPTY_DATA; }
 };
 
-const vaccineStatus = (nextDose) => {
+const vaccineStatus = (nextDose, t) => {
   if (!nextDose) return null;
   const days = Math.ceil((new Date(nextDose) - new Date()) / 86400000);
-  if (days < 0)   return { label: 'Vencida', bg: 'rgba(236, 92, 141, 0.15)',  color: '#EC5C8D', border: 'rgba(236, 92, 141, 0.4)'  };
-  if (days <= 30) return { label: `${days}d`, bg: 'rgba(255,170,0,0.15)', color: '#D98A1F', border: 'rgba(255,170,0,0.4)'  };
-  return               { label: 'Al día',   bg: 'rgba(67, 191, 199, 0.1)',   color: '#43BFC7', border: 'rgba(67, 191, 199, 0.3)' };
+  if (days < 0)   return { label: t('history.statusOverdue'), bg: 'rgba(236, 92, 141, 0.15)', color: '#C2255C', border: 'rgba(236, 92, 141, 0.4)' };
+  if (days <= 30) return { label: t('history.statusDays', { dias: days }), bg: 'rgba(255,170,0,0.15)', color: '#8A6414', border: 'rgba(255,170,0,0.4)' };
+  return               { label: t('history.statusUpToDate'), bg: 'rgba(67, 191, 199, 0.1)', color: '#1F7C83', border: 'rgba(67, 191, 199, 0.3)' };
 };
 
 const isActiveMed = (m) => !m.endDate || new Date(m.endDate) >= new Date();
 
 // ─── PDF ──────────────────────────────────────────────────────────────────────
-const generatePDF = (pet, data) => {
+const generatePDF = (pet, data, t, locale, simbolo) => {
   const doc = new jsPDF();
   let y = 20;
 
@@ -74,45 +82,47 @@ const generatePDF = (pet, data) => {
 
   doc.setFontSize(18);
   doc.setFont(undefined, 'bold');
-  doc.text(`Historial Médico — ${pet.name}`, 20, y); y += 8;
+  doc.text(`${t('history.pdfTitle')} — ${pet.name || t('common.noName')}`, 20, y); y += 8;
   doc.setFontSize(9);
   doc.setFont(undefined, 'normal');
-  doc.text(`Generado: ${new Date().toLocaleDateString('es-ES')} · AURA Pets Global`, 20, y); y += 14;
+  const fechaHoy = new Date().toLocaleDateString(locale === 'es' ? 'es-ES' : 'en-GB');
+  doc.text(`${t('history.pdfGenerated', { fecha: fechaHoy })} · AURA Pets Global`, 20, y); y += 14;
 
   if (data.visits.length) {
-    section('Visitas Veterinarias');
+    section(t('history.pdfVisits'));
     data.visits.forEach((v) => {
       line(`${v.date}  ·  ${v.clinic || '—'}  ·  ${v.vet || '—'}`);
-      if (v.reason)    line(`Motivo: ${v.reason}`, 26);
-      if (v.diagnosis) line(`Diagnóstico: ${v.diagnosis}`, 26);
-      if (v.treatment) line(`Tratamiento: ${v.treatment}`, 26);
-      if (v.cost)      line(`Coste: €${v.cost}`, 26);
+      if (v.reason)    line(`${t('history.pdfReason')}: ${v.reason}`, 26);
+      if (v.diagnosis) line(`${t('history.pdfDiagnosis')}: ${v.diagnosis}`, 26);
+      if (v.treatment) line(`${t('history.pdfTreatment')}: ${v.treatment}`, 26);
+      if (v.cost)      line(`${t('history.pdfCost')}: ${simbolo}${v.cost}`, 26);
       y += 3;
     });
   }
   if (data.vaccines.length) {
-    section('Vacunas');
+    section(t('history.pdfVaccines'));
     data.vaccines.forEach((v) => {
-      line(`${v.name}  ·  ${v.date}  ·  Próxima: ${v.nextDose || 'N/A'}  ·  ${v.vet || '—'}`);
+      line(`${v.name}  ·  ${v.date}  ·  ${t('history.pdfNext')}: ${v.nextDose || '—'}  ·  ${v.vet || '—'}`);
     });
   }
   if (data.medications.length) {
-    section('Medicación');
+    section(t('history.pdfMeds'));
     data.medications.forEach((m) => {
-      line(`${m.name}  ·  ${m.dose}  ·  ${m.frequency}  ${isActiveMed(m) ? '(activo)' : '(finalizado)'}`);
-      line(`Inicio: ${m.startDate}${m.endDate ? `  Fin: ${m.endDate}` : ''}`, 26);
+      line(`${m.name}  ·  ${m.dose}  ·  ${m.frequency}  (${t(isActiveMed(m) ? 'history.pdfOngoing' : 'history.pdfFinished')})`);
+      line(`${t('history.pdfStart')}: ${m.startDate}${m.endDate ? `  ${t('history.pdfEnd')}: ${m.endDate}` : ''}`, 26);
     });
   }
   if (data.analyses.length) {
-    section('Análisis');
+    section(t('history.pdfAnalyses'));
     data.analyses.forEach((a) => {
-      line(`${a.type}  ·  ${a.date}  ·  Resultado: ${a.result}`);
+      line(`${a.type}  ·  ${a.date}  ·  ${t('history.pdfResult')}: ${a.result}`);
       if (a.notes) line(a.notes, 26);
-      if (a.document) line(`[Documento adjunto: ${a.document.name}]`, 26);
+      if (a.document) line(`[${t('history.pdfAttached', { nombre: a.document.name })}]`, 26);
     });
   }
 
-  doc.save(`${pet.name.replace(/\s+/g, '_')}_historial_medico.pdf`);
+  const nombreArchivo = (pet.name || t('common.noName')).replace(/\s+/g, '_');
+  doc.save(`${nombreArchivo}_${t('history.pdfFileName')}.pdf`);
 };
 
 // ─── Field ────────────────────────────────────────────────────────────────────
@@ -130,6 +140,8 @@ const Field = ({ label, as, ...props }) => (
 // ─── Component ────────────────────────────────────────────────────────────────
 const MedicalHistory = ({ pet, onClose }) => {
   const { user } = useAuth();
+  const { t, locale, getCurrencySymbol } = useTranslation();
+  const simbolo = getCurrencySymbol();
   const [tab, setTab]             = useState('visits');
   const [data, setData]           = useState(() => loadData(user?.id, pet.id));
   const [saveError, setSaveError]  = useState('');
@@ -152,7 +164,7 @@ const MedicalHistory = ({ pet, onClose }) => {
     try {
       await storage.saveHistory(user.id, pet.id, newData);
     } catch (err) {
-      setSaveError(err.message);
+      setSaveError(t('history.saveFailed', { detalle: err.message }));
       return false;
     }
     setData(newData);
@@ -196,12 +208,12 @@ const MedicalHistory = ({ pet, onClose }) => {
     if (!file) return;
     setFileError('');
     if (file.size > MAX_FILE_BYTES) {
-      setFileError('Archivo demasiado grande. Máximo 3 MB.');
+      setFileError(t('history.errTooBig'));
       return;
     }
     const allowed = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
     if (!allowed.includes(file.type)) {
-      setFileError('Formato no válido. Usa JPG, PNG, WEBP o PDF.');
+      setFileError(t('history.errFormat'));
       return;
     }
     const reader = new FileReader();
@@ -229,7 +241,7 @@ const MedicalHistory = ({ pet, onClose }) => {
   const DropZone = () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
       <label style={{ fontSize: '0.65rem', letterSpacing: '2px', color: 'var(--gold-ink)', textTransform: 'uppercase' }}>
-        Documento adjunto
+        {t('history.fAttachment')}
       </label>
 
       {!docPreview ? (
@@ -249,7 +261,7 @@ const MedicalHistory = ({ pet, onClose }) => {
           }}
         >
           <p style={{ margin: '0 0 0.9rem', color: 'var(--aura-text-muted)', fontSize: '0.8rem', lineHeight: 1.5 }}>
-            Arrastra tu análisis aquí o haz click para subir
+            {t('history.dropHint')}
           </p>
           <div style={{ display: 'flex', gap: '0.6rem', justifyContent: 'center', flexWrap: 'wrap' }}>
             <button
@@ -257,14 +269,14 @@ const MedicalHistory = ({ pet, onClose }) => {
               onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click(); }}
               style={{ padding: '7px 14px', background: 'rgba(217, 164, 65, 0.1)', border: '1px solid rgba(217, 164, 65, 0.35)', borderRadius: 6, color: 'var(--gold-ink)', fontSize: '0.75rem', cursor: 'pointer' }}
             >
-              📎 Subir documento
+              📎 {t('history.btnUpload')}
             </button>
             <button
               type="button"
               onClick={(e) => { e.stopPropagation(); cameraInputRef.current?.click(); }}
               style={{ padding: '7px 14px', background: 'rgba(217, 164, 65, 0.1)', border: '1px solid rgba(217, 164, 65, 0.35)', borderRadius: 6, color: 'var(--gold-ink)', fontSize: '0.75rem', cursor: 'pointer' }}
             >
-              📷 Usar cámara
+              📷 {t('history.btnCamera')}
             </button>
           </div>
           {fileError && (
@@ -277,7 +289,7 @@ const MedicalHistory = ({ pet, onClose }) => {
           {docPreview.type.startsWith('image/') ? (
             <img
               src={docPreview.dataUrl}
-              alt="Preview"
+              alt={docPreview.name}
               style={{ width: '100%', maxHeight: 180, objectFit: 'contain', display: 'block', background: '#000' }}
             />
           ) : (
@@ -323,23 +335,23 @@ const MedicalHistory = ({ pet, onClose }) => {
     if (tab === 'visits') return (
       <div style={formWrap}>
         <div style={grid2}>
-          <Field label="Fecha"     type="date"   value={form.date} onChange={f('date')} />
-          <Field label="Coste (€)" type="number" placeholder="85"  value={form.cost}   onChange={f('cost')} />
+          <Field label={t('history.fDate')} type="date"   value={form.date} onChange={f('date')} />
+          <Field label={t('history.fCost', { divisa: simbolo })} type="number" placeholder="85" value={form.cost} onChange={f('cost')} />
         </div>
         <div style={grid2}>
-          <Field label="Clínica"     type="text" placeholder="Clínica Veterinaria..." value={form.clinic} onChange={f('clinic')} />
-          <Field label="Veterinario" type="text" placeholder="Dr. ..."               value={form.vet}    onChange={f('vet')} />
+          <Field label={t('history.fClinic')} type="text" placeholder={t('history.pClinic')} value={form.clinic} onChange={f('clinic')} />
+          <Field label={t('history.fVet')}    type="text" placeholder={t('history.pVet')}    value={form.vet}    onChange={f('vet')} />
         </div>
-        <Field label="Motivo"      type="text"    placeholder="Revisión, urgencia..."             value={form.reason}    onChange={f('reason')} />
-        <Field label="Diagnóstico" as="textarea"  placeholder="Diagnóstico del veterinario..."    value={form.diagnosis} onChange={f('diagnosis')} />
-        <Field label="Tratamiento" as="textarea"  placeholder="Medicación pautada, procedimientos..." value={form.treatment} onChange={f('treatment')} />
+        <Field label={t('history.fReason')}    type="text"   placeholder={t('history.pReason')}    value={form.reason}    onChange={f('reason')} />
+        <Field label={t('history.fDiagnosis')} as="textarea" placeholder={t('history.pDiagnosis')} value={form.diagnosis} onChange={f('diagnosis')} />
+        <Field label={t('history.fTreatment')} as="textarea" placeholder={t('history.pTreatment')} value={form.treatment} onChange={f('treatment')} />
       </div>
     );
 
     if (tab === 'vaccines') return (
       <div style={formWrap}>
         <div style={grid2}>
-          <Field label="Nombre vacuna" type="text" placeholder="Rabia, polivalente..." value={form.name}
+          <Field label={t('history.fVaccineName')} type="text" placeholder={t('history.pVaccine')} value={form.name}
             onChange={(e) => {
               const nombre = e.target.value;
               const sug = sugerirProximaDosis(pet?.species, nombre, form.date);
@@ -350,10 +362,10 @@ const MedicalHistory = ({ pet, onClose }) => {
                 nextDoseSugerida: (!prev.nextDose || prev.nextDoseSugerida) && !!sug?.fecha,
               }));
             }} />
-          <Field label="Veterinario"   type="text" placeholder="Dr. ..."               value={form.vet}  onChange={f('vet')} />
+          <Field label={t('history.fVet')} type="text" placeholder={t('history.pVet')} value={form.vet} onChange={f('vet')} />
         </div>
         <div style={grid2}>
-          <Field label="Fecha administración" type="date" value={form.date}
+          <Field label={t('history.fAdminDate')} type="date" value={form.date}
             onChange={(e) => {
               const fecha = e.target.value;
               const sug = sugerirProximaDosis(pet?.species, form.name, fecha);
@@ -366,7 +378,7 @@ const MedicalHistory = ({ pet, onClose }) => {
                 nextDoseSugerida: (!prev.nextDose || prev.nextDoseSugerida) && !!sug?.fecha,
               }));
             }} />
-          <Field label="Próxima dosis" type="date" value={form.nextDose}
+          <Field label={t('history.fNextDose')} type="date" value={form.nextDose}
             onChange={(e) => setForm(prev => ({ ...prev, nextDose: e.target.value, nextDoseSugerida: false }))} />
         </div>
 
@@ -381,11 +393,9 @@ const MedicalHistory = ({ pet, onClose }) => {
             }}>
               {form.nextDoseSugerida ? '✨ ' : ''}
               {sug.etiqueta}: {meses >= 12
-                ? `refuerzo cada ${Math.round(meses / 12)} año${Math.round(meses / 12) > 1 ? 's' : ''}`
-                : `refuerzo cada ${meses} meses`}
-              {form.nextDoseSugerida
-                ? '. Fecha propuesta, cámbiala si tu veterinario indicó otra.'
-                : '.'}
+                ? t('history.boosterYears',  { n: Math.round(meses / 12) })
+                : t('history.boosterMonths', { n: meses })}
+              {form.nextDoseSugerida ? `. ${t('history.suggestedNote')}` : '.'}
             </p>
           );
         })()}
@@ -395,13 +405,13 @@ const MedicalHistory = ({ pet, onClose }) => {
     if (tab === 'medications') return (
       <div style={formWrap}>
         <div style={grid2}>
-          <Field label="Medicamento" type="text" placeholder="Frontline, Nexgard..."     value={form.name}      onChange={f('name')} />
-          <Field label="Dosis"       type="text" placeholder="1 comprimido, 1 pipeta..."  value={form.dose}     onChange={f('dose')} />
+          <Field label={t('history.fMedName')} type="text" placeholder={t('history.pMed')}  value={form.name} onChange={f('name')} />
+          <Field label={t('history.fDose')}    type="text" placeholder={t('history.pDose')} value={form.dose} onChange={f('dose')} />
         </div>
-        <Field label="Frecuencia" type="text" placeholder="Diario, Mensual, Cada 8h..." value={form.frequency} onChange={f('frequency')} />
+        <Field label={t('history.fFrequency')} type="text" placeholder={t('history.pFrequency')} value={form.frequency} onChange={f('frequency')} />
         <div style={grid2}>
-          <Field label="Fecha inicio"         type="date" value={form.startDate} onChange={f('startDate')} />
-          <Field label="Fecha fin (opcional)" type="date" value={form.endDate}   onChange={f('endDate')} />
+          <Field label={t('history.fStart')} type="date" value={form.startDate} onChange={f('startDate')} />
+          <Field label={t('history.fEnd')}   type="date" value={form.endDate}   onChange={f('endDate')} />
         </div>
       </div>
     );
@@ -410,11 +420,11 @@ const MedicalHistory = ({ pet, onClose }) => {
     return (
       <div style={formWrap}>
         <div style={grid2}>
-          <Field label="Tipo de análisis" type="text" placeholder="Sangre, orina..." value={form.type}   onChange={f('type')} />
-          <Field label="Fecha"            type="date"                                 value={form.date}   onChange={f('date')} />
+          <Field label={t('history.fType')} type="text" placeholder={t('history.pType')} value={form.type} onChange={f('type')} />
+          <Field label={t('history.fDate')} type="date"                                 value={form.date} onChange={f('date')} />
         </div>
-        <Field label="Resultado"     type="text"   placeholder="Normal, alterado..." value={form.result} onChange={f('result')} />
-        <Field label="Observaciones" as="textarea" placeholder="Detalles..."         value={form.notes}  onChange={f('notes')} />
+        <Field label={t('history.fResult')} type="text"   placeholder={t('history.pResult')} value={form.result} onChange={f('result')} />
+        <Field label={t('history.fNotes')}  as="textarea" placeholder={t('history.pNotes')}  value={form.notes}  onChange={f('notes')} />
         <DropZone />
       </div>
     );
@@ -426,7 +436,7 @@ const MedicalHistory = ({ pet, onClose }) => {
       {data.visits.length > 0 && (
         <div style={{ position: 'absolute', left: 7, top: 10, bottom: 10, width: 1, background: 'linear-gradient(to bottom, #D9A441, rgba(217, 164, 65, 0.08))' }} />
       )}
-      {!data.visits.length && empty('Sin visitas registradas')}
+      {!data.visits.length && empty(t(EMPTY_KEYS.visits))}
       {data.visits.map((v) => (
         <div key={v.id} style={{ position: 'relative', marginBottom: '1.1rem' }}>
           <div style={{ position: 'absolute', left: -29, top: 14, width: 10, height: 10, borderRadius: '50%', background: '#D9A441', border: '2px solid #FEFBF4', boxShadow: '0 0 8px rgba(217, 164, 65, 0.6)' }} />
@@ -438,15 +448,15 @@ const MedicalHistory = ({ pet, onClose }) => {
                 <p style={{ margin: 0, fontSize: '0.78rem', color: 'var(--aura-text-muted)' }}>{v.vet}</p>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
-                {v.cost && <span style={{ fontWeight: 700, color: 'var(--gold-ink)' }}>€{v.cost}</span>}
+                {v.cost && <span style={{ fontWeight: 700, color: 'var(--gold-ink)' }}>{simbolo}{v.cost}</span>}
                 <button style={deleteBtn} onClick={() => remove('visits', v.id)}><X size={14} /></button>
               </div>
             </div>
             {(v.reason || v.diagnosis || v.treatment) && (
               <div style={{ marginTop: '0.9rem', paddingTop: '0.9rem', borderTop: '1px solid #FFFFFF', display: 'grid', gap: '0.6rem' }}>
-                {v.reason    && <div><p style={mutedLabel}>Motivo</p>      <p style={{ margin: 0, fontSize: '0.85rem' }}>{v.reason}</p></div>}
-                {v.diagnosis && <div><p style={mutedLabel}>Diagnóstico</p> <p style={{ margin: 0, fontSize: '0.85rem' }}>{v.diagnosis}</p></div>}
-                {v.treatment && <div><p style={mutedLabel}>Tratamiento</p> <p style={{ margin: 0, fontSize: '0.85rem' }}>{v.treatment}</p></div>}
+                {v.reason    && <div><p style={mutedLabel}>{t('history.fReason')}</p>    <p style={{ margin: 0, fontSize: '0.85rem' }}>{v.reason}</p></div>}
+                {v.diagnosis && <div><p style={mutedLabel}>{t('history.fDiagnosis')}</p> <p style={{ margin: 0, fontSize: '0.85rem' }}>{v.diagnosis}</p></div>}
+                {v.treatment && <div><p style={mutedLabel}>{t('history.fTreatment')}</p> <p style={{ margin: 0, fontSize: '0.85rem' }}>{v.treatment}</p></div>}
               </div>
             )}
           </div>
@@ -457,15 +467,15 @@ const MedicalHistory = ({ pet, onClose }) => {
 
   const Vaccines = () => (
     <div style={{ display: 'grid', gap: '0.8rem' }}>
-      {!data.vaccines.length && empty('Sin vacunas registradas')}
+      {!data.vaccines.length && empty(t(EMPTY_KEYS.vaccines))}
       {data.vaccines.map((v) => {
-        const st = vaccineStatus(v.nextDose);
+        const st = vaccineStatus(v.nextDose, t);
         return (
           <div key={v.id} style={{ ...cardStyle, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem' }}>
             <div style={{ flex: 1, minWidth: 0 }}>
               <p style={{ margin: '0 0 4px', fontWeight: 600, fontSize: '0.98rem' }}>{v.name}</p>
               <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--aura-text-muted)' }}>
-                {v.date}{v.vet ? ` · ${v.vet}` : ''}{v.nextDose ? ` · Próxima: ${v.nextDose}` : ''}
+                {v.date}{v.vet ? ` · ${v.vet}` : ''}{v.nextDose ? ` · ${t('history.nextShort')}: ${v.nextDose}` : ''}
               </p>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', flexShrink: 0 }}>
@@ -484,12 +494,12 @@ const MedicalHistory = ({ pet, onClose }) => {
         <div style={{ marginBottom: '1rem', padding: '0.75rem 1.2rem', background: 'rgba(67, 191, 199, 0.05)', border: '1px solid rgba(67, 191, 199, 0.18)', borderRadius: 8, display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
           <div style={{ width: 7, height: 7, borderRadius: '50%', background: '#43BFC7', boxShadow: '0 0 8px #43BFC7', flexShrink: 0 }} />
           <p style={{ margin: 0, fontSize: '0.78rem', color: '#43BFC7' }}>
-            {activeMeds} medicamento{activeMeds > 1 ? 's' : ''} activo{activeMeds > 1 ? 's' : ''}
+            {activeMeds === 1 ? t('history.medsActiveOne') : t('history.medsActiveMany', { n: activeMeds })}
           </p>
         </div>
       )}
       <div style={{ display: 'grid', gap: '0.8rem' }}>
-        {!data.medications.length && empty('Sin medicación registrada')}
+        {!data.medications.length && empty(t(EMPTY_KEYS.medications))}
         {data.medications.map((m) => {
           const active = isActiveMed(m);
           return (
@@ -500,7 +510,7 @@ const MedicalHistory = ({ pet, onClose }) => {
                   <p style={{ margin: 0, fontWeight: 600, fontSize: '0.98rem' }}>{m.name}</p>
                 </div>
                 <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--aura-text-muted)' }}>
-                  {m.dose}{m.frequency ? ` · ${m.frequency}` : ''}{m.startDate ? ` · Desde: ${m.startDate}` : ''}{m.endDate ? ` hasta ${m.endDate}` : ''}
+                  {m.dose}{m.frequency ? ` · ${m.frequency}` : ''}{m.startDate ? ` · ${t('history.fromShort')}: ${m.startDate}` : ''}{m.endDate ? ` ${t('history.untilShort')} ${m.endDate}` : ''}
                 </p>
               </div>
               <button style={deleteBtn} onClick={() => remove('medications', m.id)}><X size={14} /></button>
@@ -513,7 +523,7 @@ const MedicalHistory = ({ pet, onClose }) => {
 
   const Analyses = () => (
     <div style={{ display: 'grid', gap: '0.8rem' }}>
-      {!data.analyses.length && empty('Sin análisis registrados')}
+      {!data.analyses.length && empty(t(EMPTY_KEYS.analyses))}
       {data.analyses.map((a) => (
         <div key={a.id} style={cardStyle}>
           {/* Cabecera */}
@@ -546,7 +556,7 @@ const MedicalHistory = ({ pet, onClose }) => {
               {a.document.type.startsWith('image/') ? (
                 <img
                   src={a.document.dataUrl}
-                  alt="Análisis"
+                  alt={a.document.name}
                   style={{ width: 52, height: 52, objectFit: 'cover', borderRadius: 6, border: '1px solid rgba(217, 164, 65, 0.3)', flexShrink: 0, cursor: 'pointer' }}
                   onClick={() => setViewDoc(a.document)}
                 />
@@ -565,7 +575,7 @@ const MedicalHistory = ({ pet, onClose }) => {
                   onClick={() => setViewDoc(a.document)}
                   style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', padding: '5px 12px', background: 'rgba(217, 164, 65, 0.08)', border: '1px solid rgba(217, 164, 65, 0.3)', borderRadius: 6, color: 'var(--gold-ink)', fontSize: '0.72rem', cursor: 'pointer' }}
                 >
-                  <Eye size={12} /> Ver documento
+                  <Eye size={12} /> {t('history.btnViewDoc')}
                 </button>
               </div>
             </div>
@@ -596,12 +606,12 @@ const MedicalHistory = ({ pet, onClose }) => {
         <div style={{ padding: '1.4rem 2rem', borderBottom: '1px solid rgba(217, 164, 65, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
           <div>
             <p style={{ margin: '0 0 2px', fontSize: '0.6rem', letterSpacing: '3px', color: 'var(--gold-ink)', textTransform: 'uppercase' }}>
-              AURA Pets Global · {pet.name}
+              {t('history.eyebrow')} · {pet.name || t('common.noName')}
             </p>
-            <h2 style={{ margin: 0, fontSize: '1.55rem', fontWeight: 700 }}>Historial Médico Completo</h2>
+            <h2 style={{ margin: 0, fontSize: '1.55rem', fontWeight: 700 }}>{t('history.title')}</h2>
           </div>
           <div style={{ display: 'flex', gap: '0.7rem', alignItems: 'center' }}>
-            <button onClick={() => generatePDF(pet, data)} className="btn-aura"
+            <button onClick={() => generatePDF(pet, data, t, locale, simbolo)} className="btn-aura"
               style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem', fontSize: '0.72rem', padding: '0.55rem 1rem' }}>
               <Download size={13} /> PDF
             </button>
@@ -624,7 +634,7 @@ const MedicalHistory = ({ pet, onClose }) => {
             </p>
             <button
               onClick={() => setSaveError('')}
-              aria-label="Cerrar aviso"
+              aria-label={t('history.dismiss')}
               style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#C93B5C', display: 'flex', padding: '0.2rem' }}
             >
               <X size={15} />
@@ -634,14 +644,14 @@ const MedicalHistory = ({ pet, onClose }) => {
 
         {/* Tabs */}
         <div style={{ display: 'flex', borderBottom: '1px solid rgba(217, 164, 65, 0.12)', overflowX: 'auto', flexShrink: 0 }}>
-          {TABS.map(({ id, label, icon: Icon }) => {
+          {TABS.map(({ id, k, icon: Icon }) => {
             const active = tab === id;
             return (
               <button key={id}
                 onClick={() => { setTab(id); setShowForm(false); setDocPreview(null); setFileError(''); }}
                 style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', padding: '0.9rem 1.4rem', background: 'none', border: 'none', cursor: 'pointer', borderBottom: active ? '2px solid var(--aura-gold)' : '2px solid transparent', color: active ? 'var(--gold-ink)' : 'var(--aura-text-muted)', fontSize: '0.8rem', fontWeight: active ? 600 : 400, letterSpacing: '0.5px', whiteSpace: 'nowrap', transition: 'color 0.2s' }}
               >
-                <Icon size={14} /> {label}
+                <Icon size={14} /> {t(k)}
               </button>
             );
           })}
@@ -654,15 +664,15 @@ const MedicalHistory = ({ pet, onClose }) => {
             <div style={{ marginBottom: '1.2rem' }}>
               <button onClick={openForm} className="btn-aura"
                 style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem', fontSize: '0.76rem', padding: '0.55rem 1.1rem' }}>
-                <Plus size={13} /> {ADD_LABELS[tab]}
+                <Plus size={13} /> {t(ADD_KEYS[tab])}
               </button>
             </div>
           ) : (
             <div style={{ marginBottom: '1.2rem' }}>
               {renderForm()}
               <div style={{ display: 'flex', gap: '0.7rem' }}>
-                <button className="btn-aura btn-ghost" style={{ flex: 1, fontSize: '0.75rem' }} onClick={cancelForm}>CANCELAR</button>
-                <button className="btn-aura" style={{ flex: 2, fontSize: '0.75rem' }} onClick={submit}>GUARDAR</button>
+                <button className="btn-aura btn-ghost" style={{ flex: 1, fontSize: '0.75rem' }} onClick={cancelForm}>{t('common.cancel')}</button>
+                <button className="btn-aura" style={{ flex: 2, fontSize: '0.75rem' }} onClick={submit}>{t('common.save')}</button>
               </div>
             </div>
           )}
@@ -678,7 +688,7 @@ const MedicalHistory = ({ pet, onClose }) => {
         {/* ── Footer de marca ── */}
         <div style={{ padding: '0.6rem 2rem', borderTop: '1px solid var(--aura-border)', flexShrink: 0, textAlign: 'center' }}>
           <p style={{ margin: 0, fontSize: '0.55rem', letterSpacing: '1.8px', color: 'var(--aura-text-muted)', opacity: 0.68, textTransform: 'uppercase' }}>
-            AURA Pets Global · Expediente Médico Digital
+            {t('history.footer')}
           </p>
         </div>
       </motion.div>
@@ -706,7 +716,7 @@ const MedicalHistory = ({ pet, onClose }) => {
                   rel="noreferrer"
                   style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', padding: '6px 12px', background: 'rgba(217, 164, 65, 0.08)', border: '1px solid rgba(217, 164, 65, 0.3)', borderRadius: 6, color: 'var(--gold-ink)', fontSize: '0.72rem', textDecoration: 'none' }}
                 >
-                  <Download size={12} /> Abrir
+                  <Download size={12} /> {t('history.btnOpenDoc')}
                 </a>
                 <button
                   onClick={() => setViewDoc(null)}

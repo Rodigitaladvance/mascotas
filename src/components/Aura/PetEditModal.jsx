@@ -24,26 +24,26 @@ const REASONS = (es) => [
 const CONFIRM_KEYWORD = 'BAJA';
 
 /* ── Memorial PDF ── */
-const generateMemorialPDF = (pet) => {
+const generateMemorialPDF = (pet, t, locale, unidadPeso) => {
   const doc  = new jsPDF('p', 'mm', 'a4');
   const W    = 210;
-  const date = new Date().toLocaleDateString('es-ES');
+  const date = new Date().toLocaleDateString(locale === 'es' ? 'es-ES' : 'en-GB');
 
   // ─ Gold header ─
   doc.setFillColor(212, 175, 55);
   doc.rect(0, 0, W, 30, 'F');
   doc.setTextColor(10, 10, 15);
   doc.setFontSize(10); doc.setFont('helvetica', 'bold');
-  doc.text('AURA PETS — EXPEDIENTE DE RECUERDO', W / 2, 13, { align: 'center' });
+  doc.text(t('memorialPdf.header'), W / 2, 13, { align: 'center' });
   doc.setFontSize(7); doc.setFont('helvetica', 'normal');
-  doc.text('IN MEMORIAM · ' + date, W / 2, 21, { align: 'center' });
+  doc.text(`${t('memorialPdf.inMemoriam')} · ${date}`, W / 2, 21, { align: 'center' });
 
   // ─ Pet name ─
   doc.setFillColor(10, 10, 15);
   doc.rect(0, 30, W, 270, 'F');
   doc.setTextColor(212, 175, 55);
   doc.setFontSize(30); doc.setFont('helvetica', 'bold');
-  doc.text(pet.name || 'Sin nombre', W / 2, 60, { align: 'center' });
+  doc.text(pet.name || t('common.noName'), W / 2, 60, { align: 'center' });
   doc.setTextColor(140, 140, 140);
   doc.setFontSize(9); doc.setFont('helvetica', 'normal');
   doc.text((pet.speciesLabel || pet.species || '').toUpperCase(), W / 2, 70, { align: 'center' });
@@ -55,12 +55,12 @@ const generateMemorialPDF = (pet) => {
   // ─ Bio fields ─
   let y = 90;
   const rows = [
-    ['Nombre',    pet.name            || '—'],
-    ['Especie',   pet.speciesLabel    || pet.species || '—'],
-    ['Raza',      pet.breed           || '—'],
-    ['Edad',      pet.age             ? `${pet.age} años` : '—'],
-    ['Peso',      pet.weight          ? `${pet.weight} kg` : '—'],
-    ['Microchip', pet.microchip       || '—'],
+    [t('memorialPdf.fName'),      pet.name         || '—'],
+    [t('memorialPdf.fSpecies'),   pet.speciesLabel || pet.species || '—'],
+    [t('memorialPdf.fBreed'),     pet.breed        || '—'],
+    [t('memorialPdf.fAge'),       pet.age    ? t('memorialPdf.ageYears', { n: pet.age }) : '—'],
+    [t('memorialPdf.fWeight'),    pet.weight ? `${pet.weight} ${unidadPeso}` : '—'],
+    [t('memorialPdf.fMicrochip'), pet.microchip    || '—'],
   ];
   for (const [label, value] of rows) {
     doc.setTextColor(120, 120, 120); doc.setFontSize(7); doc.setFont('helvetica', 'normal');
@@ -75,16 +75,16 @@ const generateMemorialPDF = (pet) => {
   doc.setFillColor(25, 25, 35);
   doc.rect(20, y - 4, W - 40, 8, 'F');
   doc.setTextColor(212, 175, 55); doc.setFontSize(7); doc.setFont('helvetica', 'bold');
-  doc.text('HISTORIAL MÉDICO', 25, y + 1);
+  doc.text(t('memorialPdf.sectionHealth'), 25, y + 1);
   y += 12;
 
   const h  = pet.health          || {};
   const rv = h.rabiesVaccine     || {};
   const ep = h.europeanPassport  || {};
   const hRows = [
-    ['Vacuna Antirrábica', rv.status === 'ok' ? `Completada · ${rv.date || ''}` : 'Pendiente'],
-    ['Caducidad Vacuna',   rv.expiry || '—'],
-    ['Pasaporte Europeo',  ep.status === 'ok' ? `N.º ${ep.number || '—'}` : 'Pendiente'],
+    [t('memorialPdf.rabies'),       rv.status === 'ok' ? `${t('memorialPdf.completed')} · ${rv.date || ''}` : t('memorialPdf.pending')],
+    [t('memorialPdf.rabiesExpiry'), rv.expiry || '—'],
+    [t('memorialPdf.euPassport'),   ep.status === 'ok' ? t('memorialPdf.passportNo', { n: ep.number || '—' }) : t('memorialPdf.pending')],
   ];
   for (const [label, value] of hRows) {
     doc.setTextColor(120, 120, 120); doc.setFontSize(7); doc.setFont('helvetica', 'normal');
@@ -99,16 +99,17 @@ const generateMemorialPDF = (pet) => {
   doc.setDrawColor(212, 175, 55); doc.line(30, y, W - 30, y);
   y += 12;
   doc.setTextColor(170, 150, 100); doc.setFontSize(10); doc.setFont('helvetica', 'italic');
-  doc.text('"Guardado en el corazón, recordado para siempre."', W / 2, y, { align: 'center' });
+  doc.text(t('memorialPdf.quote'), W / 2, y, { align: 'center' });
 
   // ─ Footer ─
   doc.setFillColor(5, 5, 10);
   doc.rect(0, 272, W, 25, 'F');
   doc.setTextColor(80, 80, 80); doc.setFontSize(7); doc.setFont('helvetica', 'normal');
-  doc.text('AURA Pets · Expediente de Recuerdo · Uso Personal', W / 2, 281, { align: 'center' });
-  doc.text(`Generado el ${date}`, W / 2, 288, { align: 'center' });
+  doc.text(t('memorialPdf.footer'), W / 2, 281, { align: 'center' });
+  doc.text(t('memorialPdf.generated', { fecha: date }), W / 2, 288, { align: 'center' });
 
-  doc.save(`AURA_Recuerdo_${(pet.name || 'mascota').replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`);
+  const nombre = (pet.name || t('memorialPdf.fallbackPet')).replace(/\s+/g, '_');
+  doc.save(`${t('memorialPdf.fileName')}_${nombre}_${new Date().toISOString().split('T')[0]}.pdf`);
 };
 
 /* ════════════════════════════════════════════════════
@@ -120,7 +121,7 @@ const generateMemorialPDF = (pet) => {
      4 — done / success
 ════════════════════════════════════════════════════ */
 const DeregistrationModal = ({ pet, onConfirm, onCancel }) => {
-  const { locale } = useTranslation();
+  const { locale, t, units } = useTranslation();
   const es = locale === 'es';
   const [step,     setStep]    = useState(1);
   const [reason,   setReason]  = useState(null);
@@ -268,7 +269,7 @@ const DeregistrationModal = ({ pet, onConfirm, onCancel }) => {
               <div style={{ display: 'grid', gap: '0.8rem' }}>
                 <button className="btn-aura"
                   style={{ padding: '1.1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.6rem' }}
-                  onClick={() => { generateMemorialPDF(pet); setStep(3); }}>
+                  onClick={() => { generateMemorialPDF(pet, t, locale, units); setStep(3); }}>
                   <Download size={16} />
                   {es ? 'DESCARGAR EXPEDIENTE DE RECUERDO' : 'DOWNLOAD MEMORIAL RECORD'}
                 </button>

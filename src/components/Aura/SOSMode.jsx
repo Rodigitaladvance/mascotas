@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ShieldAlert, Phone, MapPin, AlertCircle, X, Wifi, WifiOff } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { QRCodeSVG } from 'qrcode.react';
+import { useTranslation } from '../../context/LocalizationContext';
 
 /* ── Emergency number by ISO country code ── */
 const EMERGENCY = {
@@ -72,23 +73,24 @@ const countryFromLocale = () => {
 };
 
 /* ── Build QR text from pet data ── */
-const buildQRText = (pet) => {
+const buildQRText = (pet, t, unidadPeso) => {
   const lines = [
-    '🚨 EMERGENCIA VETERINARIA — AURA Pets',
-    pet?.name ? `Mascota: ${pet.name}` : null,
-    (pet?.speciesLabel || pet?.species) ? `Especie: ${pet.speciesLabel || pet.species}` : null,
-    pet?.breed ? `Raza: ${pet.breed}` : null,
-    pet?.microchip ? `Microchip: ${pet.microchip}` : null,
-    pet?.age ? `Edad: ${pet.age}` : null,
-    pet?.weight ? `Peso: ${pet.weight} kg` : null,
+    `🚨 ${t('sos.qrHeader')} — AURA Pets`,
+    pet?.name ? `${t('sos.qrPet')}: ${pet.name}` : null,
+    (pet?.speciesLabel || pet?.species) ? `${t('sos.qrSpecies')}: ${pet.speciesLabel || pet.species}` : null,
+    pet?.breed ? `${t('sos.qrBreed')}: ${pet.breed}` : null,
+    pet?.microchip ? `${t('sos.qrMicrochip')}: ${pet.microchip}` : null,
+    pet?.age ? `${t('sos.qrAge')}: ${pet.age}` : null,
+    pet?.weight ? `${t('sos.qrWeight')}: ${pet.weight} ${unidadPeso}` : null,
     '---',
-    pet?.emergencyConfig?.medicalAlerts ? `Alertas Médicas: ${pet.emergencyConfig.medicalAlerts}` : null,
-    ...(pet?.emergencyConfig?.contacts ?? []).map(c => `Contacto: ${c.name} ${c.phone}`),
+    pet?.emergencyConfig?.medicalAlerts ? `${t('sos.qrAlerts')}: ${pet.emergencyConfig.medicalAlerts}` : null,
+    ...(pet?.emergencyConfig?.contacts ?? []).map(c => `${t('sos.qrContact')}: ${c.name} ${c.phone}`),
   ];
   return lines.filter(Boolean).join('\n');
 };
 
 const SOSMode = ({ pet, pets = [], onActivePetChange, onExit }) => {
+  const { t, locale, units } = useTranslation();
   /* local active pet — starts with prop, can be switched without leaving SOS */
   const [activeSosPetId, setActiveSosPetId] = useState(() => pet?.id ?? null);
   const [showSwitcher, setShowSwitcher]     = useState(false);
@@ -133,20 +135,17 @@ const SOSMode = ({ pet, pets = [], onActivePetChange, onExit }) => {
   const handleCall = () => window.open(`tel:${emergencyNumber}`);
 
   const handleMap = () => {
-    if (location) {
-      window.open(
-        `https://www.google.com/maps/search/Hospital+Veterinario+24h/@${location.lat},${location.lon},14z`,
-        '_blank',
-      );
-    } else {
-      window.open(
-        `https://www.google.com/maps/search/Hospital+Veterinario+24h`,
-        '_blank',
-      );
-    }
+    const busqueda = encodeURIComponent(t('sos.mapsQuery'));
+    window.open(
+      location
+        ? `https://www.google.com/maps/search/${busqueda}/@${location.lat},${location.lon},14z`
+        : `https://www.google.com/maps/search/${busqueda}`,
+      '_blank',
+      'noopener,noreferrer',
+    );
   };
 
-  const qrText = buildQRText(activePet);
+  const qrText = buildQRText(activePet, t, units);
 
   return (
     <div style={{
@@ -162,7 +161,7 @@ const SOSMode = ({ pet, pets = [], onActivePetChange, onExit }) => {
           textAlign: 'center', letterSpacing: '6px', fontWeight: 900, fontSize: '1rem',
         }}
       >
-        🚨 MODO SOS ACTIVO
+        🚨 {t('sos.active')}
       </motion.div>
 
       <div style={{ maxWidth: 860, margin: '0 auto', padding: '2.5rem 2rem 6rem' }}>
@@ -170,25 +169,25 @@ const SOSMode = ({ pet, pets = [], onActivePetChange, onExit }) => {
         <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem' }}>
           <div>
             <h1 style={{ fontSize: '2.2rem', margin: '0 0 4px', fontFamily: 'var(--font-serif)' }}>
-              Emergencia Sanitaria
+              {t('sos.title')}
             </h1>
             {/* Geo status pill */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               {geoStatus === 'ok'
                 ? <><Wifi size={14} color="var(--cyan-ink)" />
                     <span style={{ fontSize: '0.74rem', color: 'var(--cyan-ink)', letterSpacing: '1px', fontWeight: 600 }}>
-                      UBICACIÓN DETECTADA · {country || '…'}  —  Emergencias: {emergencyNumber}
+                      {t('sos.geoOk')} · {country || '…'}  —  {t('sos.emergencyWord')}: {emergencyNumber}
                     </span></>
                 : geoStatus === 'loading'
-                  ? <span style={{ fontSize: '0.74rem', color: 'var(--gold-ink)', letterSpacing: '1px', fontWeight: 600 }}>Detectando ubicación…</span>
+                  ? <span style={{ fontSize: '0.74rem', color: 'var(--gold-ink)', letterSpacing: '1px', fontWeight: 600 }}>{t('sos.geoLoading')}</span>
                   : <><WifiOff size={14} color="var(--gold-ink)" />
                       <span style={{ fontSize: '0.74rem', color: 'var(--gold-ink)', letterSpacing: '1px', fontWeight: 600 }}>
-                        UBICACIÓN NO DISPONIBLE · Nº por defecto: {emergencyNumber}
+                        {t('sos.geoFail')} · {t('sos.defaultNumber')}: {emergencyNumber}
                       </span></>}
             </div>
           </div>
           <button onClick={onExit} className="btn-aura btn-ghost">
-            SALIR DEL MODO SOS
+            {t('sos.exit')}
           </button>
         </header>
 
@@ -203,7 +202,7 @@ const SOSMode = ({ pet, pets = [], onActivePetChange, onExit }) => {
                     background: '#FFFFFF', border: '1px solid rgba(236, 92, 141, 0.3)',
                     borderRadius: 4, padding: '1rem 1.4rem', marginBottom: '0.8rem' }}>
                   <span style={{ fontSize: '0.7rem', letterSpacing: '1.5px', color: 'var(--pink-ink)', fontWeight: 700, flexShrink: 0 }}>
-                    SELECCIONAR MIEMBRO:
+                    {t('sos.selectMember')}
                   </span>
                   {pets.map(p => {
                     const sel = p.id === activeSosPetId;
@@ -235,7 +234,7 @@ const SOSMode = ({ pet, pets = [], onActivePetChange, onExit }) => {
             <button onClick={() => setShowSwitcher(v => !v)} className="btn-aura btn-ghost"
               style={{ fontSize: '0.7rem', '--btn-accent': 'var(--pink-ink)',
                 display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              ⚡ CAMBIAR MIEMBRO ({pets.length})
+              ⚡ {t('sos.switchMember')} ({pets.length})
             </button>
           </div>
         )}
@@ -252,11 +251,11 @@ const SOSMode = ({ pet, pets = [], onActivePetChange, onExit }) => {
                 ? <img src={activePet.customImage} alt={activePet?.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 : <span style={{ fontSize: '3.5rem' }}>{activePet?.avatar || '🐾'}</span>}
             </div>
-            <h2 style={{ fontSize: '2rem', margin: '0 0 4px', color: 'var(--ink)' }}>{activePet?.name || 'Sin nombre'}</h2>
+            <h2 style={{ fontSize: '2rem', margin: '0 0 4px', color: 'var(--ink)' }}>{activePet?.name || t('common.noName')}</h2>
             <p style={{ margin: '0 0 0.4rem', opacity: 0.7 }}>{activePet?.speciesLabel || activePet?.breed || '—'}</p>
             {activePet?.microchip && (
               <p style={{ margin: 0, fontSize: '0.78rem', letterSpacing: '1px', color: 'var(--gold-ink)', fontWeight: 600 }}>
-                CHIP: {activePet.microchip}
+                {t('sos.chip')}: {activePet.microchip}
               </p>
             )}
           </div>
@@ -267,9 +266,9 @@ const SOSMode = ({ pet, pets = [], onActivePetChange, onExit }) => {
             <div className="aura-card" style={{ padding: '1.6rem', display: 'flex', alignItems: 'center', gap: '1.2rem' }}>
               <Phone size={28} color="var(--aura-neon-pink)" />
               <div style={{ flex: 1 }}>
-                <h3 style={{ margin: '0 0 2px', fontSize: '1rem' }}>Emergencias Veterinarias</h3>
+                <h3 style={{ margin: '0 0 2px', fontSize: '1rem' }}>{t('sos.vetEmergency')}</h3>
                 <p style={{ margin: 0, opacity: 0.6, fontSize: '0.8rem' }}>
-                  Llamar al {emergencyNumber}
+                  {t('sos.callNumber', { numero: emergencyNumber })}
                   {country ? ` (${country})` : ''}
                 </p>
               </div>
@@ -278,7 +277,7 @@ const SOSMode = ({ pet, pets = [], onActivePetChange, onExit }) => {
                 style={{ whiteSpace: 'nowrap' }}
                 onClick={handleCall}
               >
-                LLAMAR {emergencyNumber}
+                {t('sos.btnCall')} {emergencyNumber}
               </button>
             </div>
 
@@ -286,9 +285,9 @@ const SOSMode = ({ pet, pets = [], onActivePetChange, onExit }) => {
             <div className="aura-card" style={{ padding: '1.6rem', display: 'flex', alignItems: 'center', gap: '1.2rem' }}>
               <MapPin size={28} color="var(--aura-neon-pink)" />
               <div style={{ flex: 1 }}>
-                <h3 style={{ margin: '0 0 2px', fontSize: '1rem' }}>Hospital Veterinario 24h</h3>
+                <h3 style={{ margin: '0 0 2px', fontSize: '1rem' }}>{t('sos.hospital24')}</h3>
                 <p style={{ margin: 0, opacity: 0.6, fontSize: '0.8rem' }}>
-                  {geoStatus === 'ok' ? 'Buscar cerca de tu posición' : 'Buscar en Google Maps'}
+                  {t(geoStatus === 'ok' ? 'sos.searchNear' : 'sos.searchMaps')}
                 </p>
               </div>
               <button
@@ -296,7 +295,7 @@ const SOSMode = ({ pet, pets = [], onActivePetChange, onExit }) => {
                 style={{ '--btn-accent': 'var(--pink-ink)' }}
                 onClick={handleMap}
               >
-                MAPA
+                {t('sos.btnMap')}
               </button>
             </div>
 
@@ -313,7 +312,7 @@ const SOSMode = ({ pet, pets = [], onActivePetChange, onExit }) => {
                   style={{ '--btn-accent': 'var(--gold-ink)', fontSize: '0.7rem' }}
                   onClick={() => window.open(`tel:${c.phone}`)}
                 >
-                  LLAMAR
+                  {t('sos.btnCall')}
                 </button>
               </div>
             ) : null)}
@@ -324,7 +323,7 @@ const SOSMode = ({ pet, pets = [], onActivePetChange, onExit }) => {
               style={{ '--btn-accent': 'var(--cyan-ink)', padding: '1rem' }}
               onClick={() => setShowQR(v => !v)}
             >
-              {showQR ? 'OCULTAR CÓDIGO QR' : 'MOSTRAR CÓDIGO QR DE EMERGENCIA'}
+              {t(showQR ? 'sos.qrHide' : 'sos.qrShow')}
             </button>
           </div>
         </div>
@@ -348,11 +347,10 @@ const SOSMode = ({ pet, pets = [], onActivePetChange, onExit }) => {
               </div>
               <div style={{ flex: 1 }}>
                 <p style={{ fontSize: '0.72rem', letterSpacing: '2px', color: 'var(--cyan-ink)', textTransform: 'uppercase', fontWeight: 700, margin: '0 0 0.8rem' }}>
-                  QR de Emergencia
+                  {t('sos.qrTitle')}
                 </p>
                 <p style={{ margin: '0 0 1rem', fontSize: '0.82rem', color: 'var(--ink-body)', lineHeight: 1.7 }}>
-                  Cualquier veterinario puede escanear este código para acceder a los datos críticos
-                  de {activePet?.name || 'la mascota'} sin necesidad de la app.
+                  {t('sos.qrBody', { nombre: activePet?.name || t('sos.qrThePet') })}
                 </p>
                 <pre style={{
                   margin: 0, fontSize: '0.72rem', color: 'var(--ink-body)',
@@ -370,7 +368,7 @@ const SOSMode = ({ pet, pets = [], onActivePetChange, onExit }) => {
         {activePet?.emergencyConfig?.medicalAlerts && (
           <div className="aura-card" style={{ marginTop: '2rem', background: 'white', color: 'black', padding: '2rem' }}>
             <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', color: 'var(--pink-ink)', marginBottom: '1rem', fontSize: '1.1rem' }}>
-              <AlertCircle size={24} /> ALERTAS MÉDICAS CRÍTICAS
+              <AlertCircle size={24} /> {t('sos.alerts')}
             </h3>
             <p style={{ margin: 0, fontSize: '1rem', fontWeight: 600, lineHeight: 1.7 }}>
               {activePet.emergencyConfig.medicalAlerts}
@@ -379,7 +377,7 @@ const SOSMode = ({ pet, pets = [], onActivePetChange, onExit }) => {
         )}
 
         <div style={{ marginTop: '3rem', textAlign: 'center', opacity: 0.68, fontSize: '0.7rem', letterSpacing: '2px' }}>
-          AURA Pets · {new Date().toLocaleDateString('es-ES')}
+          AURA Pets · {new Date().toLocaleDateString(locale === 'es' ? 'es-ES' : 'en-GB')}
         </div>
       </div>
     </div>

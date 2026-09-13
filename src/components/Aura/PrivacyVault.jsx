@@ -33,34 +33,34 @@ const downloadJSON = (data, filename) => {
 };
 
 /* ── Premium jsPDF medical record ── */
-const generateMedicalPDF = (pets, userEmail) => {
+const generateMedicalPDF = (pets, userEmail, t, locale, unidadPeso) => {
   const doc  = new jsPDF('p', 'mm', 'a4');
   const W    = 210;
-  const date = new Date().toLocaleDateString('es-ES');
+  const date = new Date().toLocaleDateString(locale === 'es' ? 'es-ES' : 'en-GB');
 
   doc.setFillColor(212, 175, 55);
   doc.rect(0, 0, W, 22, 'F');
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(13);
   doc.setTextColor(10, 10, 15);
-  doc.text('AURA Pets — Expediente Médico Digital', 105, 14, { align: 'center' });
+  doc.text(t('vaultPdf.header'), 105, 14, { align: 'center' });
 
   doc.setFillColor(10, 10, 15);
   doc.rect(0, 22, W, 8, 'F');
   doc.setFontSize(7);
   doc.setTextColor(180, 160, 80);
-  doc.text('EXCELENCIA · EXPEDIENTE MÉDICO PRIVADO · GENERADO: ' + date, 105, 27.5, { align: 'center' });
+  doc.text(t('vaultPdf.band', { fecha: date }), 105, 27.5, { align: 'center' });
 
   let y = 40;
 
   doc.setTextColor(60, 60, 60);
   doc.setFontSize(8);
   doc.setFont('helvetica', 'normal');
-  doc.text(`Titular: ${userEmail || 'No registrado'}`, 15, y);
+  doc.text(t('vaultPdf.holder', { correo: userEmail || t('vaultPdf.notRegistered') }), 15, y);
   y += 12;
 
   if (!pets.length) {
-    doc.text('No se han registrado mascotas.', 15, y);
+    doc.text(t('vaultPdf.noPets'), 15, y);
     doc.save('AURA_Expediente_Medico.pdf');
     return;
   }
@@ -71,7 +71,7 @@ const generateMedicalPDF = (pets, userEmail) => {
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(11);
     doc.setTextColor(212, 175, 55);
-    doc.text(`${pet.avatar || '🐾'} ${pet.name?.toUpperCase() || 'SIN NOMBRE'}`, 15, y + 7);
+    doc.text(`${pet.avatar || '🐾'} ${pet.name?.toUpperCase() || t('common.noName').toUpperCase()}`, 15, y + 7);
     y += 15;
 
     doc.setFont('helvetica', 'normal');
@@ -79,10 +79,10 @@ const generateMedicalPDF = (pets, userEmail) => {
     doc.setTextColor(50, 50, 50);
 
     const fields = [
-      ['Especie',   pet.speciesLabel || pet.species || '—'],
-      ['Edad',      pet.age || '—'],
-      ['Peso',      pet.weight ? `${pet.weight} kg` : '—'],
-      ['Microchip', pet.microchip || 'No registrado'],
+      [t('vaultPdf.fSpecies'),   pet.speciesLabel || pet.species || '—'],
+      [t('vaultPdf.fAge'),       pet.age || '—'],
+      [t('vaultPdf.fWeight'),    pet.weight ? `${pet.weight} ${unidadPeso}` : '—'],
+      [t('vaultPdf.fMicrochip'), pet.microchip || t('vaultPdf.notRegistered')],
     ];
     for (const [label, value] of fields) {
       doc.setFont('helvetica', 'bold');
@@ -100,14 +100,14 @@ const generateMedicalPDF = (pets, userEmail) => {
     y += 2;
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(212, 175, 55);
-    doc.text('Documentación Sanitaria', 15, y);
+    doc.text(t('vaultPdf.sectionDocs'), 15, y);
     y += 6;
     doc.setTextColor(50, 50, 50);
 
     const docs = [
-      ['Vacuna Antirrábica', rv.status === 'ok' ? (rv.expiry ? `Válida hasta ${rv.expiry}` : 'Completada') : 'Pendiente'],
-      ['Pasaporte Europeo',  ep.status === 'ok' ? (ep.number || 'Registrado') : 'Pendiente'],
-      ['Certificado Sanitario', hc.status === 'ok' ? 'Emitido' : 'Pendiente'],
+      [t('vaultPdf.rabies'),     rv.status === 'ok' ? (rv.expiry ? t('vaultPdf.validUntil', { fecha: rv.expiry }) : t('vaultPdf.completed')) : t('vaultPdf.pending')],
+      [t('vaultPdf.euPassport'), ep.status === 'ok' ? (ep.number || t('vaultPdf.registered')) : t('vaultPdf.pending')],
+      [t('vaultPdf.healthCert'), hc.status === 'ok' ? t('vaultPdf.issued') : t('vaultPdf.pending')],
     ];
     for (const [label, value] of docs) {
       doc.setFont('helvetica', 'bold');
@@ -122,7 +122,7 @@ const generateMedicalPDF = (pets, userEmail) => {
       y += 2;
       doc.setFont('helvetica', 'bold');
       doc.setTextColor(180, 0, 60);
-      doc.text('⚠ Alertas Médicas:', 15, y);
+      doc.text(t('vaultPdf.alerts'), 15, y);
       y += 6;
       doc.setFont('helvetica', 'normal');
       doc.setTextColor(50, 50, 50);
@@ -141,9 +141,9 @@ const generateMedicalPDF = (pets, userEmail) => {
 
   doc.setFontSize(7);
   doc.setTextColor(140, 140, 140);
-  doc.text(`AURA Pets · Documento generado el ${date} · Solo informativo`, 105, 288, { align: 'center' });
+  doc.text(t('vaultPdf.footer', { fecha: date }), 105, 288, { align: 'center' });
 
-  doc.save(`AURA_Expediente_${date.replace(/\//g, '-')}.pdf`);
+  doc.save(`${t('vaultPdf.fileName')}_${date.replace(/\//g, '-')}.pdf`);
 };
 
 /* ── Legal content — locale-aware ── */
@@ -573,7 +573,7 @@ const DestructionModal = ({ onConfirm, onClose, locale }) => {
 
 /* ════════════════ Main Component ════════════════ */
 const PrivacyVault = () => {
-  const { locale } = useTranslation();
+  const { locale, t, units } = useTranslation();
   const { user, logout } = useAuth();
   const es = locale === 'es';
 
@@ -603,7 +603,7 @@ const PrivacyVault = () => {
 
   const handleExportPDF = () => {
     const pets = getPets();
-    generateMedicalPDF(pets, user?.email);
+    generateMedicalPDF(pets, user?.email, t, locale, units);
   };
 
   const handleDestroy = () => {
