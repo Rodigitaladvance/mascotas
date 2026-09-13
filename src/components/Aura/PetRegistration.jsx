@@ -517,6 +517,7 @@ const PetRegistration = ({ onSave, onCancel }) => {
   const [basicData, setBasicData] = useState({ name: '', age: '', birthDate: '', weight: '', microchip: '', customPhoto: null });
   const [specificData, setSpecificData] = useState({});
   const carouselRef = useRef(null);
+  const nombreRef = useRef(null);
   const [canScrollLeft, setCanScrollLeft]   = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
 
@@ -569,9 +570,14 @@ const PetRegistration = ({ onSave, onCancel }) => {
     }
     if (!basicData.name?.trim()) {
       setSubTab('info');
+      /* Tras el cambio de pestaña: el campo aún no está montado en este ciclo. */
+      setTimeout(() => {
+        nombreRef.current?.focus();
+        nombreRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 60);
       setFalta(locale === 'es'
-        ? 'Falta el nombre del animal. Está en la pestaña «Info General», el primer campo.'
-        : 'The animal’s name is missing. It is in the “General Info” tab, the first field.');
+        ? 'Falta el nombre del animal: es el primer campo de esta pestaña. Lo que hayas escrito en la otra sigue guardado.'
+        : 'The animal’s name is missing: it is the first field on this tab. Anything you entered on the other tab is still there.');
       return;
     }
     setFalta('');
@@ -586,6 +592,18 @@ const PetRegistration = ({ onSave, onCancel }) => {
     };
     setSaved(true);
     onSave(newPet); // save immediately — don't wait for animation
+  };
+
+  /* Vaciar los campos propios solo si de verdad se cambia de especie. Pulsar
+     la que ya estaba elegida no es un cambio, y borrar lo escrito por eso es
+     la forma más rápida de perder diez minutos de trabajo ajeno. */
+  const elegirEspecie = (sp) => {
+    const cambia = selectedSpecies?.id !== sp.id;
+    setSelectedSpecies(sp);
+    if (cambia) setSpecificData({});
+    if (falta) setFalta('');
+    const tienePropios = ['horse', 'bird', 'rabbit', 'exotic', 'other'].includes(sp.id);
+    setSubTab(tienePropios ? 'specific' : 'info');
   };
 
   const specificTabLabel = () => {
@@ -677,7 +695,7 @@ const PetRegistration = ({ onSave, onCancel }) => {
               const isSelected = selectedSpecies?.id === sp.id;
               return sp.isOther ? (
                 <div key={sp.id}
-                  onClick={() => { setSelectedSpecies(sp); setSpecificData({}); setSubTab('specific'); }}
+                  onClick={() => elegirEspecie(sp)}
                   style={{
                     flexShrink: 0, width: 100, height: 100,
                     border: isSelected ? '2px solid var(--violet)' : '1px solid var(--border)',
@@ -697,12 +715,7 @@ const PetRegistration = ({ onSave, onCancel }) => {
               ) : (
                 <div key={sp.id}
                   className={`species-card${isSelected ? ' selected' : ''}`}
-                  onClick={() => {
-                    setSelectedSpecies(sp);
-                    setSpecificData({});
-                    const hasSpecific = ['horse','bird','rabbit','exotic'].includes(sp.id);
-                    setSubTab(hasSpecific ? 'specific' : 'info');
-                  }}
+                  onClick={() => elegirEspecie(sp)}
                 >
                   {sp.img ? (
                     <img
@@ -800,7 +813,7 @@ const PetRegistration = ({ onSave, onCancel }) => {
                   <div className="form-group">
                     <label className="input-label">{locale==='es'?'Nombre del Miembro':'Member Name'}</label>
                     <FieldWrap filled={!!basicData.name}>
-                      <input className="aura-input"
+                      <input className="aura-input" ref={nombreRef}
                         placeholder={locale==='es'?'Nombre de tu mascota':"Your pet's name"}
                         value={basicData.name}
                         onChange={e => { setBasicData({...basicData, name:e.target.value}); if (falta) setFalta(''); }} />
