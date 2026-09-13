@@ -617,7 +617,7 @@ const PetRegistration = ({ onSave, onCancel }) => {
         {locale==='es'?'Registro de Mascota':'Pet Registration'}
       </h1>
       <p style={{ textAlign:'center', color:'var(--aura-text-muted)', fontSize:'0.75rem', letterSpacing:'3px', marginBottom:'2.5rem' }}>
-        EXPEDIENTE MÉDICO DIGITAL
+        {t('common.brandFooter')}
       </p>
 
       {/* ── Species selector ── */}
@@ -877,7 +877,7 @@ const PetRegistration = ({ onSave, onCancel }) => {
 
       {/* ── Footer de marca ── */}
       <p style={{ textAlign:'center', fontSize:'0.58rem', letterSpacing:'1.5px', color:'var(--aura-text-muted)', margin:'0 0 1rem', opacity: 0.68 }}>
-        AURA PETS GLOBAL · EXPEDIENTE MÉDICO DIGITAL
+        AURA PETS GLOBAL · {t('common.brandFooter')}
       </p>
 
       {/* ── Actions ── */}

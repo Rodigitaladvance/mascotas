@@ -423,7 +423,7 @@ const SectionTitle = ({ children }) => (
    Props: pet, onSave(updatedPet), onDelete(), onClose
 ════════════════════════════════════════════ */
 const PetEditModal = ({ pet, onSave, onDelete, onClose }) => {
-  const { locale } = useTranslation();
+  const { locale, t, units } = useTranslation();
   const es = locale === 'es';
 
   const [tab, setTab]                       = useState('profile');
@@ -592,7 +592,7 @@ const PetEditModal = ({ pet, onSave, onDelete, onClose }) => {
                 </Field>
                 <Field label={es?'Peso (kg)':'Weight (kg)'}>
                   <input type="number" step="0.1" className="aura-input" value={weight}
-                    onChange={e => setWeight(e.target.value)} placeholder="kg" />
+                    onChange={e => setWeight(e.target.value)} placeholder={units} />
                 </Field>
               </div>
 

@@ -22,11 +22,11 @@ import PawPrint from './components/Aura/PawPrint';
 
 /* ── Desktop tab definitions ── */
 const NAV_TABS = [
-  { id: 'dashboard', path: '/dashboard', iconD: LayoutDashboard, label: 'INICIO'     },
-  { id: 'passport',  path: '/passport',  iconD: Globe,           label: 'PASAPORTE'  },
-  { id: 'add',       path: '/registro',  iconD: PlusCircle,      label: 'AÑADIR', isCTA: true },
-  { id: 'privacy',   path: '/privacy',   iconD: ShieldCheck,     label: 'SEGURIDAD'  },
-  { id: 'settings',  path: '/settings',  iconD: Settings,        label: 'AJUSTES'    },
+  { id: 'dashboard', path: '/dashboard', iconD: LayoutDashboard, k: 'nav.home'     },
+  { id: 'passport',  path: '/passport',  iconD: Globe,           k: 'nav.passport' },
+  { id: 'add',       path: '/registro',  iconD: PlusCircle,      k: 'nav.add', isCTA: true },
+  { id: 'privacy',   path: '/privacy',   iconD: ShieldCheck,     k: 'nav.security' },
+  { id: 'settings',  path: '/settings',  iconD: Settings,        k: 'nav.settings' },
 ];
 
 /* ── Mobile-only tab definitions (5 max, SOS as center CTA) ── */
@@ -53,7 +53,7 @@ const LangToggle = () => {
         <button key={l} onClick={() => setManualConfig(l)}
           style={{
             background: locale === l ? 'var(--aura-gold)' : 'transparent',
-            color:      locale === l ? 'var(--aura-black)' : 'var(--aura-text-muted)',
+            color:      locale === l ? 'var(--ink-strong)' : 'var(--aura-text-muted)',
             border: 'none', cursor: 'pointer', padding: '0.3rem 0.6rem',
             fontSize: '0.62rem', fontWeight: 700, letterSpacing: '1px',
             borderRadius: 3, transition: 'all 0.25s', textTransform: 'uppercase',
@@ -160,7 +160,7 @@ const AppContent = () => {
       ...newPet,
       id: Date.now(),
       userId: user.id,
-      emergencyConfig: { active: true, medicalAlerts: '', contacts: [{ name: 'Dueño', phone: '' }] },
+      emergencyConfig: { active: true, medicalAlerts: '', contacts: [{ name: t('nav.defaultOwner'), phone: '' }] },
     };
     // Solo se refleja en pantalla si el cifrado y la escritura han ido bien:
     // antes, un fallo de cuota dejaba la mascota visible pero sin guardar.
@@ -283,20 +283,20 @@ const AppContent = () => {
       {/* ── Desktop top nav ── */}
       <nav className="aura-nav">
         <div style={{ display: 'flex', alignItems: 'center', gap: '1.2rem' }}>
-          <img src={logo} alt="AURA Pets" className="aura-pulse-logo"
+          <img src={logo} className="aura-pulse-logo"
                style={{ height: 42, borderRadius: '50%', objectFit: 'contain',
                         border: '1px solid var(--aura-gold-muted)',
                         filter: 'drop-shadow(0 0 10px rgba(217, 164, 65, 0.35))' }}
                alt="AURA Pets Global" />
           <div style={{ width: 1, height: 24, background: 'var(--aura-border)' }} />
           <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <span style={{ fontSize: '0.62rem', letterSpacing: '4px', color: 'var(--gold-ink)', fontWeight: 700 }}>EXCELENCIA</span>
-            <span style={{ fontSize: '0.72rem', letterSpacing: '2px', opacity: 0.68 }}>EXPEDIENTE MÉDICO</span>
+            <span style={{ fontSize: '0.62rem', letterSpacing: '4px', color: 'var(--gold-ink)', fontWeight: 700 }}>{t('nav.brandLine1')}</span>
+            <span style={{ fontSize: '0.72rem', letterSpacing: '2px', opacity: 0.68 }}>{t('nav.brandLine2')}</span>
           </div>
         </div>
 
         <div style={{ display: 'flex', gap: '0.25rem', alignItems: 'center' }}>
-          {NAV_TABS.map(({ id, path, iconD: Icon, label, isCTA }) => {
+          {NAV_TABS.map(({ id, path, iconD: Icon, k, isCTA }) => {
             const isActive = activeId === id;
             return (
               <button key={id} onClick={() => navigate(path)}
@@ -318,7 +318,7 @@ const AppContent = () => {
               >
                 <Icon size={20} />
                 <span style={{ fontSize: '9px', letterSpacing: '0.8px', fontWeight: 600, lineHeight: 1 }}>
-                  {label}
+                  {t(k)}
                 </span>
               </button>
             );
@@ -341,7 +341,7 @@ const AppContent = () => {
             onMouseLeave={e => { e.currentTarget.style.background = 'rgba(226,75,74,0.1)'; }}
           >
             <ShieldAlert size={20} />
-            <span style={{ fontSize: '9px', letterSpacing: '0.8px', fontWeight: 600, lineHeight: 1 }}>SOS</span>
+            <span style={{ fontSize: '9px', letterSpacing: '0.8px', fontWeight: 600, lineHeight: 1 }}>{t('nav.sos')}</span>
           </button>
 
           <div style={{ width: 1, height: 32, background: 'var(--aura-border)', margin: '0 0.15rem' }} />
@@ -363,7 +363,7 @@ const AppContent = () => {
             onMouseLeave={e => { e.currentTarget.style.opacity = '0.7'; e.currentTarget.style.color = '#8B5CF6'; }}
           >
             <LogOut size={20} />
-            <span style={{ fontSize: '9px', letterSpacing: '0.8px', fontWeight: 600, lineHeight: 1 }}>SALIR</span>
+            <span style={{ fontSize: '9px', letterSpacing: '0.8px', fontWeight: 600, lineHeight: 1 }}>{t('nav.logout')}</span>
           </button>
         </div>
       </nav>

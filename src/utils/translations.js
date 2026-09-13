@@ -21,6 +21,21 @@ export const translations = {
       next: "Siguiente",
       settings: "Ajustes",
       noName: "Sin nombre",
+      encrypted: "CIFRADO ACTIVO",
+      brandFooter: "EXPEDIENTE MÉDICO DIGITAL",
+    },
+
+    nav: {
+      home: "INICIO",
+      passport: "PASAPORTE",
+      add: "AÑADIR",
+      security: "SEGURIDAD",
+      settings: "AJUSTES",
+      sos: "SOS",
+      logout: "SALIR",
+      brandLine1: "EXCELENCIA",
+      brandLine2: "EXPEDIENTE MÉDICO",
+      defaultOwner: "Dueño",
     },
 
     auth: {
@@ -270,6 +285,7 @@ export const translations = {
 
     dashboard: {
       globalImmunity: "Pasaporte de vacunación",
+      historySubtitle: "Vacunas · Visitas · Medicación",
       cardio: "Historial de rendimiento",
       reportBtn: "Ver reporte veterinario completo",
     },
@@ -298,6 +314,21 @@ export const translations = {
       next: "Next",
       settings: "Settings",
       noName: "Unnamed",
+      encrypted: "ENCRYPTION ACTIVE",
+      brandFooter: "DIGITAL MEDICAL RECORD",
+    },
+
+    nav: {
+      home: "HOME",
+      passport: "PASSPORT",
+      add: "ADD",
+      security: "SECURITY",
+      settings: "SETTINGS",
+      sos: "SOS",
+      logout: "SIGN OUT",
+      brandLine1: "EXCELLENCE",
+      brandLine2: "MEDICAL RECORD",
+      defaultOwner: "Owner",
     },
 
     auth: {
@@ -547,6 +578,7 @@ export const translations = {
 
     dashboard: {
       globalImmunity: "Vaccination passport",
+      historySubtitle: "Vaccinations · Visits · Medication",
       cardio: "Performance history",
       reportBtn: "View full veterinary report",
     },

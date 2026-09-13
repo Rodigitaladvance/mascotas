@@ -167,9 +167,9 @@ const Dashboard = ({ pets, activePetId, onActivePetChange, onAddPet, onSelectPet
     return (
       <div className="aura-card" style={{ display: 'flex', gap: '2rem', justifyContent: 'center', flexWrap: 'wrap' }}>
         <div style={{ textAlign: 'center' }}>
-          <p style={{ fontSize: '0.7rem', letterSpacing: '2px', opacity: 0.68 }}>EXPEDIENTE MÉDICO</p>
+          <p style={{ fontSize: '0.7rem', letterSpacing: '2px', opacity: 0.68 }}>{t('nav.brandLine2')}</p>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.5rem' }}>
-            <Shield color="var(--aura-gold)" size={18} /> <span style={{ fontWeight: 600 }}>CIFRADO ACTIVO</span>
+            <Shield color="var(--aura-gold)" size={18} /> <span style={{ fontWeight: 600 }}>{t('common.encrypted')}</span>
           </div>
         </div>
         <div style={{ textAlign: 'center' }}>
@@ -537,7 +537,7 @@ const Dashboard = ({ pets, activePetId, onActivePetChange, onAddPet, onSelectPet
               bgColor="rgba(217, 164, 65, 0.06)"
               borderColor="rgba(217, 164, 65, 0.25)"
               title={es ? 'Historial Médico' : 'Medical History'}
-              subtitle="Vacunas · Visitas · Medicación"
+              subtitle={t('dashboard.historySubtitle')}
               onClick={() => setShowMedicalHistory(true)}
             />
           </div>
