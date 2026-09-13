@@ -543,12 +543,18 @@ const buildRabbitRequirements = (pet, countryId, locale, origen = 'ES') => {
         detail: es
           ? 'Los requisitos dependen del país de salida y del número de animales: confírmalos con la oficina del CFIA antes de mover nada'
           : 'Requirements depend on the country of departure and the number of animals: confirm with the CFIA office before arranging anything' },
-      { icon: 'vet', id: 'cuarentena-ca-conejo', manual: true,
-        label: es ? 'Cuarentena a partir de 3 animales' : 'Quarantine from three animals up',
+      { icon: 'doc', id: 'airs-ca-conejo', manual: true,
+        label: es ? 'Consultar AIRS antes de nada' : 'Check AIRS before anything else',
         status: 'pending',
         detail: es
-          ? 'Con más de dos conejos se exige cuarentena de 21 días y reconocimiento veterinario en los 5 días previos a la salida'
-          : 'With more than two rabbits, a 21-day quarantine and a veterinary examination within 5 days before departure are required' },
+          ? 'El CFIA no publica una política de importación para conejos: los requisitos por especie y país de salida están en su sistema AIRS. Míralos ahí antes de comprar billetes'
+          : 'The CFIA publishes no import policy for rabbits: the requirements by species and country of departure live in its AIRS system. Look them up there before buying tickets' },
+      { icon: 'vet', info: true,
+        label: es ? 'Inspección en frontera' : 'Inspection at the border',
+        status: 'ok',
+        detail: es
+          ? 'Si AIRS la exige, hay que pedir cita con 24 horas de antelación a la llegada'
+          : 'If AIRS requires one, the appointment must be booked 24 hours before arrival' },
       mixomatosis, rhd,
       sanitario,
     ];
@@ -643,7 +649,31 @@ const buildExoticRequirements = (pet, countryId, locale, origen = 'ES') => {
 
   switch (countryId) {
     case 'ES': return [especie, cites, identificacion, fueraDelReglamento, sanitario];
-    case 'UK': return [especie, cites, identificacion, fueraDelReglamento, permiso('APHA'), sanitario];
+    case 'UK': return [
+      especie, cites, identificacion,
+      { icon: 'doc', info: true, label: es ? 'Sí entran como mascota' : 'They do enter as pets', status: 'ok',
+        detail: es
+          ? 'Reino Unido los admite sin licencia de importación, sin certificado sanitario y sin pasar por Puesto de Control Fronterizo'
+          : 'Great Britain admits them with no import licence, no health certificate and no Border Control Post' },
+      { icon: 'doc', id: 'declaracion-uk-reptil', manual: true,
+        label: es ? 'Declaración firmada del propietario' : 'Signed owner declaration',
+        status: 'pending',
+        detail: es
+          ? 'Debe decir que el animal está sano para hacer el viaje y que no va destinado a la venta. Es lo único que se exige en la frontera'
+          : 'It must state that the animal is fit and healthy to complete the journey and is not for sale. It is the only thing required at the border' },
+      { icon: 'doc', id: 'invasora-uk', manual: true,
+        label: es ? 'Comprobar que no es especie invasora' : 'Check it is not an invasive species',
+        status: 'alert',
+        detail: es
+          ? 'La lista de especies exóticas invasoras prohíbe la entrada por completo, y alcanza a tortugas tan comunes como la de orejas rojas (Trachemys scripta)'
+          : 'The invasive alien species list bans entry outright, and it covers turtles as common as the red-eared slider (Trachemys scripta)' },
+      { icon: 'vet', info: true,
+        label: es ? 'Salamandras y tritones van aparte' : 'Salamanders and newts go separately',
+        status: 'alert',
+        detail: es
+          ? 'Los urodelos quedan fuera de esta vía por el hongo Bsal: necesitan certificado sanitario específico'
+          : 'Urodeles are excluded from this route because of the Bsal fungus: they need specific health certification' },
+    ];
     case 'US': return [especie, cites, identificacion, fueraDelReglamento,
       { icon: 'doc', id: 'declaracion-3177', manual: true, label: es ? 'Declaración USFWS · formulario 3-177' : 'USFWS declaration · form 3-177',
         status: 'pending',
@@ -656,7 +686,37 @@ const buildExoticRequirements = (pet, countryId, locale, origen = 'ES') => {
           ? 'Entrada solo por un puerto designado del USFWS, con aviso de llegada 48 horas antes por tratarse de animal vivo'
           : 'Entry only through a designated USFWS port, with 48 hours’ notice of arrival because the animal is alive' },
       sanitario];
-    case 'CA': return [especie, cites, identificacion, fueraDelReglamento, permiso('CFIA / ECCC'), sanitario];
+    case 'CA': return [
+      especie, cites, identificacion,
+      { ...fueraDelReglamento,
+        detail: es
+          ? 'Para el CFIA solo son mascotas los perros, gatos y hurones'
+          : 'For the CFIA only dogs, cats and ferrets count as pets' },
+      { icon: 'doc', id: 'permiso-ca-tortuga', manual: true,
+        label: es ? 'Tortugas: permiso obligatorio · CFIA' : 'Turtles and tortoises: permit required · CFIA',
+        status: 'pending',
+        detail: es
+          ? 'Las tortugas, de tierra y de agua, solo entran con permiso del ministro. El resto de reptiles no tiene esa regla nominal'
+          : 'Turtles and tortoises enter only under a ministerial permit. Other reptiles have no such named rule' },
+      { icon: 'doc', id: 'airs-ca-reptil', manual: true,
+        label: es ? 'Consultar AIRS antes de nada' : 'Check AIRS before anything else',
+        status: 'pending',
+        detail: es
+          ? 'Los demás reptiles caen en «otros animales no especificados»: o permiso, o que un inspector se dé por satisfecho. Los requisitos por especie están en AIRS'
+          : 'Other reptiles fall under “other animals not elsewhere specified”: either a permit, or an inspector satisfied there is no risk. The requirements by species live in AIRS' },
+      { icon: 'doc', id: 'cites-eccc', manual: true,
+        label: es ? 'CITES lo emite ECCC, no el CFIA' : 'CITES is issued by ECCC, not the CFIA',
+        status: 'pending',
+        detail: es
+          ? 'Son dos trámites separados y en dos organismos distintos. Tener uno no te libra del otro'
+          : 'They are two separate procedures at two different bodies. Having one does not cover the other' },
+      { icon: 'vet', info: true,
+        label: es ? 'Inspección en frontera' : 'Inspection at the border',
+        status: 'ok',
+        detail: es
+          ? 'Si AIRS la exige, hay que pedir cita con 24 horas de antelación a la llegada'
+          : 'If AIRS requires one, the appointment must be booked 24 hours before arrival' },
+    ];
     case 'AU': return [especie, cites, identificacion,
       { icon: 'doc', info: true, label: es ? 'Entrada muy restringida' : 'Entry heavily restricted', status: 'alert',
         detail: es

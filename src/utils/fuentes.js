@@ -14,7 +14,7 @@
  */
 
 /** Última vez que las listas se contrastaron contra las webs oficiales. */
-export const FECHA_REVISION = '2026-09-11';
+export const FECHA_REVISION = '2026-09-13';
 
 /** Organismo competente por país. */
 const ORGANISMO = {
@@ -36,16 +36,20 @@ const COMPANIA = {
 
 /* Équidos: normativa de sanidad animal, no la de mascotas. */
 const EQUINOS = {
-  ES: 'https://food.ec.europa.eu/animals/live-animal-movements/equidae_en',
+  ES: 'https://food.ec.europa.eu/animals/live-animal-movements/equine-animals_en',
   UK: 'https://www.gov.uk/guidance/export-horses-and-ponies-special-rules',
   US: 'https://www.aphis.usda.gov/live-animal-import/equine',
   CA: 'https://inspection.canada.ca/en/animal-health/terrestrial-animals/imports',
   AU: 'https://bicon.agriculture.gov.au/',
 };
 
-/* Aves: sanidad aviar y, casi siempre, CITES por encima. */
+/* Aves: sanidad aviar y, casi siempre, CITES por encima.
+   Para España va la fuente nacional y no la europea: la Comisión solo publica
+   reglas de mascota para perros, gatos y hurones, y remite a la norma de cada
+   país para las aves. Su página de aves cautivas es de comercio, no de
+   mascotas, y llevaría al usuario a un trámite que no le toca hacer. */
 const AVES = {
-  ES: 'https://food.ec.europa.eu/animals/live-animal-movements/pet-birds_en',
+  ES: 'https://www.mapa.gob.es/es/ganaderia/temas/comercio-exterior-ganadero/',
   UK: 'https://www.gov.uk/government/publications/birds-and-poultry-live-and-products-import-information-notes/import-of-pet-birds-import-information-note-iin-pbtc2',
   US: 'https://www.aphis.usda.gov/pet-travel/another-country-to-us-import/birds',
   CA: 'https://inspection.canada.ca/en/animal-health/terrestrial-animals/imports/import-policies/live-animals/2011-8',
@@ -57,7 +61,18 @@ const OTROS = {
   ES: 'https://www.mapa.gob.es/es/ganaderia/temas/comercio-exterior-ganadero/',
   UK: 'https://www.gov.uk/government/publications/live-animals-not-pet-dogs-cats-ferrets-application-for-import-licence',
   US: 'https://www.fws.gov/program/office-of-law-enforcement/information-importers-exporters',
-  CA: 'https://inspection.canada.ca/en/importing-food-plants-animals/pets',
+  CA: 'https://inspection.canada.ca/en/importing-food-plants-animals/airs',
+  AU: 'https://www.agriculture.gov.au/biosecurity-trade/travelling/bringing-mailing-goods/unique-exotic-pets',
+};
+
+/* Los reptiles no siguen el mismo camino que los conejos: en Reino Unido
+   entran por la nota de importación de mascotas, sin licencia, y en Canadá
+   los requisitos por especie viven en AIRS. */
+const REPTILES = {
+  ES: 'https://www.mapa.gob.es/es/ganaderia/temas/comercio-exterior-ganadero/',
+  UK: 'https://www.gov.uk/government/publications/invertebrates-amphibians-or-reptiles-live-or-germinal-products-import-information-notes/import-of-pet-invertebrates-other-than-bees-molluscs-and-crustaceans-amphibians-except-salamanders-and-reptiles-import-information-note-iin',
+  US: 'https://www.fws.gov/program/office-of-law-enforcement/information-importers-exporters',
+  CA: 'https://inspection.canada.ca/en/importing-food-plants-animals/airs',
   AU: 'https://www.agriculture.gov.au/biosecurity-trade/travelling/bringing-mailing-goods/unique-exotic-pets',
 };
 
@@ -65,7 +80,7 @@ const POR_ESPECIE = {
   dog: COMPANIA, cat: COMPANIA, ferret: COMPANIA,
   horse: EQUINOS,
   bird: AVES,
-  rabbit: OTROS, exotic: OTROS, other: OTROS,
+  rabbit: OTROS, exotic: REPTILES, other: OTROS,
 };
 
 /**

@@ -1,10 +1,10 @@
 # Revisión de requisitos frente a fuentes oficiales
 
-**Fecha de la revisión:** 11 de septiembre de 2026
+**Fecha de la revisión:** 13 de septiembre de 2026 (cuarta pasada)
 **Alcance:** requisitos de entrada para perros, gatos, équidos, aves, conejos y
 reptiles en los cinco países de la app (ES, UK, US, CA, AU), más los protocolos
 de vacunación que calculan el nivel de protección.
-**Estado:** las 26 correcciones están aplicadas en el código.
+**Estado:** las 30 correcciones están aplicadas en el código.
 
 Este documento es el registro de qué se comprobó, contra qué fuente y qué se
 corrigió. Sirve como respaldo de las listas: cualquiera puede seguir los enlaces
@@ -367,3 +367,119 @@ Estas son las URLs que deberían acompañar a cada bloque de requisitos en la ap
 España pertenece al **Grupo 3** de Australia, igual que Reino Unido.
 Ninguno de los cinco países figura en la lista de alto riesgo de rabia canina de
 los CDC.
+
+---
+
+## Cuarta pasada: lo que quedó a medias — 13 de septiembre de 2026
+
+Las tres pasadas anteriores dejaron dos huecos reconocidos: reptiles hacia Reino
+Unido y Canadá, verificados solo en parte, y conejos a Canadá, donde la
+documentación pública del CFIA no era concluyente. Se cierran aquí, y en el
+camino aparece un error propio.
+
+### 27. Reino Unido — la app exigía un permiso que no existe
+
+**Decía:** licencia de importación de la APHA, certificado sanitario oficial, y
+el aviso de que los reptiles «no viajan como animales de compañía».
+
+**Dice la fuente:** las tres cosas son falsas para Gran Bretaña. La nota de
+importación **IIN BLLV/8** admite reptiles de compañía sin licencia, sin
+certificado sanitario y sin pasar por Puesto de Control Fronterizo. Textual:
+*«They do not need to be accompanied by a health certificate or undergo
+veterinary checks on entry into GB»* y *«do not need to be imported via a
+Border Control Post»*.
+
+**Lo único que se exige** es una declaración firmada del propietario diciendo
+que el animal está sano para hacer el viaje y que no va destinado a la venta.
+
+Era el error más caro de los tres: mandaba al usuario a tramitar una licencia
+que nadie le va a pedir.
+
+### 28. Reino Unido — faltaba la prohibición que sí puede parar el viaje
+
+La lista de **especies exóticas invasoras** prohíbe la entrada por completo, sin
+permiso posible. Alcanza a la tortuga de orejas rojas (*Trachemys scripta*), que
+es de las más comunes como mascota. La app no la mencionaba.
+
+También faltaba que **las salamandras y los tritones quedan fuera de esa vía**
+por el hongo *Bsal*: necesitan certificación sanitaria específica bajo la
+Decisión (UE) 2018/320.
+
+### 29. Canadá — la tortuga no va por el mismo camino que el resto
+
+**Decía:** «permiso de importación · CFIA / ECCC», sin más.
+
+**Dice la fuente:** el documento de referencia de importación separa dos casos.
+Las tortugas, de tierra y de agua, solo entran con permiso del ministro
+(apartado 22). El resto de reptiles cae en «otros animales no especificados»
+(apartado 25): o permiso, o que un inspector se dé por satisfecho de que no hay
+riesgo de enfermedad transmisible.
+
+Además, **CITES lo emite ECCC y no el CFIA**: son dos trámites separados en dos
+organismos distintos, y la app los presentaba como uno.
+
+### 30. Conejos a Canadá — un dato que estaba mal, y era mío
+
+**Decía:** a partir de tres conejos, cuarentena de 21 días y reconocimiento
+veterinario en los 5 días previos a la salida.
+
+**Dice la fuente:** ese requisito existe, pero es el de **exportar desde Canadá
+a la Unión Económica Euroasiática** —Rusia, Bielorrusia, Kazajistán, Armenia y
+Kirguistán—. Dirección equivocada y destino equivocado. Lo introduje yo en la
+tercera pasada, al tomar por requisito de entrada lo que era un certificado de
+salida.
+
+**Lo que sí consta:** el CFIA no publica ninguna política de importación para
+lagomorfos. No aparecen ni en el documento de referencia de importación ni en la
+lista de políticas por especie. Los requisitos reales viven en **AIRS**, su
+sistema de consulta, y dependen de la especie y del país de salida. La app dice
+ahora eso: dónde mirar, y que hay que mirarlo antes de comprar billetes.
+
+Es la misma clase de error que la «Actualización Política Garrapatas 2025» del
+hallazgo 5: un requisito con aspecto verosímil, atribuido a un organismo real,
+que nadie exige. Conviene anotarlo: en esta materia lo fácil no es equivocarse
+de dato, es equivocarse de documento.
+
+### Enlaces que se habían movido
+
+Al montar la comprobación automática (`npm run normativa`) salieron dos fuentes
+con 404, y las dos iban impresas en los PDF que el usuario lleva a la frontera:
+
+| Iba a | Está en |
+|---|---|
+| `food.ec.europa.eu/.../equidae_en` | `food.ec.europa.eu/.../equine-animals_en` |
+| `food.ec.europa.eu/.../pet-birds_en` | ya no existe |
+
+Para las aves no hay sustituto europeo: la Comisión solo publica reglas de
+mascota para perros, gatos y hurones, y remite a la norma de cada país para las
+demás especies. Su página de «aves cautivas» es de comercio, no de mascotas, y
+llevaría al usuario a un trámite que no le toca hacer. Se pasa a la fuente
+nacional (MAPA).
+
+---
+
+## Fuentes de esta pasada
+
+| Ámbito | Organismo | Fuente |
+|---|---|---|
+| Reptiles de compañía a Gran Bretaña | APHA · IIN BLLV/8 | https://www.gov.uk/government/publications/invertebrates-amphibians-or-reptiles-live-or-germinal-products-import-information-notes/import-of-pet-invertebrates-other-than-bees-molluscs-and-crustaceans-amphibians-except-salamanders-and-reptiles-import-information-note-iin |
+| Animales a Canadá, documento de referencia | CFIA | https://inspection.canada.ca/en/animal-health/terrestrial-animals/imports/import-policies/general/reference-document |
+| Políticas de importación por especie | CFIA | https://inspection.canada.ca/en/animal-health/terrestrial-animals/imports/import-policies/live-animals |
+| Requisitos por especie y origen | CFIA · AIRS | https://inspection.canada.ca/en/importing-food-plants-animals/airs |
+| Exportación a la Unión Económica Euroasiática | CFIA | https://inspection.canada.ca/en/animal-health/terrestrial-animals/exports/pets/eurasian-economic-union |
+| Équidos en la UE | Comisión Europea | https://food.ec.europa.eu/animals/live-animal-movements/equine-animals_en |
+
+---
+
+## Cómo mantener esto vivo
+
+Dos comprobaciones, ambas en un segundo:
+
+```
+npm run normativa    # avisa a los 6 meses y detecta enlaces movidos
+npm run i18n         # que nada quede sin traducir
+```
+
+La primera es la que importa aquí: las normas de importación cambian, y las
+páginas de los ministerios se mueven de sitio sin avisar. Un enlace roto en el
+PDF que alguien lleva a la frontera es peor que no haberlo puesto.
