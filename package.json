@@ -10,6 +10,7 @@
     "i18n": "node scripts/comprobar-traducciones.mjs",
     "normativa": "node scripts/comprobar-normativa.mjs",
     "castellano": "node scripts/buscar-castellano.mjs",
+    "probar": "node scripts/probar-vacunas.mjs",
     "preview": "vite preview"
   },
   "dependencies": {

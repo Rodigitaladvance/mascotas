@@ -182,6 +182,38 @@ const MedicalHistory = ({ pet, onClose }) => {
 
   const f = (key) => (e) => setForm((p) => ({ ...p, [key]: e.target.value }));
 
+  /* ── El nombre y la fecha de la vacuna proponen la próxima dosis ──────────
+     Dos cosas que hay que hacer con cuidado, y las dos fallaban.
+
+     La primera: el cálculo va DENTRO del actualizador y parte de `prev`. Fuera
+     usaba el nombre o la fecha del render anterior, así que dos cambios
+     seguidos se pisaban entre sí.
+
+     La segunda es la que rompía de verdad. La marca «esta fecha la puse yo»
+     se apagaba cada vez que la sugerencia no se podía calcular en ese
+     instante, y eso pasa en cada tecla mientras se escribe el nombre: con
+     «trivalent» a medias no hay protocolo que valga. Desde ese momento la
+     aplicación creía que la fecha la había escrito el usuario y dejaba de
+     actualizarla, de modo que una fecha calculada con un año equivocado se
+     quedaba clavada aunque después se corrigiera el año.
+
+     La marca solo se apaga en un sitio: cuando el usuario toca el campo de la
+     próxima dosis con su propia mano. Que es lo que significa. */
+  const proponerProxima = (campo) => (e) => {
+    const valor = e.target.value;
+    setForm(prev => {
+      const siguiente = { ...prev, [campo]: valor };
+      /* Nunca se pisa una fecha escrita a mano. */
+      if (prev.nextDose && !prev.nextDoseSugerida) return siguiente;
+      const sug = sugerirProximaDosis(pet?.species, siguiente.name, siguiente.date);
+      return {
+        ...siguiente,
+        nextDose: sug?.fecha || prev.nextDose,
+        nextDoseSugerida: sug?.fecha ? true : prev.nextDoseSugerida,
+      };
+    });
+  };
+
   const openForm = () => {
     const empties = { visits: EMPTY_VISIT, vaccines: EMPTY_VACCINE, medications: EMPTY_MED, analyses: EMPTY_ANALYSIS };
     setForm({ ...empties[tab] });
@@ -360,32 +392,12 @@ const MedicalHistory = ({ pet, onClose }) => {
       <div style={formWrap}>
         <div style={grid2}>
           <Field label={t('history.fVaccineName')} type="text" placeholder={t('history.pVaccine')} value={form.name}
-            onChange={(e) => {
-              const nombre = e.target.value;
-              const sug = sugerirProximaDosis(pet?.species, nombre, form.date);
-              setForm(prev => ({
-                ...prev,
-                name: nombre,
-                nextDose: (!prev.nextDose || prev.nextDoseSugerida) ? (sug?.fecha || prev.nextDose) : prev.nextDose,
-                nextDoseSugerida: (!prev.nextDose || prev.nextDoseSugerida) && !!sug?.fecha,
-              }));
-            }} />
+            onChange={proponerProxima('name')} />
           <Field label={t('history.fVet')} type="text" placeholder={t('history.pVet')} value={form.vet} onChange={f('vet')} />
         </div>
         <div style={grid2}>
           <Field label={t('history.fAdminDate')} type="date" value={form.date}
-            onChange={(e) => {
-              const fecha = e.target.value;
-              const sug = sugerirProximaDosis(pet?.species, form.name, fecha);
-              /* Solo se rellena si el campo está vacío o si lo que hay lo puso
-                 una sugerencia anterior: nunca se pisa una fecha escrita a mano. */
-              setForm(prev => ({
-                ...prev,
-                date: fecha,
-                nextDose: (!prev.nextDose || prev.nextDoseSugerida) ? (sug?.fecha || prev.nextDose) : prev.nextDose,
-                nextDoseSugerida: (!prev.nextDose || prev.nextDoseSugerida) && !!sug?.fecha,
-              }));
-            }} />
+            onChange={proponerProxima('date')} />
           <Field label={t('history.fNextDose')} type="date" value={form.nextDose}
             onChange={(e) => setForm(prev => ({ ...prev, nextDose: e.target.value, nextDoseSugerida: false }))} />
         </div>
