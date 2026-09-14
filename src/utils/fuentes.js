@@ -43,19 +43,6 @@ const EQUINOS = {
   AU: 'https://bicon.agriculture.gov.au/',
 };
 
-/* Aves: sanidad aviar y, casi siempre, CITES por encima.
-   Para España va la fuente nacional y no la europea: la Comisión solo publica
-   reglas de mascota para perros, gatos y hurones, y remite a la norma de cada
-   país para las aves. Su página de aves cautivas es de comercio, no de
-   mascotas, y llevaría al usuario a un trámite que no le toca hacer. */
-const AVES = {
-  ES: 'https://www.mapa.gob.es/es/ganaderia/temas/comercio-exterior-ganadero/',
-  UK: 'https://www.gov.uk/government/publications/birds-and-poultry-live-and-products-import-information-notes/import-of-pet-birds-import-information-note-iin-pbtc2',
-  US: 'https://www.aphis.usda.gov/pet-travel/another-country-to-us-import/birds',
-  CA: 'https://inspection.canada.ca/en/animal-health/terrestrial-animals/imports/import-policies/live-animals/2011-8',
-  AU: 'https://bicon.agriculture.gov.au/',
-};
-
 /* Conejos, reptiles y todo lo demás: norma nacional, muy variable. */
 const OTROS = {
   ES: 'https://www.mapa.gob.es/es/ganaderia/temas/comercio-exterior-ganadero/',
@@ -79,7 +66,6 @@ const REPTILES = {
 const POR_ESPECIE = {
   dog: COMPANIA, cat: COMPANIA, ferret: COMPANIA,
   horse: EQUINOS,
-  bird: AVES,
   rabbit: OTROS, exotic: REPTILES, other: OTROS,
 };
 
@@ -109,10 +95,10 @@ export const nivelRiesgo = (species, countryId, origen = 'ES') => {
   const esCompania = species === 'dog' || species === 'cat' || species === 'ferret';
 
   /* Hay trayectos que no son difíciles: son imposibles, y merecen decirlo con
-     otra palabra. Australia solo admite aves y conejos procedentes de Nueva
-     Zelanda, que no es ninguno de los orígenes que maneja la aplicación. Un
-     aviso de «plazos largos» invitaría a empezar a reunir papeles. */
-  if (countryId === 'AU' && (species === 'bird' || species === 'rabbit')) return 'prohibido';
+     otra palabra. Australia solo admite conejos procedentes de Nueva Zelanda,
+     que no es ninguno de los orígenes que maneja la aplicación. Un aviso de
+     «plazos largos» invitaría a empezar a reunir papeles. */
+  if (countryId === 'AU' && species === 'rabbit') return 'prohibido';
 
   /* Australia impone cuarentena y permiso previo a todo lo demás que esté vivo. */
   if (countryId === 'AU') return 'rojo';

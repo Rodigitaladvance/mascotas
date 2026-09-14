@@ -13,7 +13,6 @@ const PALETA = {
   dog:    { base: '#E8944A', nombre: 'ámbar'     },
   cat:    { base: '#B565D8', nombre: 'violeta'   },
   horse:  { base: '#3BBFA9', nombre: 'verde mar' },
-  bird:   { base: '#3FC1C9', nombre: 'turquesa'  },
   rabbit: { base: '#E87A9A', nombre: 'rosa'      },
   ferret: { base: '#C98B6B', nombre: 'canela'    },
   exotic: { base: '#7FB84F', nombre: 'verde hoja' },

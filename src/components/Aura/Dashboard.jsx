@@ -134,36 +134,6 @@ const Dashboard = ({ pets, activePetId, onActivePetChange, onAddPet, onSelectPet
       </div>
     );
 
-    if (sid === 'bird') {
-      const sp = pet.specific || {};
-      const cites = sp.citesAppendix && sp.citesAppendix !== 'no'
-        ? `${es ? 'Apéndice' : 'Appendix'} ${sp.citesAppendix}`
-        : sp.citesAppendix === 'no'
-          ? (es ? 'No listada' : 'Not listed')
-          : '—';
-      return (
-        <div className="aura-card" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '2rem', textAlign: 'center' }}>
-          {[
-            { label: es ? 'Identificación' : 'Identification',
-              value: sp.ringing || '—',
-              nota: sp.idType || '' },
-            { label: es ? 'Especie' : 'Species',
-              value: sp.scientificName || '—',
-              nota: es ? 'Nombre científico' : 'Scientific name' },
-            { label: 'CITES',
-              value: cites,
-              nota: sp.citesNumber || '' },
-          ].map(({ label, value, nota }) => (
-            <div key={label}>
-              <p style={{ fontSize: '0.7rem', letterSpacing: '2px', opacity: 0.68, margin: '0 0 0.4rem' }}>{label}</p>
-              <p style={{ fontSize: '1.05rem', fontWeight: 700, margin: 0, wordBreak: 'break-word' }}>{value}</p>
-              {nota && <p style={{ fontSize: '0.68rem', opacity: 0.68, margin: '0.25rem 0 0' }}>{nota}</p>}
-            </div>
-          ))}
-        </div>
-      );
-    }
-
     return (
       <div className="aura-card" style={{ display: 'flex', gap: '2rem', justifyContent: 'center', flexWrap: 'wrap' }}>
         <div style={{ textAlign: 'center' }}>

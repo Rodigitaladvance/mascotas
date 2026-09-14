@@ -302,8 +302,6 @@ export const translations = {
         temp: "Temperatura",
         humidity: "Humedad",
       },
-      bird: {
-      },
     },
   },
 
@@ -594,8 +592,6 @@ export const translations = {
       exotic: {
         temp: "Temperature",
         humidity: "Humidity",
-      },
-      bird: {
       },
     },
   },

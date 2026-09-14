@@ -9,7 +9,6 @@ import { accentFor } from '../../utils/species';
 import fotoPerro   from '../../assets/especies/perro.jpg';
 import fotoGato    from '../../assets/especies/gato.jpg';
 import fotoCaballo from '../../assets/especies/caballo.jpg';
-import fotoAve     from '../../assets/especies/ave.jpg';
 import fotoConejo  from '../../assets/especies/conejo.jpg';
 import fotoHuron   from '../../assets/especies/huron.jpg';
 import fotoLagarto from '../../assets/especies/lagarto.jpg';
@@ -34,7 +33,6 @@ const SPECIES = [
   { id: 'cat',     label: 'Gato',             labelEn: 'Cat',              emoji: '🐈', img: fotoGato    },
   { id: 'ferret',  label: 'Hurón',            labelEn: 'Ferret',           emoji: '🦡', img: fotoHuron   },
   { id: 'horse',   label: 'Caballo',          labelEn: 'Horse',            emoji: '🐴', img: fotoCaballo },
-  { id: 'bird',    label: 'Ave',              labelEn: 'Bird',             emoji: '🦜', img: fotoAve     },
   { id: 'rabbit',  label: 'Conejo',           labelEn: 'Rabbit',           emoji: '🐇', img: fotoConejo  },
   { id: 'exotic',  label: 'Reptil / Exótico', labelEn: 'Reptile / Exotic', emoji: '🦎', img: fotoLagarto },
   { id: 'other',   label: 'OTRA MASCOTA',     labelEn: 'Other Pet',        emoji: '+',  img: null, isOther: true },
@@ -44,13 +42,6 @@ const COMPETITION_ES = ['Doma Clásica','Salto de Obstáculos','Endurance','Polo
 const COMPETITION_EN = ['Dressage','Show Jumping','Endurance','Polo','Reining'];
 const DIET_ES = ['Insectívora','Carnívora Estricta','Omnívora','Frugívora','Herbívora'];
 const DIET_EN  = ['Insectivore','Strict Carnivore','Omnivore','Frugivore','Herbivore'];
-
-/* Stored as English key; displayed in active locale */
-const SONG_OPTIONS = [
-  { value: 'Optimal',         es: 'Óptimo',           en: 'Optimal'        },
-  { value: 'Reduced',         es: 'Reducido',          en: 'Reduced'        },
-  { value: 'Breeding Season', es: 'Temporada de Cría', en: 'Breeding Season'},
-];
 
 /* ── Sub-tabs ── */
 const SubTabs = ({ tabs, active, onChange }) => (
@@ -254,6 +245,44 @@ const ExoticFields = ({ data, onChange, locale }) => {
           {diets.map(d => <option key={d} value={d}>{d}</option>)}
         </select>
       </div>
+
+      {/* ── CITES ──────────────────────────────────────────────────────────
+          El pasaporte de reptil empieza por aquí: muchas tortugas, camaleones
+          e iguanas están listadas, y sin el apéndice declarado no se puede
+          decir nada de lo demás. Hasta ahora el campo no existía en ninguna
+          ficha de reptil, así que el pasaporte siempre lo daba por desconocido. */}
+      <p className="section-eyebrow" style={{ margin:'2rem 0 1rem', fontSize:'0.68rem', letterSpacing:'3px', color:'var(--gold-deep)', fontWeight:700, textTransform:'uppercase' }}>
+        {locale==='es' ? 'CITES y procedencia' : 'CITES and provenance'}
+      </p>
+
+      <div className="form-group">
+        <label className="input-label">{locale==='es'?'Nombre científico':'Scientific name'}</label>
+        <input className="aura-input" placeholder={locale==='es'?'Ej: Testudo hermanni':'e.g. Testudo hermanni'}
+          value={data.scientificName || ''}
+          onChange={e => onChange({ ...data, scientificName: e.target.value })} />
+      </div>
+
+      <div className="form-group">
+        <label className="input-label">{locale==='es'?'Apéndice CITES':'CITES appendix'}</label>
+        <select className="aura-input aura-select" value={data.citesAppendix || ''}
+          onChange={e => onChange({ ...data, citesAppendix: e.target.value })}>
+          {(locale==='es' ? CITES_ES : CITES_EN).map(o => (
+            <option key={o.value} value={o.value}>{o.label}</option>
+          ))}
+        </select>
+        <p style={{ margin:'0.45rem 0 0', fontSize:'0.72rem', color:'var(--ink-muted)', lineHeight:1.5 }}>
+          {locale==='es'
+            ? 'Muchas tortugas, camaleones, iguanas y serpientes están listadas, y algunas en el apéndice I, donde el comercio está prohibido salvo excepciones. Compruébalo antes de nada.'
+            : 'Many tortoises, chameleons, iguanas and snakes are listed, some in Appendix I, where trade is banned save for narrow exceptions. Check this before anything else.'}
+        </p>
+      </div>
+
+      <div className="form-group">
+        <label className="input-label">{locale==='es'?'Nº de certificado CITES':'CITES certificate number'}</label>
+        <input className="aura-input" placeholder={locale==='es'?'Certificado comunitario o permiso':'Community certificate or permit'}
+          value={data.citesNumber || ''}
+          onChange={e => onChange({ ...data, citesNumber: e.target.value })} />
+      </div>
     </div>
   );
 };
@@ -320,11 +349,11 @@ const RabbitFields = ({ data, onChange, locale }) => {
   );
 };
 
-/* ── Campos de ave ───────────────────────────────────────────────────────────
-   Las aves no se identifican por microchip sino por anilla cerrada, y la
-   mayoría de psitácidas —loros, guacamayos, cacatúas, agapornis— están en los
-   apéndices de CITES. Eso significa permiso de exportación e importación para
-   cruzar cualquier frontera, aunque el ave haya nacido en cautividad.
+/* ── Apéndices de CITES ──────────────────────────────────────────────────────
+   Los usa la ficha de reptil. Muchas tortugas, camaleones, iguanas y serpientes
+   están listadas, y algunas en el apéndice I, donde el comercio está prohibido
+   salvo excepciones muy tasadas. Estar listada significa permiso de exportación
+   y de importación en cada frontera, aunque el animal haya nacido en cautividad.
 ──────────────────────────────────────────────────────────────────────────── */
 const CITES_ES = [
   { value: '',   label: 'No lo sé todavía' },
@@ -340,105 +369,6 @@ const CITES_EN = [
   { value: 'III',label: 'Appendix III — country-level control' },
   { value: 'no', label: 'Not CITES-listed' },
 ];
-
-const ID_AVE_ES = ['Anilla cerrada', 'Anilla abierta', 'Microchip', 'Sin identificación'];
-const ID_AVE_EN = ['Closed ring', 'Open ring', 'Microchip', 'No identification'];
-
-const BirdFields = ({ data, onChange, locale }) => {
-  const es = locale === 'es';
-  const set = (campo) => (e) => onChange({ ...data, [campo]: e.target.value });
-  const cites = es ? CITES_ES : CITES_EN;
-  const tipos = es ? ID_AVE_ES : ID_AVE_EN;
-
-  return (
-    <div>
-      {/* ── Identificación ── */}
-      <p className="section-eyebrow" style={{ margin: '0 0 1rem', fontSize: '0.68rem', letterSpacing: '3px', color: 'var(--gold-deep)', fontWeight: 700, textTransform: 'uppercase' }}>
-        {es ? 'Identificación' : 'Identification'}
-      </p>
-
-      <div className="form-group">
-        <label className="input-label">{es ? 'Tipo de identificación' : 'Identification type'}</label>
-        <select className="aura-input aura-select" value={data.idType || ''} onChange={set('idType')}>
-          <option value="">{es ? 'Seleccionar…' : 'Select…'}</option>
-          {tipos.map(x => <option key={x} value={x}>{x}</option>)}
-        </select>
-        <p style={{ margin: '0.45rem 0 0', fontSize: '0.72rem', color: 'var(--ink-muted)', lineHeight: 1.5 }}>
-          {es
-            ? 'La anilla cerrada es la que se coloca en el nido y no puede quitarse sin cortarla: es la prueba de cría en cautividad.'
-            : 'A closed ring is fitted in the nest and cannot be removed without cutting it: it is the proof of captive breeding.'}
-        </p>
-      </div>
-
-      <div className="form-group">
-        <label className="input-label">{es ? 'Número de anilla o microchip' : 'Ring or microchip number'}</label>
-        <input className="aura-input" placeholder={es ? 'Código completo de la anilla' : 'Full ring code'}
-          value={data.ringing || ''} onChange={set('ringing')} />
-      </div>
-
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '1rem' }}>
-        <div className="form-group">
-          <label className="input-label">{es ? 'Especie exacta' : 'Exact species'}</label>
-          <input className="aura-input" placeholder={es ? 'Ej: Amazona aestiva' : 'e.g. Amazona aestiva'}
-            value={data.scientificName || ''} onChange={set('scientificName')} />
-        </div>
-        <div className="form-group">
-          <label className="input-label">{es ? 'Fecha de nacimiento' : 'Hatch date'}</label>
-          <input type="date" className="aura-input" value={data.hatchDate || ''} onChange={set('hatchDate')} />
-        </div>
-      </div>
-
-      {/* ── CITES ── */}
-      <p className="section-eyebrow" style={{ margin: '2rem 0 1rem', fontSize: '0.68rem', letterSpacing: '3px', color: 'var(--gold-deep)', fontWeight: 700, textTransform: 'uppercase' }}>
-        {es ? 'CITES y procedencia' : 'CITES and provenance'}
-      </p>
-
-      <div className="form-group">
-        <label className="input-label">{es ? 'Apéndice CITES' : 'CITES appendix'}</label>
-        <select className="aura-input aura-select" value={data.citesAppendix || ''} onChange={set('citesAppendix')}>
-          {cites.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-        </select>
-        <p style={{ margin: '0.45rem 0 0', fontSize: '0.72rem', color: 'var(--ink-muted)', lineHeight: 1.5 }}>
-          {es
-            ? 'Casi todos los loros, guacamayos, cacatúas y agapornis están listados. Si dudas, consúltalo antes de comprar el billete.'
-            : 'Nearly all parrots, macaws, cockatoos and lovebirds are listed. If unsure, check before booking the flight.'}
-        </p>
-      </div>
-
-      <div className="form-group">
-        <label className="input-label">{es ? 'Nº de certificado CITES' : 'CITES certificate number'}</label>
-        <input className="aura-input" placeholder={es ? 'Certificado comunitario o permiso' : 'Community certificate or permit'}
-          value={data.citesNumber || ''} onChange={set('citesNumber')} />
-      </div>
-
-      <div className="form-group">
-        <label className="input-label">{es ? 'Criador o procedencia' : 'Breeder or provenance'}</label>
-        <input className="aura-input" placeholder={es ? 'Nombre y nº de registro del criador' : 'Breeder name and registration no.'}
-          value={data.breeder || ''} onChange={set('breeder')} />
-      </div>
-
-      {/* ── Salud y manejo ── */}
-      <p className="section-eyebrow" style={{ margin: '2rem 0 1rem', fontSize: '0.68rem', letterSpacing: '3px', color: 'var(--gold-deep)', fontWeight: 700, textTransform: 'uppercase' }}>
-        {es ? 'Salud y manejo' : 'Health and care'}
-      </p>
-
-      <div className="form-group">
-        <label className="input-label">{es ? 'Inicio del ciclo de muda' : 'Moult cycle start'}</label>
-        <input type="date" className="aura-input" value={data.featherCycle || ''} onChange={set('featherCycle')} />
-      </div>
-
-      <div className="form-group">
-        <label className="input-label">{es ? 'Ciclo de canto' : 'Song cycle'}</label>
-        <select className="aura-input aura-select" value={data.songCycle || ''} onChange={set('songCycle')}>
-          <option value="">{es ? 'Seleccionar…' : 'Select…'}</option>
-          {SONG_OPTIONS.map(o => (
-            <option key={o.value} value={o.value}>{es ? o.es : o.en}</option>
-          ))}
-        </select>
-      </div>
-    </div>
-  );
-};
 
 /* ── Other/Special fields ── */
 const OtherFields = ({ data, onChange, locale }) => {
@@ -602,14 +532,13 @@ const PetRegistration = ({ onSave, onCancel }) => {
     setSelectedSpecies(sp);
     if (cambia) setSpecificData({});
     if (falta) setFalta('');
-    const tienePropios = ['horse', 'bird', 'rabbit', 'exotic', 'other'].includes(sp.id);
+    const tienePropios = ['horse', 'rabbit', 'exotic', 'other'].includes(sp.id);
     setSubTab(tienePropios ? 'specific' : 'info');
   };
 
   const specificTabLabel = () => {
     if (selectedSpecies?.id === 'horse') return locale==='es'?'Equino':'Equine';
     if (selectedSpecies?.id === 'exotic') return locale==='es'?'Hábitat':'Habitat';
-    if (selectedSpecies?.id === 'bird')  return locale==='es'?'Ave':'Bird';
     if (selectedSpecies?.id === 'rabbit') return locale==='es'?'Conejo':'Rabbit';
     if (selectedSpecies?.id === 'ferret') return locale==='es'?'Hurón':'Ferret';
     if (selectedSpecies?.id === 'other') return locale==='es'?'Especial':'Special';
@@ -849,9 +778,7 @@ const PetRegistration = ({ onSave, onCancel }) => {
                 </div>
                 <div className="form-group">
                   <label className="input-label">
-                    {selectedSpecies?.id === 'bird'
-                      ? (locale === 'es' ? 'Anilla / microchip' : 'Ring / microchip')
-                      : 'Microchip'}
+                    Microchip
                   </label>
                   <FieldWrap filled={!!basicData.microchip}>
                     <input className="aura-input" placeholder="900XXXXXXXXX"
@@ -864,7 +791,6 @@ const PetRegistration = ({ onSave, onCancel }) => {
             <motion.div key="specific" initial={{ opacity:0, x:8 }} animate={{ opacity:1, x:0 }} exit={{ opacity:0, x:-8 }}>
               {selectedSpecies?.id === 'horse'  && <HorseFields  data={specificData} onChange={setSpecificData} locale={locale} />}
               {selectedSpecies?.id === 'exotic' && <ExoticFields data={specificData} onChange={setSpecificData} locale={locale} />}
-              {selectedSpecies?.id === 'bird'   && <BirdFields   data={specificData} onChange={setSpecificData} locale={locale} />}
               {selectedSpecies?.id === 'rabbit' && <RabbitFields data={specificData} onChange={setSpecificData} locale={locale} />}
               {selectedSpecies?.id === 'other'  && <OtherFields  data={specificData} onChange={setSpecificData} locale={locale} />}
               {(!selectedSpecies || ['dog','cat','ferret'].includes(selectedSpecies?.id)) && (

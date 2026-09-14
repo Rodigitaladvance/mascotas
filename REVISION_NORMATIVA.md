@@ -1,9 +1,13 @@
 # Revisión de requisitos frente a fuentes oficiales
 
 **Fecha de la revisión:** 14 de septiembre de 2026 (quinta pasada)
-**Alcance:** requisitos de entrada para perros, gatos, équidos, aves, conejos y
-reptiles en los cinco países de la app (ES, UK, US, CA, AU), más los protocolos
-de vacunación que calculan el nivel de protección.
+**Alcance:** requisitos de entrada para perros, gatos, hurones, équidos, conejos
+y reptiles en los cinco países de la app (ES, UK, US, CA, AU), más los
+protocolos de vacunación que calculan el nivel de protección.
+
+**Las aves se retiraron de la aplicación el 14 de septiembre de 2026.** Los
+hallazgos 20 a 22 y 31 a 33 se refieren a requisitos que ya no se muestran; se
+conservan por si algún día vuelven.
 **Estado:** las 33 correcciones están aplicadas en el código.
 
 Este documento es el registro de qué se comprobó, contra qué fuente y qué se

@@ -228,238 +228,6 @@ const buildEquineRequirements = (pet, countryId, locale, origen = 'ES') => {
   }
 };
 
-/* ── Requisitos para aves ────────────────────────────────────────────────────
-   Las aves tampoco entran en el régimen de animales de compañía habitual. Se
-   identifican por anilla cerrada, no por microchip, y la mayoría de psitácidas
-   están en los apéndices de CITES: cruzar una frontera exige permiso de
-   exportación del país de salida y de importación del de entrada, aunque el
-   animal haya nacido en cautividad y sea la mascota de toda la vida.
-
-   A eso se suma la sanidad aviar: gripe aviar y enfermedad de Newcastle son
-   las que cierran fronteras, y varios destinos imponen cuarentena.
-──────────────────────────────────────────────────────────────────────────── */
-const buildBirdRequirements = (pet, countryId, locale, origen = 'ES') => {
-  const es = locale === 'es';
-  const sp = pet?.specific || {};
-  const h = pet?.health || {};
-  const hecho = (v) => (v && String(v).trim() ? 'ok' : 'pending');
-
-  /* Sin apéndice declarado no se puede saber si hace falta permiso */
-  const enCites = sp.citesAppendix && sp.citesAppendix !== 'no';
-  const citesDesconocido = !sp.citesAppendix;
-
-  const anilla = {
-    icon: 'chip',
-    label: es ? 'Identificación por anilla o microchip' : 'Ring or microchip identification',
-    status: sp.ringing?.trim() && sp.idType ? 'ok' : 'pending',
-    detail: sp.ringing?.trim()
-      ? `${sp.idType || (es ? 'Sin tipo' : 'No type')} · ${sp.ringing}`
-      : (es ? 'La anilla cerrada acredita la cría en cautividad' : 'A closed ring proves captive breeding'),
-  };
-
-  const especie = {
-    icon: 'doc',
-    label: es ? 'Especie identificada' : 'Species identified',
-    status: hecho(sp.scientificName),
-    detail: sp.scientificName
-      || (es ? 'El nombre científico determina si aplica CITES' : 'The scientific name determines whether CITES applies'),
-  };
-
-  const cites = citesDesconocido
-    ? {
-        icon: 'doc',
-        label: 'CITES',
-        status: 'alert',
-        detail: es
-          ? 'Sin determinar. Compruébalo antes de comprar el billete'
-          : 'Undetermined. Check before booking the flight',
-      }
-    : enCites
-      ? {
-          icon: 'doc',
-          label: `CITES · ${es ? 'Apéndice' : 'Appendix'} ${sp.citesAppendix}`,
-          status: hecho(sp.citesNumber),
-          detail: sp.citesNumber
-            ? `${es ? 'Certificado' : 'Certificate'} ${sp.citesNumber}`
-            : (es
-                ? 'Requiere permiso de exportación e importación, uno por cada frontera'
-                : 'Requires export and import permits, one for each border'),
-        }
-      : {
-          icon: 'doc',
-          label: 'CITES',
-          status: 'ok',
-          detail: es ? 'Especie no listada' : 'Species not listed',
-        };
-
-  const gripeAviar = {
-    icon: 'syringe', id: 'gripe-aviar', manual: true,
-    label: es ? 'Gripe aviar' : 'Avian influenza',
-    status: 'pending',
-    detail: es
-      ? 'Certificado veterinario y, según el destino, aislamiento previo'
-      : 'Veterinary certificate and, depending on destination, prior isolation',
-  };
-
-  const newcastle = {
-    icon: 'syringe', id: 'newcastle', manual: true,
-    label: es ? 'Enfermedad de Newcastle' : 'Newcastle disease',
-    status: 'pending',
-    detail: es ? 'Vacunación o prueba según el país de salida' : 'Vaccination or testing depending on country of departure',
-  };
-
-  const psitacosis = {
-    icon: 'vet', id: 'psitacosis', manual: true,
-    label: es ? 'Clamidiosis (psitacosis)' : 'Chlamydiosis (psittacosis)',
-    status: 'pending',
-    detail: es ? 'Exigida a psitácidas en varios destinos' : 'Required for parrots by several destinations',
-  };
-
-  const sanitario = {
-    icon: 'vet',
-    label: es ? 'Certificado sanitario oficial' : 'Official health certificate',
-    status: h.healthCert?.status || 'pending',
-    detail: h.healthCert?.status === 'ok'
-      ? (es ? 'Emitido por veterinario oficial' : 'Issued by an official vet')
-      : (es ? 'Debe firmarlo un veterinario oficial' : 'Must be signed by an official vet'),
-  };
-
-  const cuarentena = (dias, texto) => ({
-    icon: 'vet', id: 'cuarentena', manual: true,
-    label: es ? `Cuarentena (${dias})` : `Quarantine (${dias})`,
-    status: 'alert',
-    detail: texto || (es ? 'En instalación autorizada del destino' : 'At an approved facility in the destination'),
-  });
-
-  const permiso = (organismo, texto) => ({
-    icon: 'doc', id: 'permiso', manual: true,
-    label: `${es ? 'Permiso de importación' : 'Import permit'} · ${organismo}`,
-    status: 'pending',
-    detail: texto || (es ? 'Solicitar con antelación: los plazos son largos' : 'Apply well ahead: lead times are long'),
-  });
-
-  /* Movimiento dentro del mismo país */
-  if (origen === countryId) {
-    return [
-      anilla, especie,
-      { ...cites, detail: enCites
-          ? (es ? 'Documenta la tenencia legal aunque no cruces frontera' : 'Documents lawful keeping even without crossing a border')
-          : cites.detail },
-      { icon: 'doc', info: true, label: es ? 'Movimiento nacional' : 'Domestic movement', status: 'ok',
-        detail: es ? 'Sin trámite de exportación' : 'No export procedure needed' },
-    ];
-  }
-
-  switch (countryId) {
-    case 'ES': return [
-      anilla, especie, cites, gripeAviar, newcastle,
-      { ...sanitario, label: es ? 'Certificado sanitario · TRACES' : 'Health certificate · TRACES' },
-    ];
-    case 'UK': return [
-      anilla, especie, cites,
-      { icon: 'doc', id: 'aviso-apha', manual: true,
-        label: es ? 'Avisar a la APHA antes de viajar' : 'Notify APHA before travelling',
-        status: 'pending',
-        detail: es
-          ? 'Hay que comunicarlo con al menos un día de antelación. Sin ese aviso, el animal no entra'
-          : 'It must be notified at least one day in advance. Without that notice the animal is not admitted' },
-      { icon: 'doc', id: 'licencia-apha', manual: true,
-        label: es ? 'Licencia de importación · APHA' : 'Import licence · APHA',
-        status: 'pending',
-        detail: es
-          ? 'Obligatoria desde fuera de la UE. Desde países de la UE y la EFTA no se exige actualmente'
-          : 'Required from outside the EU. Not currently required from EU and EFTA countries' },
-      gripeAviar, newcastle,
-      { ...sanitario, label: 'Export Health Certificate (EHC)',
-        detail: es
-          ? 'Emitido en el país de salida'
-          : 'Issued in the country of departure' },
-      { icon: 'doc', id: 'puerto-uk', manual: true,
-        label: es ? 'Solo cuatro aeropuertos admiten aves' : 'Only four airports accept birds',
-        status: 'alert',
-        detail: es
-          ? 'Heathrow, Gatwick, Edimburgo y Glasgow. Comprueba esto antes de comprar el billete'
-          : 'Heathrow, Gatwick, Edinburgh and Glasgow. Check this before buying the ticket' },
-      cuarentena(es ? '30 días' : '30 days', es
-        ? 'En instalación autorizada por la APHA. Las psitácidas deben ir identificadas una a una'
-        : 'At an APHA-licensed facility. Psittacines must be individually identified'),
-    ];
-    case 'US': return [
-      anilla, especie, cites,
-      { icon: 'doc', info: true, label: es ? 'Máximo 5 aves' : 'Five birds maximum', status: 'ok',
-        detail: es
-          ? 'La vía de mascota personal admite hasta 5 aves. A partir de ahí es importación comercial'
-          : 'The personal pet route allows up to 5 birds. Beyond that it is a commercial import' },
-      permiso('USDA APHIS eFile', es
-        ? 'Solicítalo al menos 7 días hábiles antes de volar. Tarda entre 7 y 10 días hábiles y caduca a los 30'
-        : 'Apply at least 7 business days before flying. It takes 7–10 business days and expires after 30'),
-      gripeAviar, newcastle, psitacosis,
-      cuarentena(es ? '30 días' : '30 days', es
-        ? 'Puede hacerse en casa si el permiso lo autoriza. Se analiza dos veces contra gripe aviar y Newcastle'
-        : 'May be done at home if the permit allows it. Tested twice for avian influenza and Newcastle disease'),
-      { ...sanitario, detail: es
-          ? 'Firmado por un veterinario funcionario del gobierno del país de salida'
-          : 'Signed by a salaried government veterinarian of the country of departure' },
-    ];
-    case 'CA': return [
-      anilla, especie, cites,
-      { icon: 'doc', id: 'posesion-90', manual: true,
-        label: es ? '90 días de posesión previa' : '90 days of prior ownership',
-        status: 'pending',
-        detail: es
-          ? 'El ave debe haber estado en tu poder, en el país de origen, los 90 días anteriores a pedir el permiso, y sin contacto con otras aves'
-          : 'The bird must have been in your possession, in the country of origin, for the 90 days before applying for the permit, with no contact with other birds' },
-      permiso('CFIA', es
-        ? 'La cuarentena debe estar aprobada ANTES de que emitan el permiso: contacta con la oficina del CFIA de tu provincia'
-        : 'The quarantine must be approved BEFORE the permit is issued: contact the CFIA office for your province'),
-      { icon: 'doc', id: 'acompanar', manual: true,
-        label: es ? 'El dueño debe viajar con el ave' : 'The owner must travel with the bird',
-        status: 'pending',
-        detail: es
-          ? 'No se admite que llegue sola ni enviada por separado'
-          : 'It cannot arrive alone or be shipped separately' },
-      { ...gripeAviar,
-        detail: es
-          ? 'Solo se exige si tu país de salida no está reconocido libre de gripe aviar altamente patógena. Si lo está, no hace falta: confírmalo con el CFIA antes de pagar analíticas'
-          : 'Required only if your country of departure is not recognised free of highly pathogenic avian influenza. If it is, you do not need it: confirm with the CFIA before paying for tests' },
-      newcastle,
-      { ...sanitario, label: es ? 'Certificado veterinario internacional' : 'International veterinary certificate',
-        detail: es
-          ? 'Debe declarar que no hubo gripe aviar notificable en los 6 meses previos, y que el ave se inspeccionó en las 72 horas anteriores al envío'
-          : 'It must state that no notifiable avian influenza occurred in the previous 6 months, and that the bird was inspected within 72 hours before shipment' },
-      cuarentena(es ? '45 días' : '45 days', es
-        ? 'Mínimo, en un local tuyo que el CFIA debe aprobar de antemano'
-        : 'Minimum, at your own premises, which the CFIA must approve beforehand'),
-      { icon: 'doc', info: true, label: es ? 'Límite de ejemplares' : 'Limit on numbers', status: 'ok',
-        detail: es
-          ? 'Hasta 5 psitácidas o 20 aves de otras especies. Tampoco puedes haber importado aves en los 90 días anteriores'
-          : 'Up to 5 psittacines or 20 birds of other species. You also cannot have imported birds in the previous 90 days' },
-    ];
-    case 'AU': return [
-      { icon: 'doc', info: true,
-        label: es ? 'No se puede: entrada prohibida' : 'Not possible: entry prohibited',
-        status: 'alert',
-        detail: es
-          ? 'Australia solo admite aves de compañía procedentes de Nueva Zelanda. Desde cualquier otro país la entrada está prohibida, y no hay permiso que lo salve'
-          : 'Australia admits pet birds only from New Zealand. From any other country entry is prohibited, and no permit gets around it' },
-      { icon: 'doc', info: true,
-        label: es ? 'La prohibición es de 1995' : 'The ban dates from 1995',
-        status: 'alert',
-        detail: es
-          ? 'Se suspendió entonces la importación de psitácidas. Hay una revisión abierta que propone reabrirla desde países aprobados, pero lleva años sin informe final: no cuentes con ella para un viaje concreto'
-          : 'Psittacine imports were suspended then. A review is open that proposes reopening them from approved countries, but it has gone years without a final report: do not count on it for an actual trip' },
-      { icon: 'vet', info: true,
-        label: es ? 'Desde Nueva Zelanda, y solo algunas especies' : 'From New Zealand, and only some species',
-        status: 'ok',
-        detail: es
-          ? 'Hacen falta dos permisos —DAFF y DCCEEW—, un año de posesión previa, 45 días de cuarentena antes de salir y otros 45 al llegar'
-          : 'It takes two permits — DAFF and DCCEEW — a year of prior ownership, 45 days of pre-export quarantine and another 45 on arrival' },
-      { ...especie, info: true }, { ...cites, info: true },
-    ];
-    default: return [anilla, especie, cites];
-  }
-};
-
 /* ── Requisitos para conejos ─────────────────────────────────────────────────
    El reglamento europeo de animales de compañía cubre perros, gatos y hurones.
    Los conejos quedan fuera: dependen de la norma nacional de cada país, y eso
@@ -823,10 +591,19 @@ const buildFerretRequirements = (pet, countryId, locale) => {
 const buildRequirements = (pet, countryId, locale, origen = 'ES') => {
   /* Los équidos van por su propia normativa, no por la de mascotas */
   if (pet?.species === 'horse') return buildEquineRequirements(pet, countryId, locale, origen);
-  if (pet?.species === 'bird') return buildBirdRequirements(pet, countryId, locale, origen);
   if (pet?.species === 'rabbit') return buildRabbitRequirements(pet, countryId, locale, origen);
   if (pet?.species === 'exotic') return buildExoticRequirements(pet, countryId, locale, origen);
   if (pet?.species === 'other') return buildUnknownRequirements(pet, countryId, locale);
+
+  /* Cualquier especie que no reconozcamos va por la vía de «sin determinar».
+     Importa por los expedientes antiguos: al retirar las aves, un animal
+     guardado como tal se quedaría sin rama propia, y sin esta línea acabaría
+     leyendo la lista de perros y gatos —rabia, pasaporte europeo, plazo de 21
+     días—, que no le corresponde. Antes que darle requisitos ajenos, se le
+     dice que consulte. */
+  const CONOCIDAS = ['dog', 'cat', 'ferret', 'horse', 'rabbit', 'exotic', 'other'];
+  if (!CONOCIDAS.includes(pet?.species)) return buildUnknownRequirements(pet, countryId, locale);
+
   /* El hurón comparte el régimen europeo con perros y gatos, así que pasa por
      la lista común; solo Estados Unidos y Australia lo tratan aparte. */
   if (pet?.species === 'ferret' && (countryId === 'US' || countryId === 'AU')) {
