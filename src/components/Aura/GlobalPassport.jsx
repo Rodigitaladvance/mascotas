@@ -418,7 +418,11 @@ const buildBirdRequirements = (pet, countryId, locale, origen = 'ES') => {
         detail: es
           ? 'No se admite que llegue sola ni enviada por separado'
           : 'It cannot arrive alone or be shipped separately' },
-      gripeAviar, newcastle,
+      { ...gripeAviar,
+        detail: es
+          ? 'Solo se exige si tu país de salida no está reconocido libre de gripe aviar altamente patógena. Si lo está, no hace falta: confírmalo con el CFIA antes de pagar analíticas'
+          : 'Required only if your country of departure is not recognised free of highly pathogenic avian influenza. If it is, you do not need it: confirm with the CFIA before paying for tests' },
+      newcastle,
       { ...sanitario, label: es ? 'Certificado veterinario internacional' : 'International veterinary certificate',
         detail: es
           ? 'Debe declarar que no hubo gripe aviar notificable en los 6 meses previos, y que el ave se inspeccionó en las 72 horas anteriores al envío'
@@ -432,14 +436,25 @@ const buildBirdRequirements = (pet, countryId, locale, origen = 'ES') => {
           : 'Up to 5 psittacines or 20 birds of other species. You also cannot have imported birds in the previous 90 days' },
     ];
     case 'AU': return [
-      anilla, especie, cites, permiso('DAFF'),
-      gripeAviar, newcastle, psitacosis,
-      cuarentena(es ? 'previa y posterior' : 'pre-export and post-arrival'),
-      { icon: 'vet', info: true, label: es ? 'Restricciones de especie' : 'Species restrictions', status: 'alert',
+      { icon: 'doc', info: true,
+        label: es ? 'No se puede: entrada prohibida' : 'Not possible: entry prohibited',
+        status: 'alert',
         detail: es
-          ? 'Australia solo admite aves de un listado muy corto: confírmalo antes de nada'
-          : 'Australia admits only a very short list of birds: confirm before anything else' },
-      sanitario,
+          ? 'Australia solo admite aves de compañía procedentes de Nueva Zelanda. Desde cualquier otro país la entrada está prohibida, y no hay permiso que lo salve'
+          : 'Australia admits pet birds only from New Zealand. From any other country entry is prohibited, and no permit gets around it' },
+      { icon: 'doc', info: true,
+        label: es ? 'La prohibición es de 1995' : 'The ban dates from 1995',
+        status: 'alert',
+        detail: es
+          ? 'Se suspendió entonces la importación de psitácidas. Hay una revisión abierta que propone reabrirla desde países aprobados, pero lleva años sin informe final: no cuentes con ella para un viaje concreto'
+          : 'Psittacine imports were suspended then. A review is open that proposes reopening them from approved countries, but it has gone years without a final report: do not count on it for an actual trip' },
+      { icon: 'vet', info: true,
+        label: es ? 'Desde Nueva Zelanda, y solo algunas especies' : 'From New Zealand, and only some species',
+        status: 'ok',
+        detail: es
+          ? 'Hacen falta dos permisos —DAFF y DCCEEW—, un año de posesión previa, 45 días de cuarentena antes de salir y otros 45 al llegar'
+          : 'It takes two permits — DAFF and DCCEEW — a year of prior ownership, 45 days of pre-export quarantine and another 45 on arrival' },
+      { ...especie, info: true }, { ...cites, info: true },
     ];
     default: return [anilla, especie, cites];
   }
@@ -559,7 +574,7 @@ const buildRabbitRequirements = (pet, countryId, locale, origen = 'ES') => {
       sanitario,
     ];
     case 'AU': return [
-      identificacion,
+      { ...identificacion, info: true },
       { icon: 'doc', info: true, label: es ? 'Entrada prohibida' : 'Entry prohibited', status: 'alert',
         detail: es
           ? 'Australia no admite conejos salvo procedentes de Nueva Zelanda. Este viaje no es viable.'
@@ -1300,6 +1315,8 @@ const CountryModal = ({ countryId, pet, locale, onClose, origen = 'ES', marcas =
                        titulo: es ? 'Confirma antes de reservar' : 'Confirm before booking' },
               rojo:  { borde:'var(--danger)', fondo:'rgba(239, 95, 122, 0.08)', texto:'#B3324C',
                        titulo: es ? 'Trayecto de plazos largos' : 'Long lead times' },
+              prohibido: { borde:'#8E1F37', fondo:'rgba(142, 31, 55, 0.10)', texto:'#8E1F37',
+                       titulo: es ? 'No se puede viajar' : 'Travel not possible' },
             }[nivel];
             return (
               <div style={{

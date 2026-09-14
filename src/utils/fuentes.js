@@ -14,7 +14,7 @@
  */
 
 /** Última vez que las listas se contrastaron contra las webs oficiales. */
-export const FECHA_REVISION = '2026-09-13';
+export const FECHA_REVISION = '2026-09-14';
 
 /** Organismo competente por país. */
 const ORGANISMO = {
@@ -108,7 +108,13 @@ export const nivelRiesgo = (species, countryId, origen = 'ES') => {
 
   const esCompania = species === 'dog' || species === 'cat' || species === 'ferret';
 
-  /* Australia impone cuarentena y permiso previo a todo lo vivo. */
+  /* Hay trayectos que no son difíciles: son imposibles, y merecen decirlo con
+     otra palabra. Australia solo admite aves y conejos procedentes de Nueva
+     Zelanda, que no es ninguno de los orígenes que maneja la aplicación. Un
+     aviso de «plazos largos» invitaría a empezar a reunir papeles. */
+  if (countryId === 'AU' && (species === 'bird' || species === 'rabbit')) return 'prohibido';
+
+  /* Australia impone cuarentena y permiso previo a todo lo demás que esté vivo. */
   if (countryId === 'AU') return 'rojo';
 
   /* Fuera del régimen de mascotas siempre hay trámite previo. */
@@ -130,5 +136,9 @@ export const TEXTO_RIESGO = {
   rojo: {
     es: 'Este trayecto exige permisos previos y puede incluir cuarentena. Los plazos se miden en meses, no en días. No compres billetes ni reserves transporte sin confirmarlo antes con la autoridad competente.',
     en: 'This route requires permits in advance and may involve quarantine. Lead times are measured in months, not days. Do not buy tickets or book transport without confirming with the competent authority first.',
+  },
+  prohibido: {
+    es: 'Este trayecto no está permitido. No es cuestión de plazos ni de papeles: el país de destino no admite la entrada de esta especie desde donde sales. Antes de plantearte nada, confírmalo en la fuente oficial.',
+    en: 'This route is not permitted. It is not a matter of lead times or paperwork: the destination does not admit this species from where you are leaving. Before considering anything, confirm it at the official source.',
   },
 };

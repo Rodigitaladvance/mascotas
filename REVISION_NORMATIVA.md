@@ -1,10 +1,10 @@
 # Revisión de requisitos frente a fuentes oficiales
 
-**Fecha de la revisión:** 13 de septiembre de 2026 (cuarta pasada)
+**Fecha de la revisión:** 14 de septiembre de 2026 (quinta pasada)
 **Alcance:** requisitos de entrada para perros, gatos, équidos, aves, conejos y
 reptiles en los cinco países de la app (ES, UK, US, CA, AU), más los protocolos
 de vacunación que calculan el nivel de protección.
-**Estado:** las 30 correcciones están aplicadas en el código.
+**Estado:** las 33 correcciones están aplicadas en el código.
 
 Este documento es el registro de qué se comprobó, contra qué fuente y qué se
 corrigió. Sirve como respaldo de las listas: cualquiera puede seguir los enlaces
@@ -483,3 +483,79 @@ npm run i18n         # que nada quede sin traducir
 La primera es la que importa aquí: las normas de importación cambian, y las
 páginas de los ministerios se mueven de sitio sin avisar. Un enlace roto en el
 PDF que alguien lleva a la frontera es peor que no haberlo puesto.
+
+---
+
+## Quinta pasada: aves a Australia — 14 de septiembre de 2026
+
+Aviso de la propietaria tras consultar la DAFF. Se verifica y resulta correcta.
+
+### 31. Australia — no es un trámite difícil, es que no se puede
+
+**Decía la app:** permiso DAFF, certificados de gripe aviar, Newcastle y
+psitacosis, cuarentena previa y posterior, certificado sanitario. Y al final
+una nota: «Australia solo admite aves de un listado muy corto: confírmalo
+antes de nada».
+
+Eso describe un camino difícil. **No hay camino.**
+
+**Dice la DAFF:** *«You can import some pet psittacine bird species into
+Australia from New Zealand. You cannot import pet birds from any other
+country.»*
+
+Nueva Zelanda no es ninguno de los orígenes que maneja la aplicación. Desde
+España, Reino Unido, Estados Unidos o Canadá, la entrada está **prohibida**, y
+no hay permiso que lo salve.
+
+La suspensión viene de **1995**. Existe una revisión de riesgo abierta que
+propone reabrir la entrada desde países aprobados, pero el informe final lleva
+años sin publicarse; la última actualización oficial localizada es de febrero
+de 2023. No sirve para planificar un viaje concreto.
+
+**Por qué importaba tanto.** Dar una lista de trámites para algo prohibido es
+peor que no decir nada. El usuario se pone a reunir papeles, paga analíticas y
+certificados veterinarios —que no son baratos— y descubre el muro cuando ya ha
+gastado el dinero. La nota del final no compensaba: iba después de ocho
+requisitos presentados como alcanzables.
+
+### 32. Un nivel de aviso para lo que no se puede hacer
+
+El semáforo de la app tenía tres niveles, y el peor decía «trayecto de plazos
+largos: los plazos se miden en meses, no en días». Para una prohibición eso
+invita justamente a lo que no hay que hacer, que es empezar.
+
+Se añade un cuarto nivel, **prohibido**, con su propio color y su propio texto:
+*«Este trayecto no está permitido. No es cuestión de plazos ni de papeles.»*
+Se aplica a aves y conejos hacia Australia, los dos casos verificados.
+
+Además, en esos trayectos el porcentaje de preparación queda en **cero**:
+todos los apartados pasan a informativos. Enseñar «50 % listo» en un viaje que
+no se puede hacer es la misma mentira con otra cara.
+
+### 33. Canadá — la gripe aviar no se pide siempre
+
+Aquí la app se quedaba corta en el otro sentido: presentaba el certificado de
+gripe aviar como obligación fija.
+
+**Dice el CFIA:** solo se exige si el país de salida **no está reconocido libre
+de gripe aviar altamente patógena**. Si lo está, no hace falta.
+
+Se corrige para que el usuario lo confirme antes de pagar analíticas que
+pueden no corresponderle. El resto de la lista de Canadá —90 días de posesión
+previa, permiso con cuarentena aprobada de antemano, dueño acompañando,
+45 días de cuarentena, límite de 5 psitácidas o 20 aves— se contrastó de nuevo
+contra la política 2011-8 y es correcta.
+
+---
+
+## Fuentes de esta pasada
+
+| Ámbito | Organismo | Fuente |
+|---|---|---|
+| Aves de compañía a Australia | DAFF | https://www.agriculture.gov.au/biosecurity-trade/import/goods/live-animals/pet-birds |
+| Revisión de riesgo, psitácidas | DAFF | https://www.agriculture.gov.au/biosecurity-trade/policy/risk-analysis/animal/psittacine-birds |
+| Aves de compañía a Canadá | CFIA · política 2011-8 | https://inspection.canada.ca/en/animal-health/terrestrial-animals/imports/import-policies/live-animals/2011-8 |
+
+**Nota sobre la DAFF:** su web rechaza las consultas automáticas, así que
+`npm run normativa` no puede comprobar esos enlaces y los marca «a ojo». Hay
+que abrirlos a mano de vez en cuando.
