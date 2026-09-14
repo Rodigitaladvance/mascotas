@@ -390,20 +390,55 @@ const MedicalHistory = ({ pet, onClose }) => {
             onChange={(e) => setForm(prev => ({ ...prev, nextDose: e.target.value, nextDoseSugerida: false }))} />
         </div>
 
+        {/* La nota del protocolo.
+
+            Antes salía siempre que hubiera una fecha escrita, dijera lo que
+            dijera esa fecha. Así que junto a una próxima dosis puesta a mano a
+            cuatro años vista se leía «refuerzo cada 3 años», y parecía que ese
+            plazo lo había calculado la aplicación. Lo que dice el protocolo y
+            lo que dice el campo son dos cosas distintas, y cuando no coinciden
+            hay que decirlo en vez de dejar que se contradigan en silencio. */}
         {(() => {
           const sug = sugerirProximaDosis(pet?.species, form.name, form.date);
           if (!sug || !form.nextDose) return null;
-          const meses = Math.round(sug.dias / 30.4);
+
+          const enPalabras = (dias) => {
+            const meses = Math.round(dias / 30.4);
+            return meses >= 12
+              ? t('history.boosterYears',  { n: Math.round(meses / 12) })
+              : t('history.boosterMonths', { n: meses });
+          };
+
+          /* Lo que de verdad hay entre los dos campos.
+
+             Se comparan las dos frases, no los días: un veterinario pone
+             fechas redondas, y avisar de que «tres años y tres semanas» no son
+             exactamente tres años sería ruido. Lo que hay que cantar es cuando
+             el usuario lee un número distinto del que dice el protocolo. */
+          const real = Math.round((new Date(form.nextDose) - new Date(form.date)) / 86400000);
+          const mesesReales = Math.round(real / 30.4);
+          const desvia = Number.isFinite(real) && real > 0
+            && enPalabras(real) !== enPalabras(sug.dias);
+
           return (
             <p style={{
               margin: '0.6rem 0 0', fontSize: '0.68rem', lineHeight: 1.55,
-              color: 'var(--aura-text-muted)',
+              color: desvia ? 'var(--gold-ink)' : 'var(--aura-text-muted)',
             }}>
               {form.nextDoseSugerida ? '✨ ' : ''}
-              {(locale === 'es' ? sug.etiqueta : (sug.etiquetaEn || sug.etiqueta))}: {meses >= 12
-                ? t('history.boosterYears',  { n: Math.round(meses / 12) })
-                : t('history.boosterMonths', { n: meses })}
-              {form.nextDoseSugerida ? `. ${t('history.suggestedNote')}` : '.'}
+              {(locale === 'es' ? sug.etiqueta : (sug.etiquetaEn || sug.etiqueta))}: {enPalabras(sug.dias)}
+              {form.nextDoseSugerida
+                ? `. ${t('history.suggestedNote')}`
+                : desvia
+                  ? `. ${t(mesesReales >= 12 ? 'history.gapYears' : 'history.gapMonths', {
+                      n: mesesReales >= 12 ? Math.round(mesesReales / 12) : mesesReales,
+                    })}`
+                  : '.'}
+              {(locale === 'es' ? sug.nota : (sug.notaEn || sug.nota)) && (
+                <span style={{ display: 'block', marginTop: '0.35rem', opacity: 0.85 }}>
+                  {locale === 'es' ? sug.nota : (sug.notaEn || sug.nota)}
+                </span>
+              )}
             </p>
           );
         })()}

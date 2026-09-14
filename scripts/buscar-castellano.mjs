@@ -57,8 +57,10 @@ for (const archivo of archivos) {
   let antes;
   do { antes = src; src = src.replace(pareja, hueco); } while (src !== antes);
 
-  /* 4. Las tablas que guardan las dos versiones una al lado de la otra. */
-  src = src.replace(/label:\s*'[^']*',\s*labelEn:\s*'[^']*'/g, hueco);
+  /* 4. Las tablas que guardan las dos versiones una al lado de la otra.
+        El patrón del proyecto es `algo` junto a `algoEn`, aunque entre los dos
+        se cuele un comentario o un salto de línea. */
+  src = src.replace(/(\w+):\s*'(?:[^'\\]|\\.)*',[\s\S]{0,400}?\1En:\s*'(?:[^'\\]|\\.)*'/g, hueco);
   src = src.replace(/es:\s*'[^']*',\s*en:\s*'[^']*'/g, hueco);
 
   /* 5. Lo que queda: literales sueltos y texto plano dentro del JSX. */

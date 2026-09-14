@@ -180,6 +180,8 @@ export const translations = {
       boosterYears: "refuerzo cada {n} año(s)",
       boosterMonths: "refuerzo cada {n} meses",
       suggestedNote: "Fecha propuesta: cámbiala si tu veterinario indicó otra.",
+      gapYears: "La fecha que has puesto son {n} año(s): comprueba que es la que quieres.",
+      gapMonths: "La fecha que has puesto son {n} meses: comprueba que es la que quieres.",
 
       pdfTitle: "Historial médico",
       pdfGenerated: "Generado el {fecha}",
@@ -482,6 +484,8 @@ export const translations = {
       boosterYears: "booster every {n} year(s)",
       boosterMonths: "booster every {n} months",
       suggestedNote: "Suggested date — change it if your vet said otherwise.",
+      gapYears: "The date you entered is {n} year(s) away: check that is the one you want.",
+      gapMonths: "The date you entered is {n} months away: check that is the one you want.",
 
       pdfTitle: "Medical record",
       pdfGenerated: "Generated on {fecha}",

@@ -1,6 +1,6 @@
 # Revisión de requisitos frente a fuentes oficiales
 
-**Fecha de la revisión:** 14 de septiembre de 2026 (quinta pasada)
+**Fecha de la revisión:** 14 de septiembre de 2026 (sexta pasada)
 **Alcance:** requisitos de entrada para perros, gatos, hurones, équidos, conejos
 y reptiles en los cinco países de la app (ES, UK, US, CA, AU), más los
 protocolos de vacunación que calculan el nivel de protección.
@@ -8,7 +8,7 @@ protocolos de vacunación que calculan el nivel de protección.
 **Las aves se retiraron de la aplicación el 14 de septiembre de 2026.** Los
 hallazgos 20 a 22 y 31 a 33 se refieren a requisitos que ya no se muestran; se
 conservan por si algún día vuelven.
-**Estado:** las 33 correcciones están aplicadas en el código.
+**Estado:** las 35 correcciones están aplicadas en el código.
 
 Este documento es el registro de qué se comprobó, contra qué fuente y qué se
 corrigió. Sirve como respaldo de las listas: cualquiera puede seguir los enlaces
@@ -563,3 +563,51 @@ contra la política 2011-8 y es correcta.
 **Nota sobre la DAFF:** su web rechaza las consultas automáticas, así que
 `npm run normativa` no puede comprobar esos enlaces y los marca «a ojo». Hay
 que abrirlos a mano de vez en cuando.
+
+---
+
+## Sexta pasada: la trivalente felina — 14 de septiembre de 2026
+
+Aviso de la propietaria: «¿por qué la trivalente de un gato dura 4 años?».
+
+### 34. El intervalo era correcto; la nota mentía sobre la fecha
+
+**El dato clínico está bien.** La WSAVA recomienda para el gato adulto
+revacunación con las vacunas centrales —panleucopenia, calicivirus y
+herpesvirus— *no más a menudo que cada 3 años*. La app propone 1.095 días, que
+son exactamente esos 3 años, y el cálculo es correcto: 12/12/2025 da
+11/12/2028.
+
+**Lo que fallaba era la nota.** Salía siempre que hubiera una fecha escrita en
+«próxima dosis», dijera lo que dijera esa fecha. Así que junto a una fecha
+puesta a mano a cuatro años vista se leía «Trivalente: refuerzo cada 3 años», y
+parecía que ese plazo lo había calculado la aplicación. Lo que dice el
+protocolo y lo que dice el campo son dos cosas distintas, y cuando no coinciden
+hay que decirlo en vez de dejar que se contradigan en silencio.
+
+Ahora, si la fecha escrita no cuadra con el protocolo, la nota lo canta: «La
+fecha que has puesto son 4 años: comprueba que es la que quieres».
+
+La comparación se hace entre las dos frases, no entre los días. Un veterinario
+pone fechas redondas, y avisar de que «tres años y tres semanas» no son
+exactamente tres años sería ruido. Solo se avisa cuando el usuario lee un
+número distinto del que dice el protocolo.
+
+### 35. Faltaba el matiz de los tres componentes
+
+Decir «cada 3 años» a secas es correcto para un gato de interior y se queda
+corto para el resto. La WSAVA separa los componentes de la trivalente: la
+panleucopenia deja memoria larga y aguanta el trienio, pero la protección
+frente a herpesvirus y calicivirus es **solo parcial**, y para un gato que sale
+a la calle, vive con otros o pasa por residencias, la guía contempla repetir
+esa parte cada año.
+
+La app lo dice ahora, junto al intervalo, y remite al veterinario.
+
+---
+
+## Fuentes de esta pasada
+
+| Ámbito | Organismo | Fuente |
+|---|---|---|
+| Vacunación de perros y gatos, 2024 | WSAVA | https://wsava.org/wp-content/uploads/2024/05/2024-Guidelines-for-the-Vaccination-of-Dogs-and-Cats.pdf |

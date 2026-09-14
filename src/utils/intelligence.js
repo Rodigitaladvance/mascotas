@@ -49,7 +49,15 @@ const PROTOCOLS = {
   ],
   cat: [
     { label: 'Rabia',                   labelEn: 'Rabies',              days: ANUAL,   match: ['rabia', 'rabic', 'rabies'] },
-    { label: 'Trivalente',              labelEn: 'Three-way vaccine',   days: TRIENAL, match: ['trivalente', 'triple', 'panleucopenia', 'calicivirus', 'rinotraqueitis'] },
+    { label: 'Trivalente',              labelEn: 'Three-way vaccine',   days: TRIENAL, match: ['trivalente', 'triple', 'panleucopenia', 'calicivirus', 'rinotraqueitis'],
+      /* La WSAVA separa los tres componentes: la panleucopenia deja memoria
+         larga y aguanta el trienio, pero la protección frente a herpesvirus y
+         calicivirus es solo parcial. Para un gato que sale a la calle o vive
+         con otros, la guía contempla repetir esa parte cada año. Decir «cada
+         3 años» a secas es correcto para el gato de interior y se queda corto
+         para el resto. */
+      nota: 'Vale para un gato de interior. Si sale a la calle o vive con otros, la parte respiratoria puede tocar cada año: pregunta a tu veterinario.',
+      notaEn: 'That holds for an indoor cat. If yours goes outside or lives with others, the respiratory part may be due yearly: ask your vet.' },
     { label: 'Leucemia felina',         labelEn: 'Feline leukaemia',    days: ANUAL,   match: ['leucemia', 'leucosis', 'felv'], opcional: true },
     { label: 'Desparasitación interna', labelEn: 'Internal worming',    days: 90,      match: ['interna', 'lombric', 'deworm', 'endoparas'] },
     { label: 'Desparasitación externa', labelEn: 'External parasites',  days: 30,      match: ['externa', 'pulga', 'garrapata', 'flea', 'tick', 'ectoparas'] },
@@ -182,6 +190,8 @@ export const sugerirProximaDosis = (species, nombre, fecha) => {
   return {
     fecha: siguiente.toISOString().split('T')[0],
     etiqueta: encontrado.label,
+    nota: encontrado.nota,
+    notaEn: encontrado.notaEn,
     etiquetaEn: encontrado.labelEn,
     dias: encontrado.days,
   };
