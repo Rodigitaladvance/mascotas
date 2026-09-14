@@ -371,9 +371,13 @@ const CITES_EN = [
 ];
 
 /* ── Other/Special fields ── */
-const OtherFields = ({ data, onChange, locale }) => {
+const OtherFields = ({ data, onChange, locale, onFotoError }) => {
   const handlePhoto = (e) =>
-    readImageAsDataURL(e.target.files?.[0], (src) => onChange({ ...data, customPhoto: src }));
+    readImageAsDataURL(
+      e.target.files?.[0],
+      (src) => onChange({ ...data, customPhoto: src }),
+      onFotoError,
+    );
 
   return (
     <div>
@@ -472,7 +476,11 @@ const PetRegistration = ({ onSave, onCancel }) => {
   };
 
   const handleBasicPhoto = (e) =>
-    readImageAsDataURL(e.target.files?.[0], (src) => setBasicData(prev => ({ ...prev, customPhoto: src })));
+    readImageAsDataURL(
+      e.target.files?.[0],
+      (src) => { setBasicData(prev => ({ ...prev, customPhoto: src })); setFalta(''); },
+      (codigo) => setFalta(t(`errors.${codigo}`)),
+    );
   const [saved, setSaved] = useState(false);
   const [falta, setFalta] = useState('');
 
@@ -792,7 +800,7 @@ const PetRegistration = ({ onSave, onCancel }) => {
               {selectedSpecies?.id === 'horse'  && <HorseFields  data={specificData} onChange={setSpecificData} locale={locale} />}
               {selectedSpecies?.id === 'exotic' && <ExoticFields data={specificData} onChange={setSpecificData} locale={locale} />}
               {selectedSpecies?.id === 'rabbit' && <RabbitFields data={specificData} onChange={setSpecificData} locale={locale} />}
-              {selectedSpecies?.id === 'other'  && <OtherFields  data={specificData} onChange={setSpecificData} locale={locale} />}
+              {selectedSpecies?.id === 'other'  && <OtherFields  data={specificData} onChange={setSpecificData} locale={locale} onFotoError={(codigo) => setFalta(t(`errors.${codigo}`))} />}
               {(!selectedSpecies || ['dog','cat','ferret'].includes(selectedSpecies?.id)) && (
                 <p style={{ color:'var(--aura-text-muted)', textAlign:'center', padding:'2rem 0', fontSize:'0.85rem', lineHeight:1.6 }}>
                   {locale==='es'
@@ -809,8 +817,10 @@ const PetRegistration = ({ onSave, onCancel }) => {
       <div className="shield-banner" style={{ marginBottom:'1.5rem' }}>
         <div className="shield-icon"><Shield size={22} /></div>
         <div className="shield-text">
-          <h4>Escudo AURA: {locale==='es'?'Encriptación AES-256 Activa':'AES-256 Encryption Active'}</h4>
-          <p>{locale==='es'?'Tus datos están protegidos bajo HIPAA/GDPR':'Your data is protected under HIPAA/GDPR'}</p>
+          <h4>{locale==='es'?'Escudo AURA: cifrado AES-256 activo':'AURA Shield: AES-256 encryption active'}</h4>
+          <p>{locale==='es'
+            ? 'Todo se cifra en este dispositivo y cumple el RGPD. Nada viaja a ningún servidor.'
+            : 'Everything is encrypted on this device and complies with the GDPR. Nothing travels to any server.'}</p>
         </div>
       </div>
 

@@ -456,7 +456,13 @@ const PetEditModal = ({ pet, onSave, onDelete, onClose }) => {
 
   const setH = (field) => (e) => setHealth(prev => ({ ...prev, [field]: e.target.value }));
 
-  const handlePhoto = (e) => readImageAsDataURL(e.target.files?.[0], setPhoto);
+  /* Elegir una imagen demasiado grande no hacía nada: ni foto, ni aviso. */
+  const [fotoError, setFotoError] = useState('');
+  const handlePhoto = (e) => readImageAsDataURL(
+    e.target.files?.[0],
+    (src) => { setPhoto(src); setFotoError(''); },
+    (codigo) => setFotoError(t(`errors.${codigo}`)),
+  );
 
   const handleSave = () => {
     const updated = {
@@ -575,6 +581,11 @@ const PetEditModal = ({ pet, onSave, onDelete, onClose }) => {
                     </span>
                     <input type="file" accept="image/*" onChange={handlePhoto} style={{ display:'none' }} />
                   </label>
+                  {fotoError && (
+                    <p role="alert" style={{ margin:'0.6rem 0 0', fontSize:'0.72rem', lineHeight:1.5, color:'var(--danger)' }}>
+                      {fotoError}
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -590,7 +601,7 @@ const PetEditModal = ({ pet, onSave, onDelete, onClose }) => {
                     max={new Date().toISOString().slice(0,10)}
                     onChange={e => setBirthDate(e.target.value)} />
                 </Field>
-                <Field label={es?'Peso (kg)':'Weight (kg)'}>
+                <Field label={`${es ? 'Peso' : 'Weight'} (${units})`}>
                   <input type="number" step="0.1" className="aura-input" value={weight}
                     onChange={e => setWeight(e.target.value)} placeholder={units} />
                 </Field>

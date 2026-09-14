@@ -1,22 +1,12 @@
-// Preventive Intelligence Engine
-const VACCINE_INTERVALS = {
-  Perro: {
-    'Rabia': 365,
-    'Parvovirus': 365,
-    'Moquillo': 365,
-    'Hexavalente': 365,
-    'Leishmania': 365,
-    'Desparasitación Interna': 90,
-    'Desparasitación Externa': 30
-  },
-  Gato: {
-    'Trivalente': 365,
-    'Leucemia': 365,
-    'Rabia': 365,
-    'Desparasitación Interna': 90,
-    'Desparasitación Externa': 30
-  }
-};
+/* Motor de intervalos preventivos.
+
+   Aquí vivían también una tabla VACCINE_INTERVALS y un objeto `intelligence`
+   de una versión anterior. No los importaba nadie, pero eran peligrosos de
+   dejar: indexaban por 'Perro' y 'Gato' —la app usa 'dog' y 'cat'— y daban
+   intervalo anual a todas las vacunas, que es justo lo que se corrigió al
+   contrastar con las guías de la WSAVA. Quien los reactivara sin mirar
+   reintroduciría la revacunación de más. */
+
 
 /* ══════════════════════════════════════════════════════════════════════════
    Protocolo preventivo por especie
@@ -52,32 +42,32 @@ const TRIENAL = 1095;
 
 const PROTOCOLS = {
   dog: [
-    { label: 'Rabia',                   days: ANUAL,   match: ['rabia', 'rabic', 'rabies'] },
-    { label: 'Polivalente',             days: TRIENAL, match: ['polivalente', 'hexavalente', 'pentavalente', 'moquillo', 'parvo', 'distemper'] },
-    { label: 'Desparasitación interna', days: 90,      match: ['interna', 'lombric', 'deworm', 'endoparas'] },
-    { label: 'Desparasitación externa', days: 30,      match: ['externa', 'pulga', 'garrapata', 'flea', 'tick', 'ectoparas'] },
+    { label: 'Rabia',                   labelEn: 'Rabies',              days: ANUAL,   match: ['rabia', 'rabic', 'rabies'] },
+    { label: 'Polivalente',             labelEn: 'Combination vaccine', days: TRIENAL, match: ['polivalente', 'hexavalente', 'pentavalente', 'moquillo', 'parvo', 'distemper'] },
+    { label: 'Desparasitación interna', labelEn: 'Internal worming',    days: 90,      match: ['interna', 'lombric', 'deworm', 'endoparas'] },
+    { label: 'Desparasitación externa', labelEn: 'External parasites',  days: 30,      match: ['externa', 'pulga', 'garrapata', 'flea', 'tick', 'ectoparas'] },
   ],
   cat: [
-    { label: 'Rabia',                   days: ANUAL,   match: ['rabia', 'rabic', 'rabies'] },
-    { label: 'Trivalente',              days: TRIENAL, match: ['trivalente', 'triple', 'panleucopenia', 'calicivirus', 'rinotraqueitis'] },
-    { label: 'Leucemia felina',         days: ANUAL,   match: ['leucemia', 'leucosis', 'felv'], opcional: true },
-    { label: 'Desparasitación interna', days: 90,      match: ['interna', 'lombric', 'deworm', 'endoparas'] },
-    { label: 'Desparasitación externa', days: 30,      match: ['externa', 'pulga', 'garrapata', 'flea', 'tick', 'ectoparas'] },
+    { label: 'Rabia',                   labelEn: 'Rabies',              days: ANUAL,   match: ['rabia', 'rabic', 'rabies'] },
+    { label: 'Trivalente',              labelEn: 'Three-way vaccine',   days: TRIENAL, match: ['trivalente', 'triple', 'panleucopenia', 'calicivirus', 'rinotraqueitis'] },
+    { label: 'Leucemia felina',         labelEn: 'Feline leukaemia',    days: ANUAL,   match: ['leucemia', 'leucosis', 'felv'], opcional: true },
+    { label: 'Desparasitación interna', labelEn: 'Internal worming',    days: 90,      match: ['interna', 'lombric', 'deworm', 'endoparas'] },
+    { label: 'Desparasitación externa', labelEn: 'External parasites',  days: 30,      match: ['externa', 'pulga', 'garrapata', 'flea', 'tick', 'ectoparas'] },
   ],
   horse: [
-    { label: 'Tétanos',                 days: ANUAL,   match: ['tetano', 'tetanus'] },
-    { label: 'Gripe equina',            days: 182,     match: ['gripe', 'influenza', 'equina'] },
-    { label: 'Desparasitación',         days: 90,      match: ['desparasit', 'lombric', 'deworm'] },
+    { label: 'Tétanos',                 labelEn: 'Tetanus',             days: ANUAL,   match: ['tetano', 'tetanus'] },
+    { label: 'Gripe equina',            labelEn: 'Equine influenza',    days: 182,     match: ['gripe', 'influenza', 'equina'] },
+    { label: 'Desparasitación',         labelEn: 'Worming',             days: 90,      match: ['desparasit', 'lombric', 'deworm'] },
   ],
   ferret: [
-    { label: 'Rabia',                   days: ANUAL,   match: ['rabia', 'rabic', 'rabies'] },
-    { label: 'Moquillo',                days: ANUAL,   match: ['moquillo', 'distemper', 'polivalente'] },
-    { label: 'Desparasitación',         days: 90,      match: ['desparasit', 'lombric', 'deworm', 'pulga', 'flea'] },
+    { label: 'Rabia',                   labelEn: 'Rabies',              days: ANUAL,   match: ['rabia', 'rabic', 'rabies'] },
+    { label: 'Moquillo',                labelEn: 'Distemper',           days: ANUAL,   match: ['moquillo', 'distemper', 'polivalente'] },
+    { label: 'Desparasitación',         labelEn: 'Worming',             days: 90,      match: ['desparasit', 'lombric', 'deworm', 'pulga', 'flea'] },
   ],
   rabbit: [
-    { label: 'Mixomatosis',             days: ANUAL,   match: ['mixomatosis', 'myxomatosis'] },
-    { label: 'Enfermedad hemorrágica',  days: ANUAL,   match: ['hemorrag', 'rhd', 'vhd'] },
-    { label: 'Desparasitación',         days: 90,      match: ['desparasit', 'lombric', 'deworm'] },
+    { label: 'Mixomatosis',             labelEn: 'Myxomatosis',         days: ANUAL,   match: ['mixomatosis', 'myxomatosis'] },
+    { label: 'Enfermedad hemorrágica',  labelEn: 'Haemorrhagic disease',days: ANUAL,   match: ['hemorrag', 'rhd', 'vhd'] },
+    { label: 'Desparasitación',         labelEn: 'Worming',             days: 90,      match: ['desparasit', 'lombric', 'deworm'] },
   ],
   // Aves y "otra especie" no tienen calendario vacunal estándar: se omiten a
   // propósito en lugar de inventar uno.
@@ -123,12 +113,14 @@ export const assessProtection = (pet, history) => {
      del dueño, es que ese animal no las necesita. */
   let exigibles = 0;
 
-  const items = protocolo.map(({ label, days, match, opcional }) => {
+  /* Cada apartado viaja con sus dos nombres: el módulo no sabe en qué idioma
+     está la pantalla, y quien lo pinta sí. */
+  const items = protocolo.map(({ label, labelEn, days, match, opcional }) => {
     const propias = dosis.filter(d => match.some(m => d.nombre.includes(m)));
     if (propias.length === 0) {
-      if (opcional) return { label, estado: 'no-aplica', opcional: true };
+      if (opcional) return { label, labelEn, estado: 'no-aplica', opcional: true };
       exigibles += 1;
-      return { label, estado: 'ausente' };
+      return { label, labelEn, estado: 'ausente' };
     }
     exigibles += 1;
 
@@ -141,9 +133,9 @@ export const assessProtection = (pet, history) => {
       : new Date(ultima.fecha.getTime() + days * 86400000);
 
     const diasPasados = Math.floor((ahora - vence) / 86400000);
-    if (diasPasados < 0)            { puntos += 1;   return { label, estado: 'al-dia',    vence }; }
-    if (diasPasados <= GRACIA_DIAS) { puntos += 0.5; return { label, estado: 'por-vencer', vence }; }
-    return { label, estado: 'vencida', vence };
+    if (diasPasados < 0)            { puntos += 1;   return { label, labelEn, estado: 'al-dia',    vence }; }
+    if (diasPasados <= GRACIA_DIAS) { puntos += 0.5; return { label, labelEn, estado: 'por-vencer', vence }; }
+    return { label, labelEn, estado: 'vencida', vence };
   });
 
   /* Si todo lo del calendario era opcional y no hay nada registrado, no se
@@ -157,52 +149,6 @@ export const assessProtection = (pet, history) => {
   };
 };
 
-export const intelligence = {
-  // Suggest next date based on species and vaccine type
-  getNextDate: (species, type, lastDate) => {
-    const intervals = VACCINE_INTERVALS[species] || VACCINE_INTERVALS['Perro'];
-    const days = intervals[type] || 365;
-    const date = new Date(lastDate);
-    date.setDate(date.getDate() + days);
-    return date.toISOString().split('T')[0];
-  },
-
-  // Calculate protection level (0-100)
-  calculateProtection: (pet) => {
-    if (!pet.history || pet.history.length === 0) return 0;
-    
-    const now = new Date();
-    const speciesIntervals = VACCINE_INTERVALS[pet.species] || VACCINE_INTERVALS['Perro'];
-    
-    // We consider a core set of protections (Vax + Desp)
-    const coreTypes = Object.keys(speciesIntervals);
-    let totalScore = 0;
-    
-    coreTypes.forEach(type => {
-      const treatments = pet.history.filter(h => h.type === type || h.name?.includes(type));
-      if (treatments.length === 0) return;
-      
-      const last = new Date(Math.max(...treatments.map(t => new Date(t.date))));
-      const nextDue = new Date(last);
-      nextDue.setDate(nextDue.getDate() + (speciesIntervals[type] || 365));
-      
-      if (nextDue > now) {
-        totalScore += 1; // Active protection
-      } else {
-        const overdueDays = (now - nextDue) / (1000 * 60 * 60 * 24);
-        if (overdueDays < 30) totalScore += 0.5; // Grace period
-      }
-    });
-
-    return Math.round((totalScore / coreTypes.length) * 100);
-  },
-
-  getStatusEmoji: (score) => {
-    if (score > 80) return '🛡️';
-    if (score > 50) return '⚠️';
-    return '🚨';
-  }
-};
 
 /**
  * Fecha sugerida para la próxima dosis.
@@ -236,6 +182,7 @@ export const sugerirProximaDosis = (species, nombre, fecha) => {
   return {
     fecha: siguiente.toISOString().split('T')[0],
     etiqueta: encontrado.label,
+    etiquetaEn: encontrado.labelEn,
     dias: encontrado.days,
   };
 };

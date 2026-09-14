@@ -406,7 +406,7 @@ const Dashboard = ({ pets, activePetId, onActivePetChange, onAddPet, onSelectPet
                       flex: 1, textAlign: 'left', fontSize: '0.74rem',
                       color: 'var(--ink-body)', lineHeight: 1.3,
                     }}>
-                      {it.label}
+                      {es ? it.label : (it.labelEn || it.label)}
                       {it.vence && it.estado !== 'no-aplica' && (
                         <span style={{ display: 'block', fontSize: '0.63rem', color: 'var(--ink-muted)' }}>
                           {it.estado === 'vencida'

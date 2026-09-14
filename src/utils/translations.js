@@ -25,6 +25,17 @@ export const translations = {
       brandFooter: "EXPEDIENTE MÉDICO DIGITAL",
     },
 
+    errors: {
+      StorageQuotaError: "No queda espacio en este dispositivo para guardar el expediente. Borra alguna foto o alguna mascota antigua e inténtalo de nuevo.",
+      StorageWriteError: "No se ha podido guardar el expediente en este dispositivo.",
+      VaultLockedError: "La sesión se ha cerrado. Vuelve a entrar para seguir.",
+      imgNotImage: "Ese archivo no es una imagen.",
+      imgTooBig: "La imagen pesa demasiado. Elige una de menos de 25 MB.",
+      imgUnreadable: "No se ha podido leer el archivo.",
+      imgCorrupt: "El archivo no es una imagen válida, o está dañado.",
+      imgProcess: "No se ha podido procesar la imagen.",
+    },
+
     nav: {
       home: "INICIO",
       passport: "PASAPORTE",
@@ -314,6 +325,17 @@ export const translations = {
       noName: "Unnamed",
       encrypted: "ENCRYPTION ACTIVE",
       brandFooter: "DIGITAL MEDICAL RECORD",
+    },
+
+    errors: {
+      StorageQuotaError: "There is no space left on this device to save the record. Delete an old photo or pet and try again.",
+      StorageWriteError: "The record could not be saved on this device.",
+      VaultLockedError: "Your session has closed. Sign in again to carry on.",
+      imgNotImage: "That file is not an image.",
+      imgTooBig: "That image is too heavy. Choose one under 25 MB.",
+      imgUnreadable: "The file could not be read.",
+      imgCorrupt: "The file is not a valid image, or it is damaged.",
+      imgProcess: "The image could not be processed.",
     },
 
     nav: {

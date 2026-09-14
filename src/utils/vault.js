@@ -236,7 +236,9 @@ export const vault = {
   /** Escritura: actualiza el caché y devuelve la promesa del guardado cifrado. */
   setScopedData: (userId, key, data) => {
     if (activeUserId !== userId || !activeKey) {
-      return Promise.reject(new Error('La bóveda está cerrada. Vuelve a iniciar sesión.'));
+      const cerrada = new Error('La bóveda está cerrada. Vuelve a iniciar sesión.');
+      cerrada.name = 'VaultLockedError';
+      return Promise.reject(cerrada);
     }
     cache.set(key, data);
     return persist(userId, key, data);

@@ -74,6 +74,19 @@ for (const archivo of archivos) {
   for (const m of src.matchAll(PARECE_CLAVE)) {
     if (IDIOMAS.some(i => buscar(i, m[1]) !== undefined)) usadas.add(m[1]);
   }
+
+  /* Claves que se arman al vuelo: t(`errors.${codigo}`). El nombre exacto no
+     está escrito en ninguna parte, así que se da por usada toda la sección.
+     Es menos fino, pero el error contrario es peor: marcar como sobrante una
+     clave que sí hace falta lleva a borrarla y a dejar al usuario mirando un
+     identificador en mitad de un aviso. */
+  for (const m of src.matchAll(/\bt\(\s*`([a-z][\w]*(?:\.[\w]+)*)\.\$\{/g)) {
+    for (const idioma of IDIOMAS) {
+      for (const clave of aplanar(translations[idioma])) {
+        if (clave.startsWith(`${m[1]}.`)) usadas.add(clave);
+      }
+    }
+  }
 }
 for (const clave of pedidas.keys()) usadas.add(clave);
 

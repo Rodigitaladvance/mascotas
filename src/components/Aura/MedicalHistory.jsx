@@ -157,6 +157,14 @@ const MedicalHistory = ({ pet, onClose }) => {
 
   // ── Persistence ───────────────────────────────────────────────────────────
   /** Devuelve true si el historial quedó guardado y cifrado en disco. */
+  /* Mismo criterio que en App: el código manda, el mensaje original es el
+     último recurso. */
+  const textoError = (err) => {
+    const clave = `errors.${err?.name}`;
+    const texto = t(clave);
+    return texto === clave ? (err?.message || '') : texto;
+  };
+
   const persist = async (newData) => {
     if (!user) return false;
     // La pantalla solo se actualiza si el guardado cifrado ha ido bien: antes
@@ -164,7 +172,7 @@ const MedicalHistory = ({ pet, onClose }) => {
     try {
       await storage.saveHistory(user.id, pet.id, newData);
     } catch (err) {
-      setSaveError(t('history.saveFailed', { detalle: err.message }));
+      setSaveError(t('history.saveFailed', { detalle: textoError(err) }));
       return false;
     }
     setData(newData);
@@ -392,7 +400,7 @@ const MedicalHistory = ({ pet, onClose }) => {
               color: 'var(--aura-text-muted)',
             }}>
               {form.nextDoseSugerida ? '✨ ' : ''}
-              {sug.etiqueta}: {meses >= 12
+              {(locale === 'es' ? sug.etiqueta : (sug.etiquetaEn || sug.etiqueta))}: {meses >= 12
                 ? t('history.boosterYears',  { n: Math.round(meses / 12) })
                 : t('history.boosterMonths', { n: meses })}
               {form.nextDoseSugerida ? `. ${t('history.suggestedNote')}` : '.'}

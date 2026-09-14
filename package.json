@@ -9,6 +9,7 @@
     "lint": "eslint .",
     "i18n": "node scripts/comprobar-traducciones.mjs",
     "normativa": "node scripts/comprobar-normativa.mjs",
+    "castellano": "node scripts/buscar-castellano.mjs",
     "preview": "vite preview"
   },
   "dependencies": {

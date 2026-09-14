@@ -155,6 +155,15 @@ const AppContent = () => {
     setShowOnboarding(false);
   };
 
+  /* El error llega con un código estable en 'name'. Si el diccionario no lo
+     conoce —un fallo del navegador, por ejemplo—, se enseña su propio mensaje
+     antes que dejar al usuario sin explicación. */
+  const textoError = (err) => {
+    const clave = `errors.${err?.name}`;
+    const texto = t(clave);
+    return texto === clave ? (err?.message || t('auth.errGeneric')) : texto;
+  };
+
   const handleAddPet = async (newPet) => {
     const petWithMeta = {
       ...newPet,
@@ -167,7 +176,7 @@ const AppContent = () => {
     try {
       await storage.savePet(user.id, petWithMeta);
     } catch (err) {
-      setSaveError(err.message);
+      setSaveError(textoError(err));
       return;
     }
     setPets(prev => [...prev, petWithMeta]);
@@ -178,7 +187,7 @@ const AppContent = () => {
     try {
       await storage.updatePet(user.id, updatedPet.id, () => updatedPet);
     } catch (err) {
-      setSaveError(err.message);
+      setSaveError(textoError(err));
       return;
     }
     setPets(prev => prev.map(p => p.id === updatedPet.id ? updatedPet : p));
@@ -188,7 +197,7 @@ const AppContent = () => {
     try {
       await storage.deletePet(user.id, petId);
     } catch (err) {
-      setSaveError(err.message);
+      setSaveError(textoError(err));
       return;
     }
     setPets(prev => {

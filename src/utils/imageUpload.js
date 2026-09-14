@@ -48,17 +48,19 @@ const compressToDataURL = (source, width, height) => {
 export const readImageAsDataURL = async (file, onLoad, onError) => {
   if (!file) return;
 
-  const fail = (msg) => {
-    if (onError) onError(msg);
-    else console.error('[AURA] Imagen:', msg);
+  /* Se avisa con un código estable, no con una frase: quien lo enseña sabe en
+     qué idioma está la pantalla y este módulo no. */
+  const fail = (codigo) => {
+    if (onError) onError(codigo);
+    else console.error('[AURA] Imagen:', codigo);
   };
 
   if (!file.type?.startsWith('image/')) {
-    fail('El archivo seleccionado no es una imagen.');
+    fail('imgNotImage');
     return;
   }
   if (file.size > MAX_INPUT_BYTES) {
-    fail('La imagen es demasiado grande. Elige una de menos de 25 MB.');
+    fail('imgTooBig');
     return;
   }
 
@@ -78,15 +80,15 @@ export const readImageAsDataURL = async (file, onLoad, onError) => {
 
   // Alternativa para navegadores antiguos
   const reader = new FileReader();
-  reader.onerror = () => fail('No se ha podido leer el archivo.');
+  reader.onerror = () => fail('imgUnreadable');
   reader.onload = (ev) => {
     const img = new Image();
-    img.onerror = () => fail('El archivo no es una imagen válida o está dañado.');
+    img.onerror = () => fail('imgCorrupt');
     img.onload = () => {
       try {
         onLoad(compressToDataURL(img, img.naturalWidth, img.naturalHeight));
       } catch {
-        fail('No se ha podido procesar la imagen.');
+        fail('imgProcess');
       }
     };
     img.src = ev.target.result;
